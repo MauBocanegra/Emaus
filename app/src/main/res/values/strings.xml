@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Emaus</string>
+    <string name="login_field_usuario_hint">Usuario</string>
+    <string name="login_field_contra_hint">Contraseña</string>
+    <string name="login_button_login">Iniciar sesión</string>
+    <string name="login_error_usuario_vacio">El campo de usuario no puede ir vacío</string>
+    <string name="login_error_contra_vacia">El campo de contraseña no puede ir vacío</string>
+    <string name="login_error_login">"ERROR! Verifica que el Usuario y la Contraseña sean correctos"</string>
+</resources>
