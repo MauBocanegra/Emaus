@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="periferico.emaus.presentationlayer.activities.NuevoPlan"
+    android:fitsSystemWindows="true">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppThemeNoBar.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="?attr/actionBarTheme" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <ScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:animateLayoutChanges="true">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+                android:id="@+id/nuevoplan_spinner_tipoplan"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:entries="@array/nuevoplan_array_planes"
+                android:prompt="@string/nuevoplan_prompt_planes"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+                android:id="@+id/nuevoplan_spinner_ataud"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:entries="@array/nuevoplan_array_planbasico"
+                android:prompt="@string/nuevoplan_prompt_ataud"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_tipoplan" />
+
+            <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+                android:id="@+id/nuevoplan_spinner_servicio"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:entries="@array/nuevoplan_array_servicio"
+                android:prompt="@string/nuevoplan_prompt_servicio"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_ataud" />
+
+            <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+                android:id="@+id/nuevoplan_spinner_financiamiento"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:entries="@array/nuevoplan_array_financiamiento"
+                android:prompt="@string/nuevoplan_prompt_financiamiento"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_servicio" />
+
+            <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+                android:id="@+id/nuevoplan_spinner_pagos"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:entries="@array/nuevoplan_array_pago"
+                android:prompt="@string/nuevoplan_prompt_pago"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_financiamiento" />
+
+            <TextView
+                android:id="@+id/nuevocliente_label_montocontrato"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/nuevoplan_label_montocontrato"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_pagos" />
+
+            <TextView
+                android:id="@+id/nuevoplan_textview_monto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="38dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevocliente_label_montocontrato" />
+
+            <TextView
+                android:id="@+id/nuevocliente_label_titulo_pago"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/nuevoplan_label_titulopago"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_textview_monto" />
+
+            <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+                android:id="@+id/nuevoplan_spinner_formapago"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:entries="@array/nuevoplan_array_formapago"
+                android:prompt="@string/nuevoplan_prompt_formapago"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevocliente_label_titulo_pago" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/nuevoplan_inputlayou_anticipo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_formapago">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/nuevoplan_edittext_anticipo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/nuevoplan_hint_anticipo"
+                    android:inputType="number" />
+            </android.support.design.widget.TextInputLayout>
+
+            <Switch
+                android:id="@+id/nuevoplan_switch_facturacion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_inputlayou_anticipo"
+                tools:checked="false" />
+
+            <TextView
+                android:id="@+id/nuevoplan_label_facturacion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/nuevoplan_label_facturar"
+                app:layout_constraintBottom_toBottomOf="@+id/nuevoplan_switch_facturacion"
+                app:layout_constraintStart_toEndOf="@+id/nuevoplan_switch_facturacion"
+                app:layout_constraintTop_toTopOf="@+id/nuevoplan_switch_facturacion" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/nuevoplan_inputlayout_rfc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_switch_facturacion">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/nuevoplan_edittext_rfc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/nuevoplan_hint_rfc"
+                    android:inputType="textCapCharacters" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/nuevoplan_inputlayout_emailrfc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="23dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_inputlayout_rfc">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/nuevoplan_edittext_emailrfc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/nuevoplan_hint_email"
+                    android:inputType="textEmailAddress" />
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/nuevoplan_titulo_comprobantes"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_inputlayout_emailrfc" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/cardview_tarjetafrente"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintDimensionRatio="w,4:7"
+                app:layout_constraintEnd_toStartOf="@id/guideline3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView5" >
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/nuevoplan_img_frontal"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:adjustViewBounds="true"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="8dp"
+                        android:background="#DDFFFFFF"
+                        android:gravity="center"
+                        android:text="@string/nuevoplan_label_inefrontal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ProgressBar
+                        android:id="@+id/nuevocliente_progress_frontal"
+                        style="@android:style/Widget.Material.ProgressBar"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/cardview_tarjetareverso"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
+                app:layout_constraintDimensionRatio="w,4:7"
+                app:layout_constraintEnd_toStartOf="@id/guideline3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjetafrente" >
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/nuevoplan_img_reverso"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="8dp"
+                        android:background="#DDFFFFFF"
+                        android:gravity="center"
+                        android:text="@string/nuevoplan_label_inereverso"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ProgressBar
+                        android:id="@+id/nuevocliente_progress_reverso"
+                        style="@android:style/Widget.Material.ProgressBar"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/cardview_comprobante"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintBottom_toBottomOf="@+id/cardview_tarjetareverso"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/guideline3"
+                app:layout_constraintTop_toBottomOf="@+id/textView5">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/nuevoplan_img_comprobante"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/common_full_open_on_phone" />
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="8dp"
+                        android:background="#DDFFFFFF"
+                        android:gravity="center"
+                        android:text="@string/nuevoplan_label_comprobante"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ProgressBar
+                        android:id="@+id/nuevocliente_progress_comprobante"
+                        style="@android:style/Widget.Material.ProgressBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjetareverso" />
+
+            <Button
+                android:id="@+id/nuevoplan_button_nuevoplan"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginBottom="24dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/colorAccent"
+                android:text="@string/nuevoplan_button_crearplan"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjetareverso" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
+
+    <include layout="@layout/bottomsheet_layout" />
+
+</android.support.design.widget.CoordinatorLayout>

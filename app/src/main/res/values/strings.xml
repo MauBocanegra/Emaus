@@ -1,9 +1,221 @@
 <resources>
     <string name="app_name">Emaus</string>
+
+    <string name="FirebaseStorageBucket">gs://firebase-emaus.appspot.com</string>
+
+    <string name="frag_title_clientes">Clientes</string>
+    <string name="frag_title_catalogo">Catálogo</string>
+    <string name="frag_title_directorio">Directorio</string>
+
     <string name="login_field_usuario_hint">Usuario</string>
     <string name="login_field_contra_hint">Contraseña</string>
     <string name="login_button_login">Iniciar sesión</string>
     <string name="login_error_usuario_vacio">El campo de usuario no puede ir vacío</string>
     <string name="login_error_contra_vacia">El campo de contraseña no puede ir vacío</string>
-    <string name="login_error_login">"ERROR! Verifica que el Usuario y la Contraseña sean correctos"</string>
+    <string name="login_error_login">"Verifica tu Usuario ,contraseña y conexión a internet"</string>
+    <string name="login_success">Sesión iniciada correctamente!</string>
+
+    <string name="title_activity_menu">Emaus</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <string name="clientes_titulo_nohay">No has agregado clientes</string>
+
+    <string name="nuevocliente_title">Nuevo Cliente</string>
+    <string name="nuevocliente_hint_nombre">Nombres</string>
+    <string name="nuevocliente_hint_apellido">Apellidos</string>
+    <string name="nuevocliente_genero_masculino">Masculino</string>
+    <string name="nuevocliente_genero_femenino">Femenino</string>
+    <string name="nuevocliente_hint_fecha">Fecha de nacimiento</string>
+    <string-array name="array_meses">
+        <item>Enero</item>
+        <item>Febrero</item>
+        <item>Marzo</item>
+        <item>Abril</item>
+        <item>Mayo</item>
+        <item>Junio</item>
+        <item>Julio</item>
+        <item>Agosto</item>
+        <item>Septiembre</item>
+        <item>Octubre</item>
+        <item>Noviembre</item>
+        <item>Diciembre</item>
+    </string-array>
+    <string name="nuevocliente_formatted_fecha">%1$d / %2$s / %3$d</string>
+    <string name="nuevocliente_prompt_estadocivil">Estado civil</string>
+    <string-array name="array_estadoCivil">
+        <item>Soltero</item>
+        <item>Casado</item>
+        <item>Viudo</item>
+        <item>Divorciado</item>
+        <item>Unión Libre</item>
+        <item>Comprometido</item>
+    </string-array>
+    <string-array name="array_genero">
+        <item>Masculino</item>
+        <item>Femenino</item>
+    </string-array>
+    <string name="nuevocliente_hint_ocupacion">Ocupación</string>
+    <string name="nuevocliente_button_nuevocliente">Añadir Nuevo Cliente</string>
+    <string-array name="array_status">
+        <item>Prospecto</item>
+        <item>En Verificación</item>
+        <item>Activo</item>
+    </string-array>
+    <string name="nuevocliente_error_nombre">Debes ingresar un nombre</string>
+    <string name="nuevocliente_hint_telefono">Teléfono</string>
+    <string name="nuevocliente_prompt_telefonos">Tipo</string>
+    <string-array name="array_telefonos">
+        <item>Celular</item>
+        <item>Casa</item>
+        <item>Oficina</item>
+        <item>Otro</item>
+    </string-array>
+    <string name="nuevocliente_error_apellido">Debes ingresar los apellidos</string>
+    <string name="nuevocliente_error_genero">Elige el género del cliente</string>
+    <string name="nuevocliente_error_fechanac">Ingresa la fecha de nacimiento</string>
+    <string name="nuevocliente_error_estadocivil">Selecciona el estado civil del cliente</string>
+    <string name="nuevocliente_error_ocupacion">Escribe la ocupación del cliente</string>
+
+    <string name="nuevocliente_title_nuevoTelefono">Teléfonos</string>
+    <string name="nuevocliente_title_direccion">Dirección</string>
+    <string name="nuevocliente_title_agregarTelefono">Agregar teléfono</string>
+    <string name="nuevocliente_title_agregarDireccion">Agregar dirección</string>
+    <string name="nuevocliente_hint_correo">E-mail</string>
+    <string name="nuevocliente_prompt_religion">Religión</string>
+    <string-array name="array_religiones">
+        <item>Católica</item>
+        <item>Cristiana</item>
+        <item>Testigo de Jehová</item>
+        <item>Judía</item>
+        <item>Ateo</item>
+    </string-array>
+    <string name="nuevocliente_prompt_notas">Notas</string>
+    <string name="nuevocliente_error_telefonovacio">Ingresa un teléfono válido</string>
+    <string name="nuevocliente_error_telefonotipovacio">Elige el tipo</string>
+
+
+    <string name="title_activity_main_tabs">MainTabs</string>
+    <string name="tab_text_A">INFO</string>
+    <string name="tab_text_B">PLANES</string>
+    <string name="tab_text_1">Clientes</string>
+    <string name="tab_text_2">Catálogo</string>
+    <string name="tab_text_3">Directorio</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_detalle_cliente">Cliente</string>
+
+    <string name="detallecliente_button_anadirplan">AÑADIR PLAN</string>
+    <string name="detallecliente_label_fecharegistro">Fecha de Registro</string>
+    <string name="detallecliente_label_vendedor">Vendedor</string>
+    <string name="detallecliente_label_notas">Notas</string>
+    <string name="detallecliente_label_ocupacion">Ocupación</string>
+    <string name="detallecliente_label_estadocivil">Estado civil</string>
+    <string name="detallecliente_label_fecnac">Fecha de nacimiento</string>
+    <string name="detallecliente_label_genero">Género</string>
+    <string name="detallecliente_label_religion">Religión</string>
+    <string name="detallecliente_label_email">E-mail</string>
+    <string name="detallecliente_label_telefono">Teléfonos</string>
+    <string name="detallecliente_label_direccion">Direcciones</string>
+
+    <string name="detallecliente_format_letras">%s%s</string>
+    <string name="detallecliente_format_nomap">%s %s</string>
+    <string name="title_activity_catalog">Catalog</string>
+    <string name="title_activity_nuevo_plan">NuevoPlan</string>
+    <string name="planes_frag_prompt_nohay">No existen planes para este cliente</string>
+
+    <string name="nuevoplan_prompt_planes">Tipo de plan</string>
+    <string-array name="nuevoplan_array_planes">
+        <item>Básico</item>
+        <item>Lujo</item>
+        <item>Madera</item>
+    </string-array>
+
+    <string name="nuevoplan_prompt_ataud">Modelo de ataúd</string>
+    <string-array name="nuevoplan_array_planbasico">
+        <item>Egipcio</item>
+        <item>Faraón</item>
+        <item>Estándar</item>
+    </string-array>
+    <string-array name="nuevoplan_array_planLujo">
+        <item>Lujo Estándar</item>
+        <item>Lujo Premium</item>
+    </string-array>
+    <string-array name="nuevoplan_array_planmadera">
+        <item>Esmeralda</item>
+        <item>Madera de lujo</item>
+    </string-array>
+
+    <string name="nuevoplan_prompt_servicio">Servicio</string>
+    <string-array name="nuevoplan_array_servicio">
+        <item>Domicilio</item>
+        <item>Capilla</item>
+    </string-array>
+
+    <string name="nuevoplan_prompt_financiamiento">Financiamiento</string>
+    <string-array name="nuevoplan_array_financiamiento">
+        <item>Contado</item>
+        <item>12 Meses</item>
+        <item>24 Meses</item>
+        <item>36 Meses</item>
+    </string-array>
+
+    <string name="nuevoplan_prompt_pago">Pagos</string>
+    <string-array name="nuevoplan_array_pago">
+        <item>Pago único</item>
+        <item>Quincenales</item>
+        <item>Mensuales</item>
+        <item>Semestrales</item>
+    </string-array>
+
+    <string name="nuevoplan_label_montocontrato">Monto contrato</string>
+    <string name="nuevoplan_label_titulopago">PAGO</string>
+
+    <string name="nuevoplan_prompt_formapago">Forma de pago</string>
+    <string-array name="nuevoplan_array_formapago">
+        <item>Cobranza Emaús</item>
+        <item>Mercado Zaragoza</item>
+        <item>Oxxo</item>
+        <item>Ley</item>
+    </string-array>
+    <string name="nuevoplan_hint_anticipo">Anticipo</string>
+    <string name="nuevoplan_label_facturar">Facturar</string>
+
+    <string name="nuevoplan_hint_rfc">RFC</string>
+    <string name="nuevoplan_hint_email">E-mail</string>
+
+    <string name="nuevoplan_titulo_comprobantes">COMPROBANTES</string>
+
+    <string name="nuevoplan_label_inefrontal">INE FRONTAL</string>
+    <string name="nuevoplan_label_inereverso">INE REVERSO</string>
+    <string name="nuevoplan_label_comprobante">COMPROBANTE DOMICILIO</string>
+
+    <string name="nuevoplan_label_titulocamera">Cámara</string>
+    <string name="nuevoplan_label_titulogaleria">Galería</string>
+    <string name="nuevoplan_label_tituloimagencon">Cargar imagen mediante:</string>
+    <string name="nuevoplan_formatted_monto">$%1$s.00</string>
+
+    <string name="nuevoplan_button_crearplan">AÑADIR PLAN</string>
+
+    <string name="itemplan_label_contrato_dp">Plan:</string>
+    <string name="itemplan_label_contrato">Plan</string>
+    <string name="itemplan_label_precio">Total:</string>
+    <string name="itemplan_label_ataud">Ataúd:</string>
+    <string name="itemplan_label_service">Servicio</string>
+    <string name="itemplan_label_financiamiento">Finan.</string>
+    <string name="itemplan_label_pagos">Frecuencia</string>
+    <string name="itemplan_label_formapago">Forma</string>
+
+    <string name="itemdir_label_fachada">Fachada</string>
+    <string name="itemdir_hint_calle">Calle y número</string>
+    <string name="itemdir_hint_interior">Int.</string>
+    <string name="itemdir_hint_cp">CP</string>
+    <string name="itemdir_hint_colonia">Colonia</string>
+
+    <string name="prompt_buscar">Buscar</string>
+
 </resources>

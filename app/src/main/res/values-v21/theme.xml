@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.ButtonMaterial" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/colorAccent</item>
+        <item name="background">?attr/selectableItemBackground</item>
+    </style>
+</resources>

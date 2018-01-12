@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="basicoEgipcioContado">
+        <item name="basicoEgipcioContadoDomicilio">6421</item>
+        <item name="basicoEgipcioContadoCapilla">9790</item>
+    </integer-array>
+    <integer-array name="basicoEgipcioFinanciado">
+        <item name="basicoEgipcioFinanciadoDomicilio">6421</item>
+        <item name="basicoEgipcioFinanciadoCapilla">9790</item>
+    </integer-array>
+    <integer-array name="basicoFaraonContado">
+        <item name="basicoFaraonContadoDomicilio">7800</item>
+        <item name="basicoFaraonContadoCapilla">11064</item>
+    </integer-array>
+    <integer-array name="basicoFaraonFinanciado">
+        <item name="basicoFaraonFinanciadoDomicilio">10921</item>
+        <item name="basicoFaraonFinanciadoCapilla">15536</item>
+    </integer-array>
+    <integer-array name="basicoEstandarContado">
+        <item name="basicoEstandarContadoDomicilio">12035</item>
+        <item name="basicoEstandarContadoCapilla">15642</item>
+    </integer-array>
+    <integer-array name="basicoEstandarFinanciado">
+        <item name="basicoEstandarFinanciadoDomicilio">16864</item>
+        <item name="basicoEstandarFinanciadoCapilla">21905</item>
+    </integer-array>
+    <integer-array name="lujoEstandarContado">
+        <item name="lujoEstandarContadoDomicilio">15250</item>
+        <item name="lujoEstandarContadoCapilla">18900</item>
+    </integer-array>
+    <integer-array name="lujoEstandarFinanciado">
+        <item name="lujoEstandarFinanciadoDomicilio">21387</item>
+        <item name="lujoEstandarFinanciadoCapilla">26499</item>
+    </integer-array>
+    <integer-array name="lujoPremiumContado">
+        <item name="lujoPremiumContadoDomicilio">16214</item>
+        <item name="lujoPremiumContadoCapilla">23035</item>
+    </integer-array>
+    <integer-array name="lujoPremiumFinanciado">
+        <item name="lujoPremiumFinanciadoDomicilio">25534</item>
+        <item name="lujoPremiumFinanciadoCapilla">32279</item>
+    </integer-array>
+    <integer-array name="maderaEsmeraldaContado">
+        <item name="maderaEsmeraldaContadoDomicilio">21380</item>
+        <item name="maderaEsmeraldaContadoCapilla">24642</item>
+    </integer-array>
+    <integer-array name="maderaEsmeraldaFinanciado">
+        <item name="maderaEsmeraldaFinanciadoDomicilio">30036</item>
+        <item name="maderaEsmeraldaFinanciadoCapilla">34509</item>
+    </integer-array>
+    <integer-array name="maderaLujoContado">
+        <item name="maderaLujoContadoDomicilio">27950</item>
+        <item name="maderaLujoContadoCapilla">33214</item>
+    </integer-array>
+    <integer-array name="maderaLujoFinanciado">
+        <item name="maderaLujoFinanciadoDomicilio">39153</item>
+        <item name="maderaLujoFinanciadoCapilla">46537</item>
+    </integer-array>
+
+    <array name="basicoEgipcio">
+        <item>@array/basicoEgipcioContado</item>
+        <item>@array/basicoEgipcioFinanciado</item>
+    </array>
+    <array name="basicoFaraon">
+        <item>@array/basicoFaraonContado</item>
+        <item>@array/basicoFaraonFinanciado</item>
+    </array>
+    <array name="basicoEstandar">
+        <item>@array/basicoEstandarContado</item>
+        <item>@array/basicoEstandarFinanciado</item>
+    </array>
+    <array name="lujoEstandar">
+        <item>@array/lujoEstandarContado</item>
+        <item>@array/lujoEstandarFinanciado</item>
+    </array>
+    <array name="lujoPremium">
+        <item>@array/lujoPremiumContado</item>
+        <item>@array/lujoPremiumFinanciado</item>
+    </array>
+    <array name="maderaEsmeralda">
+        <item>@array/maderaEsmeraldaContado</item>
+        <item>@array/maderaEsmeraldaFinanciado</item>
+    </array>
+    <array name="maderaLujo">
+        <item>@array/maderaLujoContado</item>
+        <item>@array/maderaLujoFinanciado</item>
+    </array>
+
+
+    <array name="basico">
+        <item>@array/basicoEgipcio</item>
+        <item>@array/basicoFaraon</item>
+        <item>@array/basicoEstandar</item>
+    </array>
+    <array name="lujo">
+        <item>@array/lujoEstandar</item>
+        <item>@array/lujoPremium</item>
+    </array>
+    <array name="madera">
+        <item>@array/maderaEsmeralda</item>
+        <item>@array/maderaLujo</item>
+    </array>
+
+    <array name="montos">
+        <item>@array/basico</item>
+        <item>@array/lujo</item>
+        <item>@array/madera</item>
+    </array>
+</resources>

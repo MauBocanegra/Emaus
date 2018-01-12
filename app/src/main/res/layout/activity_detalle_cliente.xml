@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="periferico.emaus.presentationlayer.activities.DetalleCliente">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:fitsSystemWindows="true"
+            app:contentScrim="@color/colorAccent"
+            app:expandedTitleGravity="center"
+            app:expandedTitleTextAppearance="@color/textColorPrimary"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/toolbarConstraint"
+                android:layout_width="match_parent"
+                android:layout_height="200dp">
+
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/guideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.5" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/detallecliente_textview_letras"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp"
+                    android:maxLines="1"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="36sp"
+                    app:autoSizeMinTextSize="5sp"
+                    app:autoSizeTextType="uniform"
+                    app:layout_constraintEnd_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/guideline"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/detallecliente_textview_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="24dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textColor="@color/textColorSecondary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="@+id/detallecliente_textview_letras"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/detallecliente_textview_letras"
+                    app:layout_constraintTop_toTopOf="@+id/detallecliente_textview_letras"
+                    app:srcCompat="@drawable/ic_phone" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:title="@string/title_activity_detalle_cliente"/>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/tabItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_text_A" />
+
+            <android.support.design.widget.TabItem
+                android:id="@+id/tabItem2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_text_B" />
+
+
+        </android.support.design.widget.TabLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <!--
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    -->
+
+        <!--
+        <include layout="@layout/page_cliente_info" />
+        -->
+
+            <periferico.emaus.domainlayer.custom_classes.NonSwipeableViewPager
+                android:id="@+id/containerPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+    <!--
+    </android.support.v4.widget.NestedScrollView>
+    -->
+
+
+    <!--
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@android:drawable/ic_dialog_email" />
+    -->
+
+</android.support.design.widget.CoordinatorLayout>

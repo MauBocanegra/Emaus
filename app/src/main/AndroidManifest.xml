@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="periferico.emaus">
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 
     <application
         android:allowBackup="true"
@@ -9,6 +13,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppThemeNoBar">
+
+        <provider
+            android:name=".domainlayer.objetos.GenericFileProvider"
+            android:authorities="${applicationId}.periferico.emaus.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
         <activity android:name=".presentationlayer.activities.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,7 +31,34 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".presentationlayer.activities.Login"></activity>
+        <activity android:name=".presentationlayer.activities.Login" >
+            <meta-data
+                android:name="com.google.android.gms.version"
+                android:value="@integer/google_play_services_version" />
+        </activity>
+        <activity
+            android:name=".presentationlayer.activities.Menu"
+            android:label="@string/title_activity_menu" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".presentationlayer.activities.NuevoCliente"
+            android:label="@string/nuevocliente_title"
+            android:parentActivityName=".presentationlayer.activities.Menu" />
+        <activity
+            android:name=".presentationlayer.activities.MainTabs"
+            android:label="@string/title_activity_main_tabs"
+            android:theme="@style/AppThemeNoBar" />
+        <activity
+            android:name=".presentationlayer.activities.DetalleCliente"
+            android:label="@string/title_activity_detalle_cliente"
+            android:theme="@style/AppThemeNoBar" />
+        <activity
+            android:name=".presentationlayer.activities.NuevoPlan"
+            android:label="@string/title_activity_nuevo_plan"
+            android:theme="@style/AppThemeNoBar"/>
     </application>
 
 </manifest>

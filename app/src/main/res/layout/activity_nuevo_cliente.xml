@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/coordinatorLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+<ScrollView
+    android:id="@+id/scrollviewNuevoCliente"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        tools:context="periferico.emaus.presentationlayer.activities.NuevoCliente">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputNombre"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="14dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/editTextName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZáéíóúÁÉÍÓÚ "
+                android:hint="@string/nuevocliente_hint_nombre"
+                android:inputType="textCapWords"
+                android:lines="1" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputApellidos"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputNombre">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/editTextApellidos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZáéíóúÁÉÍÓÚ "
+                android:hint="@string/nuevocliente_hint_apellido"
+                android:inputType="textCapWords"
+                android:lines="1" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinnerReligion">
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioMasculino"
+                android:layout_width="180dp"
+                android:layout_height="28dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/nuevocliente_genero_masculino"
+                app:layout_constraintEnd_toStartOf="@+id/radioFemenino"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textInputApellidos" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioFemenino"
+                android:layout_width="180dp"
+                android:layout_height="31dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/nuevocliente_genero_femenino"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/radioMasculino"
+                app:layout_constraintTop_toBottomOf="@+id/textInputApellidos" />
+        </RadioGroup>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/inputLayoutFechaNac"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintEnd_toStartOf="@+id/buttonFechNac"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/editTextFechNac"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:hint="@string/nuevocliente_hint_fecha" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/buttonFechNac"
+            android:layout_width="48dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:background="@null"
+            app:layout_constraintBottom_toBottomOf="@+id/inputLayoutFechaNac"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/inputLayoutFechaNac"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/ic_drop_down" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/inputLayoutFechaNac">
+
+            <periferico.emaus.domainlayer.custom_classes.DatePickerOwn
+                android:id="@+id/datePicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:calendarViewShown="false"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </android.support.v7.widget.CardView>
+
+        <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+            android:id="@+id/spinnerEstadoCivil"
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="12dp"
+            android:alwaysDrawnWithCache="false"
+            android:entries="@array/array_estadoCivil"
+            android:prompt="@string/nuevocliente_prompt_estadocivil"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardView" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputOcupacion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spinnerEstadoCivil">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/editTextOcupacion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZáéíóúÁÉÍÓÚ "
+                android:hint="@string/nuevocliente_hint_ocupacion" />
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/buttonCrearCliente"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/nuevocliente_button_nuevocliente"
+            android:theme="@style/AppTheme.ButtonMaterial"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutNotas" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewTelefonos"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:visibility="visible"
+            tools:itemCount="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textviewAgregarTelefono"
+            tools:listitem="@layout/item_telefono_contacto" />
+
+        <TextView
+            android:id="@+id/textviewAgregarTelefono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:text="@string/nuevocliente_title_nuevoTelefono"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputApellidos" />
+
+        <TextView
+            android:id="@+id/textViewButtonAgregarTelefono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/nuevocliente_title_agregarTelefono"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recyclerViewTelefonos" />
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:background="#00000000"
+            android:id="@+id/buttonAgregarTelefono"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="16dp"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="4dp"
+            android:tint="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="@+id/textViewButtonAgregarTelefono"
+            app:layout_constraintStart_toEndOf="@+id/textViewButtonAgregarTelefono"
+            app:layout_constraintTop_toTopOf="@+id/textViewButtonAgregarTelefono"
+            app:srcCompat="@drawable/ic_add_outline" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputLayoutEmail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewButtonAgregarDireccion">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/nuevocliente_hint_correo"
+                android:inputType="textEmailAddress" />
+        </android.support.design.widget.TextInputLayout>
+
+        <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+            android:id="@+id/spinnerReligion"
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:entries="@array/array_religiones"
+            android:prompt="@string/nuevocliente_prompt_religion"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutEmail" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textInputLayoutNotas"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputOcupacion">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/editTextNotas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/nuevocliente_prompt_notas"
+                android:maxLines="5" />
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:id="@+id/labelTituloDireccion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/nuevocliente_title_direccion"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewButtonAgregarTelefono" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewDirecciones"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/labelTituloDireccion"
+            tools:itemCount="1"
+            tools:listitem="@layout/item_direccion" />
+
+        <TextView
+            android:id="@+id/textViewButtonAgregarDireccion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/nuevocliente_title_agregarDireccion"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recyclerViewDirecciones" />
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:background="#00000000"
+            android:id="@+id/buttonAgregarDireccion"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="16dp"
+            android:paddingHorizontal="4dp"
+            android:paddingVertical="4dp"
+            android:tint="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="@+id/textViewButtonAgregarDireccion"
+            app:layout_constraintStart_toEndOf="@+id/textViewButtonAgregarDireccion"
+            app:layout_constraintTop_toTopOf="@+id/textViewButtonAgregarDireccion"
+            app:srcCompat="@drawable/ic_add_outline" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</ScrollView>
+    <include layout="@layout/bottomsheet_layout" />
+</android.support.design.widget.CoordinatorLayout>

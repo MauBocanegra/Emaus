@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_dir_lista_fullItemDirecs"
+    android:layout_width="match_parent"
+    android:layout_height="90dp">
+
+    <ImageView
+        android:id="@+id/item_dir_lista_img"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="7:4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/item_dir_lista_textview_direccion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/item_dir_lista_img"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#AFFF"
+        android:gravity="center_horizontal"
+        android:text="@string/itemdir_label_fachada"
+        app:layout_constraintBottom_toBottomOf="@+id/item_dir_lista_img"
+        app:layout_constraintEnd_toEndOf="@+id/item_dir_lista_img"
+        app:layout_constraintStart_toStartOf="@+id/item_dir_lista_img"
+        app:layout_constraintTop_toTopOf="@id/item_dir_lista_img" />
+</android.support.constraint.ConstraintLayout>

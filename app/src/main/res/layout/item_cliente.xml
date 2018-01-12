@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/item_cliente_fullcard"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardElevation="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <View
+                android:id="@+id/item_cliente_viewColorStatus"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/darker_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="h,1:1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/item_cliente_textviewNombre"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:gravity="center_vertical"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/item_cliente_textviewStatus"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/item_cliente_viewColorStatus"
+                app:layout_constraintTop_toTopOf="@+id/item_cliente_viewColorStatus"
+                app:layout_constraintVertical_chainStyle="spread" />
+
+            <TextView
+                android:id="@+id/item_cliente_textviewStatus"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="5dp"
+                android:gravity="center_vertical"
+                android:textAppearance="?android:textAppearanceSmall"
+                app:layout_constraintBottom_toBottomOf="@+id/item_cliente_viewColorStatus"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/item_cliente_iconoverif"
+                app:layout_constraintTop_toBottomOf="@+id/item_cliente_textviewNombre" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/item_cliente_letra"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:maxLines="1"
+                app:autoSizeMinTextSize="5sp"
+                app:autoSizeTextType="uniform"
+                android:textAppearance="?android:textAppearanceMedium"
+                app:layout_constraintBottom_toBottomOf="@+id/item_cliente_viewColorStatus"
+                app:layout_constraintEnd_toEndOf="@+id/item_cliente_viewColorStatus"
+                app:layout_constraintStart_toStartOf="@+id/item_cliente_viewColorStatus"
+                app:layout_constraintTop_toTopOf="@+id/item_cliente_viewColorStatus" />
+
+            <ImageView
+                android:id="@+id/item_cliente_iconoverif"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:tint="@color/colorPrimaryDark"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/item_cliente_textviewStatus"
+                app:layout_constraintDimensionRatio="h,1:1"
+                app:layout_constraintStart_toStartOf="@+id/item_cliente_textviewNombre"
+                app:layout_constraintTop_toTopOf="@+id/item_cliente_textviewStatus"
+                app:srcCompat="@drawable/ic_check_circle" />
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.CardView>
+</android.support.constraint.ConstraintLayout>
