@@ -209,7 +209,7 @@
             android:id="@+id/buttonCrearCliente"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="33dp"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
@@ -228,10 +228,10 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:visibility="visible"
-            tools:itemCount="1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textviewAgregarTelefono"
+            tools:itemCount="1"
             tools:listitem="@layout/item_telefono_contacto" />
 
         <TextView
@@ -375,4 +375,12 @@
 
 </ScrollView>
     <include layout="@layout/bottomsheet_layout" />
+
+    <TextView
+        android:id="@+id/nuevocliente_banner_offline"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:text="Sin Conexión"
+        android:textStyle="bold" />
 </android.support.design.widget.CoordinatorLayout>

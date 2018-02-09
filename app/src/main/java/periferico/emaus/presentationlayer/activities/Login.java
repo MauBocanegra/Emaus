@@ -162,9 +162,15 @@ public class Login extends AppCompatActivity implements
                 @Override
                 public void run() {
                     //Iniciar actividad de Menu
+
+                    Intent intent = new Intent(Login.this, Splash.class);
+                    startActivity(intent);
+                    finish();
+                    /*
                     Intent intent = new Intent(Login.this, MainTabs.class);
                     startActivity(intent);
                     finish();
+                    */
                 }
             }, 1000);
         }

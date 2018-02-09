@@ -1,6 +1,5 @@
 package periferico.emaus.presentationlayer.activities;
 
-import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -9,11 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -23,9 +19,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -33,11 +27,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import periferico.emaus.R;
+import periferico.emaus.domainlayer.WS;
+import periferico.emaus.domainlayer.utils.AppCompatActivity_Job;
 import periferico.emaus.presentationlayer.fragments.CatalogFrag;
 import periferico.emaus.presentationlayer.fragments.ClientesFrag;
 import periferico.emaus.presentationlayer.fragments.DirectorioFrag;
 
-public class MainTabs extends AppCompatActivity {
+public class MainTabs extends AppCompatActivity_Job implements WS.OnNetworkListener{
+
+    private final String TAG = "MainTabs";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -59,10 +57,18 @@ public class MainTabs extends AppCompatActivity {
     private static final int CATALOGO = 1;
     private static final int DIRECTORIO = 2;
     boolean doubleBackToExitPressedOnce = false;
+    private TextView bannerNetworkListener;
 
     ClientesFrag clientesFrag;
     CatalogFrag catalogFrag;
     DirectorioFrag directorioFrag;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "MainTabs ONSTART-----");
+        WS.setNetworkListener(MainTabs.this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +77,10 @@ public class MainTabs extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        WS.setNetworkListener(MainTabs.this);
+        bannerNetworkListener = findViewById(R.id.maintabs_banner_sinconexion);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -250,5 +260,27 @@ public class MainTabs extends AppCompatActivity {
             String query = intent.getStringExtra(SearchManager.QUERY);
             //use the query to search your data somehow
         }
+    }
+
+    @Override
+    public void fromOffToOn() {
+        //Log.d(TAG,"from "+TAG+" off -> ON");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                bannerNetworkListener.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    @Override
+    public void fromOnToOff() {
+        //Log.d(TAG,"from "+TAG+" on -> OFF");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                bannerNetworkListener.setVisibility(View.GONE);
+            }
+        });
     }
 }

@@ -32,10 +32,11 @@ import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
+import periferico.emaus.domainlayer.utils.AppCompatActivity_Job;
 import periferico.emaus.presentationlayer.fragments.InfoClienteFrag;
 import periferico.emaus.presentationlayer.fragments.PlanesFrag;
 
-public class DetalleCliente extends AppCompatActivity {
+public class DetalleCliente extends AppCompatActivity_Job {
 
     private static final String TAG = "DetalleClienteDebug";
 

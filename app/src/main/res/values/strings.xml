@@ -218,4 +218,11 @@
 
     <string name="prompt_buscar">Buscar</string>
 
+    <string name="alerts_sinconexion_titulo">Estado SIN CONEXIÓN</string>
+    <string name="alerts_sinconexion_mensaje">En estos momentos estas trabajando sin conexión, recuerda que algunos datos pueden cambiar mientras trabajas sin conexión de datos</string>
+    <string name="alerts_sinconexion_sinlogin_titulo">NECESITAS UNA CONEXIÓN DE DATOS</string>
+    <string name="alerts_sinconexion_sinlogin_mensaje">Para usar la aplicación en modo "Sin conexión" Debes iniciar sesión previamente mientras estás conectado a una red WiFi o a una conexión de Datos móviles</string>
+
+    <string name="toast_noimagenes_sinconexion">No puedes subir imágenes en modo Sin conexión</string>
+
 </resources>

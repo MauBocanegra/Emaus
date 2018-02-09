@@ -1,6 +1,7 @@
 package periferico.emaus.presentationlayer.activities;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,9 +46,15 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
+    private static final int LogIN_ONLINE = 0;
+    private static final int LogIN_OFFLINE = 1;
+    private static final int LogOUT_ONLINE = 2;
+    private static final int LogOUT_OFFLINE = 3;
+
     Uri succesUri;
 
     private static final int MY_PERMISSIONS_REQUEST_STORAGE = 12345;
+    private static final String TAG="SplashDebug";
 
     private boolean loggedInBOOL;
 
@@ -58,6 +66,8 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+
 
 
         //Seteamos el objeto listener del Firebase Login
@@ -129,6 +139,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
         WS.readVersionesAPKFirebase(Splash.this);
     }
 
+    /*
     private void downloadAPK(){
                 try{
                     File file = new File(Environment.getExternalStorageDirectory(), "EMAUS.apk");
@@ -185,6 +196,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                     startActivity(install);
                 }catch(Exception e){e.printStackTrace();}
     }
+    */
 
     // --------------------------------------------------- //
     // ---------------- WS IMPLEMENTATION ---------------- //
@@ -192,39 +204,143 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
 
 
     @Override
-    public void loginAnswered(boolean success, Exception e) {
+    public void loginAnswered(final boolean success, Exception e) {
         FirebaseCrash.log("LoginWSAnswered");
+
         loggedInBOOL=success;
-        if(success){
-            askForVersion();
+        boolean hasInternet = WS.hasInternet(Splash.this);
+
+        //SI EL LOGGEO ES EXITOSO
+
+        int estado =
+                loggedInBOOL&&hasInternet ? LogIN_ONLINE :
+                loggedInBOOL&&!hasInternet ? LogIN_OFFLINE :
+                !loggedInBOOL&&hasInternet ? LogOUT_ONLINE :
+                                            LogOUT_OFFLINE;
+
+        switch (estado){
+            case LogIN_ONLINE:{
+                askForVersion();
+                break;
+            }
+            case LogIN_OFFLINE:{
+                WS.showAlert(
+                        Splash.this,
+                        getString(R.string.alerts_sinconexion_titulo),
+                        getString(R.string.alerts_sinconexion_mensaje),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                delayAndContinue(success);
+                            }
+                        }
+                );
+                break;
+            }
+            case LogOUT_ONLINE:{
+                delayAndContinue(success);
+                break;
+            }
+            case LogOUT_OFFLINE:{
+                WS.showAlert(
+                        Splash.this,
+                        getString(R.string.alerts_sinconexion_titulo),
+                        getString(R.string.alerts_sinconexion_mensaje),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                finish();
+                            }
+                        }
+                );
+                break;
+            }
         }
-        //delayAndContinue(success);
+
+        /*
+        if(loggedInBOOL){
+            Log.d(TAG,"willAskForVersion");
+
+            //SI TIENE INTERNET, Y ESTA LOGGEADO
+            if(WS.hasInternet(Splash.this)) {
+                askForVersion();
+            }
+            //SI NO TIENE INTERNET PERO ESTO LOGGEADO
+            else{
+                WS.showAlert(
+                        Splash.this,
+                        getString(R.string.alerts_sinconexion_titulo),
+                        getString(R.string.alerts_sinconexion_mensaje),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                delayAndContinue(success);
+                            }
+                        }
+                );
+            }
+            return;
+        }
+        // SI NO ESTA LOGGEADO
+        else{
+            //SI NO ESTA LOGGEADO Y TIENE INTERNET
+            if(WS.hasInternet(Splash.this)){
+                delayAndContinue(success);
+            }
+            //SI NO ESTA LOGGEADO Y NO TIENE INTERNET
+            else{
+                WS.showAlert(
+                        Splash.this,
+                        getString(R.string.alerts_sinconexion_titulo),
+                        getString(R.string.alerts_sinconexion_mensaje),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                delayAndContinue(success);
+                            }
+                        }
+                );
+            }
+
+        }
+        */
     }
 
     @Override
     public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
+
+        if(objectFirebase==null){
+            Toast.makeText(Splash.this, "No hay conetsion a interneee", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         VersionesAPK_Firebase versionesFirebase = (VersionesAPK_Firebase)objectFirebase;
         try{
             PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
             String version = pInfo.versionName;
             int verCode = pInfo.versionCode;
 
+            Log.d(TAG,"versionRetrieved="+versionesFirebase.getUltimaVersion().getVersionName());
+
             boolean isUpdated = versionesFirebase.getUltimaVersion().getVersionName().compareTo(version)==0 && versionesFirebase.getUltimaVersion().getVersionCode()==verCode;
             if(isUpdated){
                 Log.d("SplashDebug","IS UPDATED! **********");
                 delayAndContinue(loggedInBOOL);
             }else{
+
                 Log.d("SplashDebug","NEEDS UPDATE! ----------");
                 WS.downloadAPK(Splash.this, versionesFirebase.getUltimaVersion().getNombreAPK(), Splash.this);
             }
         }catch(Exception e){
             e.printStackTrace();
         }
-        Log.d("VersionesDEBUG","versionesFirebase name="+versionesFirebase.getUltimaVersion().getVersionName()+" code="+versionesFirebase.getUltimaVersion().getVersionCode());
+        Log.d("VersionesDebug","versionesFirebase name="+versionesFirebase.getUltimaVersion().getVersionName()+" code="+versionesFirebase.getUltimaVersion().getVersionCode());
     }
 
     @Override
     public void onSuccess(Uri uri) {
+
+        Log.d(TAG, "SuccededDownloadURI for APK");
 
         succesUri=uri;
 
@@ -240,9 +356,13 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
+                Log.d(TAG, "Explanation NEEDED ASK FOR PERMISSION");
+
             } else {
 
                 // No explanation needed, we can request the permission.
+
+                Log.d(TAG, "NO EXP, ASK PERMISSION");
 
                 ActivityCompat.requestPermissions(Splash.this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -253,6 +373,8 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                 // result of the request.
             }
         }else{
+
+            Log.d(TAG, "DownloaderTask - APK");
             APKDownloader apkDownloader = new APKDownloader();
             apkDownloader.setSuccesUri(succesUri);
             apkDownloader.execute(Splash.this);
@@ -268,6 +390,8 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+                    Log.d(TAG, "AfterPermissionGranted, DownloaderTask - APK");
+
                     APKDownloader apkDownloader = new APKDownloader();
                     apkDownloader.setSuccesUri(succesUri);
                     apkDownloader.execute(Splash.this);
@@ -279,6 +403,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
+                    Log.d(TAG, "PERMISSION DENIED!");
                 }
                 return;
             }

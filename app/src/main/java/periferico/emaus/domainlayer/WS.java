@@ -1,30 +1,17 @@
 package periferico.emaus.domainlayer;
 
 import android.app.Activity;
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Color;
+import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -36,22 +23,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 
-import periferico.emaus.BuildConfig;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.firebase_objects.CatalogItem_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
@@ -59,7 +37,6 @@ import periferico.emaus.domainlayer.firebase_objects.Directorio_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.VersionesAPK_Firebase;
-import periferico.emaus.presentationlayer.activities.Login;
 
 /**
  * Created by maubocanegra on 27/10/17.
@@ -83,6 +60,9 @@ public class WS{
     private static FirebaseAuth.AuthStateListener mAuthStateListener;
 
     private static boolean loggedIn;
+    private static boolean firstCheckNetworkState;
+    private static boolean previousNetworkState;
+    private static boolean actualNetworkState;
 
     /**
      * Metodo que instancia el singleton de los WebServices (Firebase)
@@ -93,9 +73,11 @@ public class WS{
         if(instance==null){
             instance = new WS();
 
+
+
             if(mAuth==null) {
                 FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-                fbdb.setPersistenceEnabled(false);
+                fbdb.setPersistenceEnabled(true);
                 mDatabase = fbdb.getReference();
                 mAuth = FirebaseAuth.getInstance();
             }
@@ -149,6 +131,55 @@ public class WS{
     // ---------------- OWN METHODS ---------------- //
     //---------------------------------------------- //
 
+    static Thread thread;
+
+    public static void startJob() {
+
+        if(thread!=null){return;}
+
+        previousNetworkState = isInternetAvailable();
+        actualNetworkState = isInternetAvailable();
+
+
+        thread = new Thread(new Runnable() {
+            public void run() {
+                while (true){
+                    actualNetworkState=isInternetAvailable();
+
+                    if(actualNetworkState){
+                        onNetworkListener.fromOnToOff();
+                    }else{
+                        onNetworkListener.fromOffToOn();
+                    }
+
+                    //Log.d(TAG,"InternetAvailable ? prev="+previousNetworkState+" actual="+actualNetworkState);
+                    /*
+                    if(previousNetworkState!=actualNetworkState){
+                        if(previousNetworkState){onNetworkListener.fromOffToOn();}else{onNetworkListener.fromOnToOff();}
+                    }
+                    previousNetworkState=actualNetworkState;
+                    */
+                    try{
+                        Thread.sleep(3000);
+                    }catch(Exception e){//e.printStackTrace();
+                    }
+                }
+            }
+        });
+        thread.start();
+    }
+
+    public static boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com");
+            //You can replace it with your name
+            return !ipAddr.equals("");
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * Metodo que intenta hacer el login mediante Firebase Authentication
      * @param email
@@ -170,6 +201,24 @@ public class WS{
                         }
                     }
                 });
+    }
+
+    public static boolean hasInternet(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    public static void showAlert(Activity activity, String title, String message, DialogInterface.OnClickListener listener){
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle(title).setMessage(message);
+        if(listener!=null){
+            builder.setPositiveButton("Entendido", listener);
+        }
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
     }
 
     // ------------------------------------------------- //
@@ -204,6 +253,10 @@ public class WS{
         directorioFirebase.setTipoUsuario(1);
         directorioFirebase.setStID(obj_firebase.getStID());
         mDatabase.child(KEY_VENDEDORES).child(vendedor).child(KEY_CLIENTES).child(directorioFirebase.getStID()).setValue(directorioFirebase);
+
+        if(!actualNetworkState){
+            firebaseCompletionListener_.firebaseCompleted(true);
+        }
     }
 
     public static void writePlanFirebase(final Object_Firebase obj_firebase, final FirebaseCompletionListener firebaseCompletionListener_){
@@ -346,7 +399,16 @@ public class WS{
         });
     }
 
-    public static void readVersionesAPKFirebase(final FirebaseObjectRetrieved firebaseObjectRetrieved){
+    public static void readVersionesAPKFirebase(/*final FirebaseObjectRetrieved firebaseObjectRetrieved*/Activity activity){
+
+        final FirebaseObjectRetrieved firebaseObjectRetrieved = (FirebaseObjectRetrieved)activity;
+
+        //This is ONLY in case there is no INTERNET connection
+        if(!hasInternet(activity)){
+            firebaseObjectRetrieved.firebaseObjectRetrieved(null);
+            return;
+        }
+
         mDatabase.child("versionesAPK").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -459,6 +521,14 @@ public class WS{
      */
     public static OnLoginRequested onLoginRequested;
     public interface  OnLoginRequested{
-        public void loginAnswered(boolean success, Exception errExc);
+        void loginAnswered(boolean success, Exception errExc);
+    }
+
+    public static OnNetworkListener onNetworkListener;
+    public interface OnNetworkListener{
+        void  fromOffToOn();
+        void fromOnToOff();
+    }public static void setNetworkListener(OnNetworkListener onNetworkListener_) {
+        onNetworkListener = onNetworkListener_;
     }
 }

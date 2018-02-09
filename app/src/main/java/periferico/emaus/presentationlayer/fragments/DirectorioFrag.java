@@ -135,6 +135,7 @@ public class DirectorioFrag extends Fragment implements
         mAdapter = new AdapterDirectorio(mDataset, DirectorioFrag.this, getContext());
         mRecyclerView.setAdapter(mAdapter);
         mSwipeRefreshLayout=view.findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(DirectorioFrag.this);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -178,6 +179,8 @@ public class DirectorioFrag extends Fragment implements
 
     private void refreshClientList(){
 
+        Log.d(TAG, "startRefresh");
+
         mSwipeRefreshLayout.setRefreshing(true);
         mDataset.clear();
         WS.readClientAndDirectoryFirebase(DirectorioFrag.this);
@@ -190,6 +193,8 @@ public class DirectorioFrag extends Fragment implements
 
     @Override
     public void firebaseCompleted(ArrayList<Object_Firebase> arrayList) {
+
+        Log.d(TAG, "firebaseCompleted");
 
         mDataset.addAll(arrayList);
         mDatasetBackup.addAll(arrayList);

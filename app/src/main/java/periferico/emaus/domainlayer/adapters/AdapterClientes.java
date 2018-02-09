@@ -29,7 +29,6 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
     private final int VIEW_ACTIVO = 2;
 
     private ArrayList<Object_Firebase> mDataset;
-
     Context c;
 
     /**
@@ -57,8 +56,7 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(
-                R.layout.item_cliente, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_cliente, parent, false);
         return new ViewHolder(v);
     }
 

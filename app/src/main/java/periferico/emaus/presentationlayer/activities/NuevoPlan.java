@@ -1,6 +1,7 @@
 package periferico.emaus.presentationlayer.activities;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -27,6 +29,7 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,16 +53,18 @@ import java.util.Locale;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
+import periferico.emaus.domainlayer.utils.AppCompatActivity_Job;
 import periferico.emaus.presentationlayer.dialogs.ProgressDialogFragment;
 
-public class NuevoPlan extends AppCompatActivity implements
+public class NuevoPlan extends AppCompatActivity_Job implements
         ImagePickerCallback,
         ViewTreeObserver.OnScrollChangedListener,
         View.OnClickListener,
         Spinner.OnItemSelectedListener,
         Switch.OnCheckedChangeListener,
         OnFailureListener, OnSuccessListener<UploadTask.TaskSnapshot>,
-        WS.FirebaseCompletionListener {
+        WS.FirebaseCompletionListener,
+        WS.OnNetworkListener{
 
     private static final String TAG = "NuevoPlanDebug";
 
@@ -104,6 +109,7 @@ public class NuevoPlan extends AppCompatActivity implements
     ProgressBar progressComprobante;
     Button buttonNuevoplan;
     ScrollView scrollView;
+    TextView bannerNetwork;
 
     FirebaseStorage storage;
     StorageReference storageRef;
@@ -133,6 +139,12 @@ public class NuevoPlan extends AppCompatActivity implements
 
     private int anticipo;
     private String RFC; private String email;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        WS.setNetworkListener(NuevoPlan.this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -174,6 +186,7 @@ public class NuevoPlan extends AppCompatActivity implements
     //---------------------------------------------- //
 
     private void instanciateObjects(){
+        bannerNetwork = findViewById(R.id.nuevoplan_banner_network);
         spinnerTipoPlan = findViewById(R.id.nuevoplan_spinner_tipoplan);
         spinnerModeloAtaud = findViewById(R.id.nuevoplan_spinner_ataud);
         spinnerServicio = findViewById(R.id.nuevoplan_spinner_servicio);
@@ -351,12 +364,28 @@ public class NuevoPlan extends AppCompatActivity implements
     }
 
     private void checkForComplete(){
-        if(plan>=0 && ataud>=0 && servicio>=0 && financiamiento>=0  && pago>=0 && formaPago>=0 && chosenImageFrontal!=null && chosenImageReverse!=null && chosenImageComprobante!=null){
-            String stAnticipo = editTextAnticipo.getEditableText().toString();
-            if(stAnticipo.isEmpty()){anticipo=0;}else {
-                anticipo = Integer.parseInt(editTextAnticipo.getEditableText().toString());
+
+        if(WS.hasInternet(NuevoPlan.this)) {
+
+            if (plan >= 0 && ataud >= 0 && servicio >= 0 && financiamiento >= 0 && pago >= 0 && formaPago >= 0 && chosenImageFrontal != null && chosenImageReverse != null && chosenImageComprobante != null) {
+                String stAnticipo = editTextAnticipo.getEditableText().toString();
+                if (stAnticipo.isEmpty()) {
+                    anticipo = 0;
+                } else {
+                    anticipo = Integer.parseInt(editTextAnticipo.getEditableText().toString());
+                }
+                buttonNuevoplan.setVisibility(View.VISIBLE);
             }
-            buttonNuevoplan.setVisibility(View.VISIBLE);
+        }else{
+            if (plan >= 0 && ataud >= 0 && servicio >= 0 && financiamiento >= 0 && pago >= 0 && formaPago >= 0) {
+                String stAnticipo = editTextAnticipo.getEditableText().toString();
+                if (stAnticipo.isEmpty()) {
+                    anticipo = 0;
+                } else {
+                    anticipo = Integer.parseInt(editTextAnticipo.getEditableText().toString());
+                }
+                buttonNuevoplan.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -371,9 +400,11 @@ public class NuevoPlan extends AppCompatActivity implements
 
     private void finalCreationPlanFirebase(){
 
-        if(frontalURL==null || reverseURL==null || comprobanteURL==null){
-            Log.d(TAG, "************* CHECK DE URLS FAILED **********");
-            return;
+        if(WS.hasInternet(NuevoPlan.this)) {
+            if (frontalURL == null || reverseURL == null || comprobanteURL == null) {
+                Log.d(TAG, "************* CHECK DE URLS FAILED **********");
+                return;
+            }
         }
 
         progressDialogFragment = new ProgressDialogFragment();
@@ -413,6 +444,31 @@ public class NuevoPlan extends AppCompatActivity implements
 
         WS.writePlanFirebase(planFirebase, NuevoPlan.this);
         Log.d(TAG,"PlanFirebase="+planFirebase.toString());
+
+        if(!WS.hasInternet(NuevoPlan.this)){
+
+            final Handler handlerPre = new Handler();
+            handlerPre.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Bundle analyticsBundle = new Bundle();
+                    analyticsBundle.putString("cliente_id", stID);
+                    WS.registerAnalyticsEvent("plan_creado_offline",analyticsBundle);
+
+
+                    FirebaseCrash.log("NuevoPlan_TRY_PlanCreadoExitoso_OFFLINE");
+                    progressDialogFragment.changeTitle("Plan creado SIN CONEXIÓN!");
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressDialogFragment.dismiss();
+                            onBackPressed();
+                        }
+                    }, 1000);
+                }
+            },1500);
+        }
     }
 
     private void uploadImageFirebase(ImageView imageView, int imgIDToUpload){
@@ -458,6 +514,31 @@ public class NuevoPlan extends AppCompatActivity implements
 
         //Log.d(TAG," ref="+imgFullRef.getName()+" fullRef="+imgFullRef.getPath());
     }
+
+    // ----------------------------------------------------------------- //
+    // ---------------- NETWORK LISTENER IMPLEMENTATION ---------------- //
+    //------------------------------------------------------------------ //
+
+    @Override
+    public void fromOffToOn() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                bannerNetwork.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    @Override
+    public void fromOnToOff() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                bannerNetwork.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
 
     // ------------------------------------------------------------- //
     // ---------------- IMAGE UPLOAD IMPLEMENTATION ---------------- //
@@ -556,16 +637,28 @@ public class NuevoPlan extends AppCompatActivity implements
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.cardview_tarjetafrente:{
+                if(!WS.hasInternet(NuevoPlan.this)){
+                    Toast.makeText(NuevoPlan.this, getString(R.string.toast_noimagenes_sinconexion), Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 img_requested = FRONTAL_REQUESTED;
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 break;
             }
             case R.id.cardview_tarjetareverso:{
+                if(!WS.hasInternet(NuevoPlan.this)){
+                    Toast.makeText(NuevoPlan.this, getString(R.string.toast_noimagenes_sinconexion), Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 img_requested = REVERSO_REQUESTED;
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 break;
             }
             case R.id.cardview_comprobante:{
+                if(!WS.hasInternet(NuevoPlan.this)){
+                    Toast.makeText(NuevoPlan.this, getString(R.string.toast_noimagenes_sinconexion), Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 img_requested = COMPROBANTE_REQUESTED;
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 break;
@@ -585,7 +678,27 @@ public class NuevoPlan extends AppCompatActivity implements
 
             case R.id.nuevoplan_button_nuevoplan:{
                 stID = getIntent().getStringExtra("stID")+"_P"+plan+"A"+ataud+"F"+financiamiento+"Pa"+pago+"S"+servicio+"Fp"+formaPago;
-                uploadAllImages();
+                if(WS.hasInternet(NuevoPlan.this)) {
+                    uploadAllImages();
+                }else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(NuevoPlan.this);
+
+                    builder.setMessage("Vas a crear un plan en modo \"Sin conexión\" el cual no permite subir imágenes, por lo tanto, los comprobantes tendrán que subirse manualmente después\n¿Estás de acuerdo?")
+                            .setTitle("Planes nuevos SIN CONEXIÓN")
+                            .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // User clicked OK button
+                                    finalCreationPlanFirebase();
+                                }
+                            })
+                            .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // User cancelled the dialog
+                                }
+                            });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
                 break;
             }
         }

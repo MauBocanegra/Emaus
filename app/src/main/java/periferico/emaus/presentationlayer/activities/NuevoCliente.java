@@ -38,6 +38,7 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -68,9 +69,10 @@ import periferico.emaus.domainlayer.objetos.Direcciones;
 import periferico.emaus.domainlayer.objetos.DireccionesHelper;
 import periferico.emaus.domainlayer.objetos.Telefonos;
 import periferico.emaus.domainlayer.objetos.TelefonosHelper;
+import periferico.emaus.domainlayer.utils.AppCompatActivity_Job;
 import periferico.emaus.presentationlayer.dialogs.ProgressDialogFragment;
 
-public class NuevoCliente extends AppCompatActivity implements
+public class NuevoCliente extends AppCompatActivity_Job implements
         View.OnClickListener,
         DatePicker.OnDateChangedListener,
         Spinner.OnItemSelectedListener,
@@ -80,7 +82,8 @@ public class NuevoCliente extends AppCompatActivity implements
         AdapterDirNuevoCliente.ClickImageInItem,
         WS.FirebaseCompletionListener,
         ImagePickerCallback,
-        OnFailureListener, OnSuccessListener<UploadTask.TaskSnapshot> {
+        OnFailureListener, OnSuccessListener<UploadTask.TaskSnapshot> ,
+        WS.OnNetworkListener{
 
     //Objetos de la vista
     ScrollView scrollview;
@@ -109,6 +112,7 @@ public class NuevoCliente extends AppCompatActivity implements
     EditText editTextNotas;
     Button buttonCrearCliente;
     BottomSheetBehavior bottomSheetBehavior;
+    TextView bannerNetwork;
 
     CoordinatorLayout coordinatorLayout;
     ProgressDialogFragment progressDialogFragment;
@@ -193,6 +197,13 @@ public class NuevoCliente extends AppCompatActivity implements
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "NuevoCliente ONSTART-----");
+        WS.setNetworkListener(NuevoCliente.this);
+    }
+
     // --------------------------------------------- //
     // ---------------- OWN METHODS ---------------- //
     //---------------------------------------------- //
@@ -201,6 +212,7 @@ public class NuevoCliente extends AppCompatActivity implements
      * Metodo que instancia todos los objetos
      */
     private void instanciateObjects(){
+        bannerNetwork = findViewById(R.id.nuevocliente_banner_offline);
         scrollview = findViewById(R.id.scrollviewNuevoCliente);
         coordinatorLayout = findViewById(R.id.coordinatorLayout);
         buttonFechaNac = findViewById(R.id.buttonFechNac);
@@ -345,20 +357,6 @@ public class NuevoCliente extends AppCompatActivity implements
 
         int errors=0;
 
-        //Verifica que no este vacio el campo de nombre
-        stNombre = editTextNombre.getEditableText().toString();
-        if(stNombre.isEmpty()){
-            inputLayoutNombre.setError(getString(R.string.nuevocliente_error_nombre));
-            errors++;
-        }
-
-        //Verifica que el campo de apellido no este vacio
-        stApellido = editTextApellido.getEditableText().toString();
-        if(stApellido.isEmpty()){
-            inputLayoutApellido.setError(getString(R.string.nuevocliente_error_apellido));
-            errors++;
-        }
-
         //Verifica que haya al menos un campo de telefono
         if(telefonos.size()==0){
             textviewAgregarTelefono.setTextColor(Color.RED);
@@ -381,6 +379,30 @@ public class NuevoCliente extends AppCompatActivity implements
                 }
 
             }
+        }
+        if(errors>0){
+            if(inputLayoutNombre.hasFocus())
+                inputLayoutApellido.requestFocus();
+            else
+                inputLayoutNombre.requestFocus();
+
+            Toast.makeText(NuevoCliente.this, "Agrega al menos un teléfono de contacto", Toast.LENGTH_SHORT).show();
+        }
+
+        //Verifica que el campo de apellido no este vacio
+        stApellido = editTextApellido.getEditableText().toString();
+        if(stApellido.isEmpty()){
+            inputLayoutApellido.setError(getString(R.string.nuevocliente_error_apellido));
+            inputLayoutApellido.requestFocus();
+            errors++;
+        }
+
+        //Verifica que no este vacio el campo de nombre
+        stNombre = editTextNombre.getEditableText().toString();
+        if(stNombre.isEmpty()){
+            inputLayoutNombre.setError(getString(R.string.nuevocliente_error_nombre));
+            inputLayoutNombre.requestFocus();
+            errors++;
         }
 
         /*
@@ -546,6 +568,31 @@ public class NuevoCliente extends AppCompatActivity implements
 
         FirebaseCrash.log("NuevoCliente_TRY_CrearCliente");
         WS.crearClienteFirebase(clienteFirebase, NuevoCliente.this);
+
+
+        if(!WS.hasInternet(NuevoCliente.this)){
+
+            final Handler handlerPre = new Handler();
+            handlerPre.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Bundle analyticsBundle = new Bundle();
+                    analyticsBundle.putString("cliente_id", stID);
+                    WS.registerAnalyticsEvent("cliente_creado_offline",analyticsBundle);
+
+                    progressDialogFragment.changeTitle("Cliente creado SIN CONEXIÓN!");
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressDialogFragment.dismiss();
+                            onBackPressed();
+                        }
+                    }, 1500);
+                }
+            },1000);
+            FirebaseCrash.log("NuevoCliente_TRY_ClienteCreadoExitoso_OFFLINE");
+        }
     }
 
 
@@ -725,18 +772,49 @@ public class NuevoCliente extends AppCompatActivity implements
         }
     }
 
+    // -------------------------------------------------------------------- //
+    // ---------------- ON NETWORK LISTENER IMPLEMENTATION ---------------- //
+    //--------------------------------------------------------------------- //
+
+    @Override
+    public void fromOffToOn() {
+        //Log.d(TAG,"from "+TAG+" off -> ON");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() { bannerNetwork.setVisibility(View.VISIBLE); }
+        });
+    }
+
+    @Override
+    public void fromOnToOff() {
+        //Log.d(TAG,"from "+TAG+" on -> OFF");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                bannerNetwork.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+
     // ------------------------------------------------------------------- //
     // ---------------- CLICKED IMG PICKER IMPLEMENTATION ---------------- //
     //-------------------------------------------------------------------- //
 
     @Override
     public void imgWasTouched(int position, View fullImgContainer_) {
-        direcciones.get(position).fullViewFachada = fullImgContainer_;
-        direcciones.get(position).imagePosition = position;
-        //hashImgToUpload.put(""+position,new HashMap<String, Object>());
-        //(hashImgToUpload.get(""+position)).put("fullViewFachada",fullImgContainer);
-        lastPositionImgClicked=position;
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        if(!WS.hasInternet(NuevoCliente.this)){
+            Toast.makeText(NuevoCliente.this, "No puedes subir imágenes en modo offline", Toast.LENGTH_LONG).show();
+        }else {
+
+            direcciones.get(position).fullViewFachada = fullImgContainer_;
+            direcciones.get(position).imagePosition = position;
+            //hashImgToUpload.put(""+position,new HashMap<String, Object>());
+            //(hashImgToUpload.get(""+position)).put("fullViewFachada",fullImgContainer);
+            lastPositionImgClicked = position;
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
     }
 
 

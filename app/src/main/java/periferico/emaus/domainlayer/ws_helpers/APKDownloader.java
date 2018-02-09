@@ -1,5 +1,6 @@
 package periferico.emaus.domainlayer.ws_helpers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -23,7 +24,7 @@ import periferico.emaus.presentationlayer.activities.Splash;
  * Created by maubocanegra on 08/01/18.
  */
 
-public class APKDownloader extends AsyncTask<Context, Void ,Void> {
+public class APKDownloader extends AsyncTask<Activity, Void ,Void> {
 
     private Uri succesUri;
 
@@ -47,7 +48,7 @@ public class APKDownloader extends AsyncTask<Context, Void ,Void> {
     */
 
     @Override
-    protected Void doInBackground(Context... contexts) {
+    protected Void doInBackground(Activity... contexts) {
         try{
             File file = new File(Environment.getExternalStorageDirectory(), "EMAUS.apk");
             final Uri uri = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) ?
@@ -101,6 +102,7 @@ public class APKDownloader extends AsyncTask<Context, Void ,Void> {
                     .setData(uri)
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             contexts[0].startActivity(install);
+            contexts[0].finish();
         }catch(Exception e){e.printStackTrace();}
         return null;
     }
