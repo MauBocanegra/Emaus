@@ -121,7 +121,7 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
     // ---------------- VIEWHOLDER CLASS ---------------- //
     //--------------------------------------------------- //
 
-    class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         private View viewColorStatus;
         private TextView textviewNombre;
@@ -130,7 +130,7 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
         private View iconVerificado;
         private View fullCard;
 
-        ViewHolder(View v){
+        ViewHolder(View v) {
             super(v);
             fullCard = v.findViewById(R.id.item_cliente_fullcard);
             viewColorStatus = v.findViewById(R.id.item_cliente_viewColorStatus);
@@ -140,4 +140,6 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
             iconVerificado = v.findViewById(R.id.item_cliente_iconoverif);
         }
     }
+
+
 }

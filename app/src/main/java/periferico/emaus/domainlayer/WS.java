@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
@@ -36,6 +37,7 @@ import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Directorio_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.User_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.VersionesAPK_Firebase;
 
 /**
@@ -46,6 +48,9 @@ public class WS{
 
     private static final String KEY_VENDEDORES = "vendedores";
     private static final String KEY_CLIENTES = "clientes";
+    private static final String KEY_SEGMENTO = "segmento";
+
+    private static String KEY_USER = "";
 
     private static final String TAG = "WSDebug";
     private static WS instance;
@@ -60,8 +65,6 @@ public class WS{
     private static FirebaseAuth.AuthStateListener mAuthStateListener;
 
     private static boolean loggedIn;
-    private static boolean firstCheckNetworkState;
-    private static boolean previousNetworkState;
     private static boolean actualNetworkState;
 
     /**
@@ -69,7 +72,13 @@ public class WS{
      * @param c que es el contexto con el cual se hará la instancia
      * @return Regresa la instancia del
      */
-    public synchronized static WS getInstance(final Context c){
+    public synchronized static WS getInstance(final Context c, boolean forceUpdate){
+
+        switch (c.getString(R.string.flavor_string)){
+            case "Ventas":{setKeyUser("vendedores"); break;}
+            case "Cobranza":{setKeyUser("cobranza"); break;}
+        }
+
         if(instance==null){
             instance = new WS();
 
@@ -79,6 +88,7 @@ public class WS{
                 FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
                 fbdb.setPersistenceEnabled(true);
                 mDatabase = fbdb.getReference();
+                mDatabase.keepSynced(true);
                 mAuth = FirebaseAuth.getInstance();
             }
 
@@ -97,13 +107,25 @@ public class WS{
 
                         mFirebaseAnalytics = FirebaseAnalytics.getInstance(c);
 
-                        String vendedor;
+                        String usuario;
                         String preVendedor = currentUser.getEmail().replace(".","");
-                        vendedor = preVendedor.split("@")[0];
-                        vendedor = vendedor.replace(".","");
+                        usuario = preVendedor.split("@")[0];
+                        usuario = usuario.replace(".","");
                         Long tsLong = System.currentTimeMillis()/1000;
-                        Log.d("FirebaseDebug","vendedor="+vendedor);
-                        mDatabase.child(KEY_VENDEDORES).child(vendedor).child("lastLogin").setValue(tsLong,
+                        Log.d("FirebaseDebug","usuario="+usuario);
+
+                        //13 - 35 - 450
+                        //14 - 35 - 490
+                        //15 - 35 - 4525
+                        //18.3 - 35 - 640
+
+
+                        //readUserType(c);
+
+                        //if(mDatabase.child(c.getString(R.string.alerts_sinconexion_mensaje)))
+
+
+                        mDatabase.child(WS.getKeyUser()).child(usuario).child("lastLogin").setValue(tsLong,
                                 new DatabaseReference.CompletionListener() {
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
@@ -113,6 +135,8 @@ public class WS{
                                 }
                             }
                         });
+
+
 
                     } else {
                         // User is signed out
@@ -133,11 +157,19 @@ public class WS{
 
     static Thread thread;
 
+    public static void goOffline(){
+        mDatabase.onDisconnect();
+    }
+
+    public static void goOnline(){
+
+    }
+
     public static void startJob() {
 
         if(thread!=null){return;}
 
-        previousNetworkState = isInternetAvailable();
+        //previousNetworkState = isInternetAvailable();
         actualNetworkState = isInternetAvailable();
 
 
@@ -159,6 +191,7 @@ public class WS{
                     }
                     previousNetworkState=actualNetworkState;
                     */
+
                     try{
                         Thread.sleep(3000);
                     }catch(Exception e){//e.printStackTrace();
@@ -196,7 +229,7 @@ public class WS{
                         }else{
                             Log.d("LoginDebug", "signInWithEmail:failure", task.getException());
                             //mandamos a llamar a la implementacion que lo contenga
-                            loggedIn=true;
+                            loggedIn=false;
                             onLoginRequested.loginAnswered(false, task.getException());
                         }
                     }
@@ -284,6 +317,29 @@ public class WS{
     // ------------------------------------------------- //
     // ---------------- READING METHODS ---------------- //
     //-------------------------------------------------- //
+
+    public static void readUserType(Context c, final FirebaseObjectRetrieved firebaseObjectRetrieved){
+        String userKey = c.getString(R.string.flavor_string);
+
+        switch (userKey){
+            case "Ventas":{ userKey = "vendedores"; break;}
+            case "Cobranza":{ userKey = "cobranza"; break;}
+        }
+
+        String usuario = currentUser.getEmail().split("@")[0].replace(".","");
+
+        mDatabase.child(userKey).child(usuario).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //Log.d(TAG,"userKey="+key+"usuario="+currentUser.getEmail().split("@")[0].replace(".","")+"SEGMENTO dataSnapshot = "+dataSnapshot.getValue());
+                if(dataSnapshot.getValue()!=null){
+                    firebaseObjectRetrieved.firebaseObjectRetrieved(dataSnapshot.getValue(User_Firebase.class));
+                }
+            }
+
+            @Override public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
 
     public static void readClientAndDirectoryFirebase(final FirebaseArrayRetreivedListener arrayRetreivedListener){
         String vendedor = currentUser.getEmail().split("@")[0].replace(".","");
@@ -404,17 +460,32 @@ public class WS{
         final FirebaseObjectRetrieved firebaseObjectRetrieved = (FirebaseObjectRetrieved)activity;
 
         //This is ONLY in case there is no INTERNET connection
+        /*
         if(!hasInternet(activity)){
             firebaseObjectRetrieved.firebaseObjectRetrieved(null);
             return;
         }
+        */
 
-        mDatabase.child("versionesAPK").addListenerForSingleValueEvent(new ValueEventListener() {
+        String userKey = activity.getString(R.string.flavor_string);
+
+        switch (userKey){
+            case "Ventas":{ userKey = "ventas"; break;}
+            case "Cobranza":{ userKey = "cobranza"; break;}
+        }
+
+        String usuario = currentUser.getEmail().split("@")[0].replace(".","");
+
+
+
+        mDatabase.child("versionesAPK").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                VersionesAPK_Firebase versionesAPKFirebase = dataSnapshot.getValue(VersionesAPK_Firebase.class);
-                Log.d(TAG, "ultimaVersion="+versionesAPKFirebase.getUltimaVersion());
-                firebaseObjectRetrieved.firebaseObjectRetrieved(versionesAPKFirebase);
+                try {
+                    VersionesAPK_Firebase versionesAPKFirebase = dataSnapshot.getValue(VersionesAPK_Firebase.class);
+                    Log.d(TAG, "ultimaVersion=" + versionesAPKFirebase.getUltimaVersion());
+                    firebaseObjectRetrieved.firebaseObjectRetrieved(versionesAPKFirebase);
+                }catch(Exception e){e.printStackTrace();}
             }
 
             @Override
@@ -422,14 +493,16 @@ public class WS{
         });
     }
 
-    public static void downloadAPK(final Context c, final String stID, OnSuccessListener<Uri> successListener){
+    public static void downloadAPKLink(final Context c, final String stID, OnSuccessListener<Uri> successListener, String apkLink){
         FirebaseStorage storage;
         StorageReference storageRef;
 
         storage = FirebaseStorage.getInstance(c.getString(R.string.FirebaseStorageBucket));
         storageRef = storage.getReference();
 
-        StorageReference httpsReference = storage.getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/firebase-emaus.appspot.com/o/apk_versiones%2FEne7_2300.apk?alt=media&token=a013044c-70a3-4cf0-a55d-eb2ea5e23952");
+        Log.d(TAG, "apkLink="+apkLink);
+
+        StorageReference httpsReference = storage.getReferenceFromUrl(apkLink);
 
         httpsReference.getDownloadUrl().addOnSuccessListener(successListener);
     }
@@ -460,13 +533,8 @@ public class WS{
     // ---------------- SETTERS & GETTERS ---------------- //
     //---------------------------------------------------- //
 
-    public static FirebaseUser getCurrentUser() {
-        return currentUser;
-    }
-
-    public static void setCurrentUser(FirebaseUser currentUser) {
-        WS.currentUser = currentUser;
-    }
+    public static String getKeyUser() { return KEY_USER; }
+    public static void setKeyUser(String keyUser) { KEY_USER = keyUser; }
 
 
     // ---------------------------------------------- //

@@ -218,8 +218,16 @@
 
     <string name="prompt_buscar">Buscar</string>
 
+    <string name="alerta_segmentoerroneo_titulo">Segmento equivocado</string>
+    <string name="alerta_segmentoerroneo_texto">El usuario con el que estás intentando iniciar sesión no está habilitado para entrar en este segmento de la aplicación, ponte en contacto con el área de sistemas para cualquier aclaración</string>
+
+    <string name="alerts_sinsegmento_titulo">Usuario sin asignación</string>
+    <string name="alerts_sinsegmento_texto">El usuario con el que intntas iniciar sesión no está asignado a ningún segmento.\nPonte en contacto con el área de sistemas para que seas asignado al segmento correspondiente.</string>
+
     <string name="alerts_sinconexion_titulo">Estado SIN CONEXIÓN</string>
     <string name="alerts_sinconexion_mensaje">En estos momentos estas trabajando sin conexión, recuerda que algunos datos pueden cambiar mientras trabajas sin conexión de datos</string>
+    <string name="alerts_permiso_titulo">Debes aceptar los permisos</string>
+    <string name="alerts_permiso_mensaje">La aplicación de Emaús debe tener todos los permisos activados, se ha detectado que negaste con anterioridad algún permiso, dirígete a Ajustes > Aplicaciones > Emaus > Permisos y acepta todos los persmisos para el uso correcto de la aplicación</string>
     <string name="alerts_sinconexion_sinlogin_titulo">NECESITAS UNA CONEXIÓN DE DATOS</string>
     <string name="alerts_sinconexion_sinlogin_mensaje">Para usar la aplicación en modo "Sin conexión" Debes iniciar sesión previamente mientras estás conectado a una red WiFi o a una conexión de Datos móviles</string>
 

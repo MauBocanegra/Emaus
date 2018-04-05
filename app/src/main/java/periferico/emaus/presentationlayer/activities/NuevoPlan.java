@@ -823,16 +823,19 @@ public class NuevoPlan extends AppCompatActivity_Job implements
             WS.registerAnalyticsEvent("plan_creado",analyticsBundle);
 
 
-            FirebaseCrash.log("NuevoPlan_TRY_PlanCreadoExitoso");
-            progressDialogFragment.changeTitle("Plan creado exitosamente!");
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    progressDialogFragment.dismiss();
-                    onBackPressed();
-                }
-            }, 1500);
+            try {
+                FirebaseCrash.log("NuevoPlan_TRY_PlanCreadoExitoso");
+                progressDialogFragment.changeTitle("Plan creado exitosamente!");
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialogFragment.dismiss();
+                        onBackPressed();
+                    }
+                }, 1500);
+            }catch(Exception e){e.printStackTrace();}
+
         }
     }
 }

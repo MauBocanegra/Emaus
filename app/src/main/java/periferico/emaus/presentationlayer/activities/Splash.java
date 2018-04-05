@@ -3,41 +3,32 @@ package periferico.emaus.presentationlayer.activities;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
-import android.support.annotation.NonNull;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
-import com.google.firebase.storage.FileDownloadTask;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
 
-import periferico.emaus.BuildConfig;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.User_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.VersionesAPK_Firebase;
 import periferico.emaus.domainlayer.ws_helpers.APKDownloader;
 
@@ -55,8 +46,15 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
 
     private static final int MY_PERMISSIONS_REQUEST_STORAGE = 12345;
     private static final String TAG="SplashDebug";
+    private static VersionesAPK_Firebase versionesFirebase;
 
     private boolean loggedInBOOL;
+
+    SharedPreferences prefs;
+    //Boolean alreadyUpdated;
+    long lastOnlineUpdate;
+    boolean forceUpdate;
+    private static long dayInMiliseconds = 86400000;
 
     // -------------------------------------------- //
     // ---------------- LIFE CYCLE ---------------- //
@@ -67,13 +65,23 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        try{
+            TextView tvVersion = findViewById(R.id.textviewVersion);
+            TextView tvCodigo = findViewById(R.id.textviewCodigo);
+            PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            String version = pInfo.versionName;
+            int verCode = pInfo.versionCode;
 
+            tvVersion.setText("Ver: "+version);
+            tvCodigo.setText("Cod: "+verCode);
+
+        }catch(Exception e){e.printStackTrace();}
 
 
         //Seteamos el objeto listener del Firebase Login
         WS.setLoginListener(Splash.this);
         //Obtenemos la instancia de la clase de WebServices
-        WS.getInstance(Splash.this);
+        WS.getInstance(Splash.this, forceUpdate);
 
         FirebaseCrash.log("SplashCreated");
     }
@@ -97,6 +105,89 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
     // --------------------------------------------- //
     // ---------------- OWN METHODS ---------------- //
     //---------------------------------------------- //
+
+    private void manageUserType() {
+
+        WS.readUserType(Splash.this, new WS.FirebaseObjectRetrieved() {
+            @Override
+            public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
+                Log.d("","");
+                if(objectFirebase==null){
+
+                    WS.showAlert(
+                            Splash.this,
+                            getString(R.string.alerts_sinsegmento_titulo),
+                            getString(R.string.alerts_sinsegmento_texto),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    mAuth = FirebaseAuth.getInstance();
+                                    mAuth.signOut();
+
+                                    Intent intent = new Intent(Splash.this, Login.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                    );
+                }else{
+                    boolean login = false;
+                    String segmento = ((User_Firebase)objectFirebase).getSegmento();
+                    Log.d(TAG,"segmentoObtenido="+segmento);
+                    switch(segmento){
+                        case "omni":{
+                            delayAndContinue(true);
+                            break;
+                        }
+
+                        case "ventas":{
+                            //App[Ventas] y usuario[Ventas]
+                            if((Splash.this).getString(R.string.flavor_string).equals("Ventas")){
+                                WS.setKeyUser("vendedores");
+                                delayAndContinue(true);
+                                login=true;
+                            }
+                            else{login = false;}
+                            break;
+                        }
+
+                        case "cobranza":{
+                            //usuario[Cobranza] y app[Cobranza]
+                            if((Splash.this).getString(R.string.flavor_string).equals("Cobranza")){
+                                WS.setKeyUser("cobranza");
+                                delayAndContinue(true);
+                                login=true;
+                            }
+                            else{login = false;}
+                            break;
+                        }
+                    }
+
+                    if(!login){
+                        WS.showAlert(
+                                Splash.this,
+                                getString(R.string.alerta_segmentoerroneo_titulo),
+                                getString(R.string.alerta_segmentoerroneo_texto),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        mAuth = FirebaseAuth.getInstance();
+                                        mAuth.signOut();
+
+                                        Intent intent = new Intent(Splash.this, Login.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                }
+                        );
+                    }
+                }
+            }
+        });
+
+        //Significa que el usuario no tiene asignado un segmento
+
+    }
 
     private void delayAndContinue(final boolean loggedIn){
         /**
@@ -125,7 +216,15 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                     */
 
 
-                    Intent intent = new Intent(Splash.this, MainTabs.class);
+                    /*
+                    Intent intent = null;
+                    if((Splash.this).getString(R.string.flavor_string).equals("Ventas")){
+                        intent = new Intent(Splash.this, MainTabs.class);
+                    }else{
+
+                    }
+                    */
+                    Intent intent = new Intent(Splash.this, periferico.emaus.presentationlayer.activities.MainTabs.class);
                     startActivity(intent);
                     finish();
 
@@ -139,64 +238,6 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
         WS.readVersionesAPKFirebase(Splash.this);
     }
 
-    /*
-    private void downloadAPK(){
-                try{
-                    File file = new File(Environment.getExternalStorageDirectory(), "EMAUS.apk");
-                    final Uri uri = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) ?
-                            FileProvider.getUriForFile(Splash.this, BuildConfig.APPLICATION_ID + ".periferico.emaus.provider", file) :
-                            Uri.fromFile(file);
-
-                    //Delete update file if exists
-                    //File file = new File(destination);
-                    if (file.exists())
-                        //file.delete() - test this, I think sometimes it doesnt work
-                        file.delete();
-
-                    //get url of app on server
-                    String url = succesUri.toString();
-
-                    InputStream input = null;
-                    OutputStream output = null;
-                    HttpURLConnection connection = null;
-                    try {
-                        URL sUrl = new URL(url);
-                        connection = (HttpURLConnection) sUrl.openConnection();
-                        connection.connect();
-
-                        // download the file
-                        input = connection.getInputStream();
-                        output = new FileOutputStream(file);
-
-                        byte data[] = new byte[4096];
-                        int count;
-                        while ((count = input.read(data)) != -1) {
-                            // allow canceling with back button
-
-                            output.write(data, 0, count);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            if (output != null)
-                                output.close();
-                            if (input != null)
-                                input.close();
-                        } catch (IOException ignored) {
-                        }
-
-                        if (connection != null)
-                            connection.disconnect();
-                    }
-
-                    Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE)
-                            .setData(uri)
-                            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(install);
-                }catch(Exception e){e.printStackTrace();}
-    }
-    */
 
     // --------------------------------------------------- //
     // ---------------- WS IMPLEMENTATION ---------------- //
@@ -212,11 +253,14 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
 
         //SI EL LOGGEO ES EXITOSO
 
+
         int estado =
                 loggedInBOOL&&hasInternet ? LogIN_ONLINE :
                 loggedInBOOL&&!hasInternet ? LogIN_OFFLINE :
                 !loggedInBOOL&&hasInternet ? LogOUT_ONLINE :
                                             LogOUT_OFFLINE;
+
+
 
         switch (estado){
             case LogIN_ONLINE:{
@@ -257,53 +301,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
             }
         }
 
-        /*
-        if(loggedInBOOL){
-            Log.d(TAG,"willAskForVersion");
 
-            //SI TIENE INTERNET, Y ESTA LOGGEADO
-            if(WS.hasInternet(Splash.this)) {
-                askForVersion();
-            }
-            //SI NO TIENE INTERNET PERO ESTO LOGGEADO
-            else{
-                WS.showAlert(
-                        Splash.this,
-                        getString(R.string.alerts_sinconexion_titulo),
-                        getString(R.string.alerts_sinconexion_mensaje),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                delayAndContinue(success);
-                            }
-                        }
-                );
-            }
-            return;
-        }
-        // SI NO ESTA LOGGEADO
-        else{
-            //SI NO ESTA LOGGEADO Y TIENE INTERNET
-            if(WS.hasInternet(Splash.this)){
-                delayAndContinue(success);
-            }
-            //SI NO ESTA LOGGEADO Y NO TIENE INTERNET
-            else{
-                WS.showAlert(
-                        Splash.this,
-                        getString(R.string.alerts_sinconexion_titulo),
-                        getString(R.string.alerts_sinconexion_mensaje),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                delayAndContinue(success);
-                            }
-                        }
-                );
-            }
-
-        }
-        */
     }
 
     @Override
@@ -314,7 +312,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
             return;
         }
 
-        VersionesAPK_Firebase versionesFirebase = (VersionesAPK_Firebase)objectFirebase;
+        versionesFirebase = (VersionesAPK_Firebase)objectFirebase;
         try{
             PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
             String version = pInfo.versionName;
@@ -322,15 +320,19 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
 
             Log.d(TAG,"versionRetrieved="+versionesFirebase.getUltimaVersion().getVersionName());
 
+
+
             boolean isUpdated = versionesFirebase.getUltimaVersion().getVersionName().compareTo(version)==0 && versionesFirebase.getUltimaVersion().getVersionCode()==verCode;
             if(isUpdated){
                 Log.d("SplashDebug","IS UPDATED! **********");
-                delayAndContinue(loggedInBOOL);
+                manageUserType();
+                //delayAndContinue(loggedInBOOL);
             }else{
 
                 Log.d("SplashDebug","NEEDS UPDATE! ----------");
-                WS.downloadAPK(Splash.this, versionesFirebase.getUltimaVersion().getNombreAPK(), Splash.this);
+                WS.downloadAPKLink(Splash.this, versionesFirebase.getUltimaVersion().getNombreAPK(), Splash.this, versionesFirebase.getUltimaVersion().getLinkDescarga());
             }
+
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -375,9 +377,15 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
         }else{
 
             Log.d(TAG, "DownloaderTask - APK");
+            /*
+            if(versionesFirebase==null){Log.e(TAG,"versiones == NULL"); return;}
+            WS.downloadAPKLink(Splash.this, versionesFirebase.getUltimaVersion().getNombreAPK(), Splash.this, versionesFirebase.getUltimaVersion().getLinkDescarga());
+            */
+
             APKDownloader apkDownloader = new APKDownloader();
             apkDownloader.setSuccesUri(succesUri);
             apkDownloader.execute(Splash.this);
+
         }
     }
 

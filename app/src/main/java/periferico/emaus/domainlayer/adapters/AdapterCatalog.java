@@ -28,9 +28,18 @@ public class AdapterCatalog extends RecyclerView.Adapter<AdapterCatalog.ViewHold
     private ArrayList<Object_Firebase> mDataset;
     Activity activity;
 
-    public AdapterCatalog(ArrayList<Object_Firebase> myDataset, AppCompatActivity activity){
+    /**
+     * Escucha que gestionara los clicks fuera del adapter
+     */
+    public AdapterCatalog.OnPictureClickListener onPictureClickListener;
+    public interface OnPictureClickListener{
+        void onPictureClick(int position, String imgUrl);
+    }
+
+    public AdapterCatalog(ArrayList<Object_Firebase> myDataset, AppCompatActivity activity, OnPictureClickListener onPictureClickListener_){
         mDataset = myDataset;
         this.activity = activity;
+        onPictureClickListener = onPictureClickListener_;
     }
 
     @Override
@@ -40,7 +49,13 @@ public class AdapterCatalog extends RecyclerView.Adapter<AdapterCatalog.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        holder.img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onPictureClickListener.onPictureClick(position, ((CatalogItem_Firebase)mDataset.get(position)).getLink());
+            }
+        });
         Picasso.with(activity).load(Uri.parse( ((CatalogItem_Firebase)mDataset.get(position)).getLink() )).into(holder.img);
     }
 

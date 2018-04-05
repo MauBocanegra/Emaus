@@ -1,8 +1,11 @@
 package periferico.emaus.presentationlayer.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -13,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -134,6 +138,8 @@ public class NuevoCliente extends AppCompatActivity_Job implements
     StorageReference storageRef;
 
     private static final int FACHADA_REQUESTED = 1;
+    private static final int CAMERA_REQUEST = 2;
+    private static final int FILES_REQUEST = 3;
 
     View viewCamara1;
     View viewCamara2;
@@ -607,6 +613,45 @@ public class NuevoCliente extends AppCompatActivity_Job implements
         }
     }
 
+    private void checkPermissionCamera(){
+        if (ContextCompat.checkSelfPermission(NuevoCliente.this,
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(NuevoCliente.this,
+                    Manifest.permission.CAMERA)) {
+
+                ActivityCompat.requestPermissions(NuevoCliente.this,
+                        new String[]{Manifest.permission.CAMERA},
+                        CAMERA_REQUEST);
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                Log.d(TAG, "Explanation NEEDED ASK FOR PERMISSION");
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                Log.d(TAG, "NO EXP, ASK PERMISSION");
+
+                ActivityCompat.requestPermissions(NuevoCliente.this,
+                        new String[]{Manifest.permission.CAMERA},
+                        CAMERA_REQUEST);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }else{
+            Log.d(TAG, "Start TakePicture()");
+            takePicture();
+        }
+    }
+
     // ----------------------------------------------- //
     // ---------------- INNER CLASSES ---------------- //
     //------------------------------------------------ //
@@ -644,6 +689,8 @@ public class NuevoCliente extends AppCompatActivity_Job implements
      */
     @Override
     public void onClick(View view) {
+        hideKeyboard();
+
         switch(view.getId()){
 
             case R.id.buttonAgregarTelefono:{
@@ -672,7 +719,7 @@ public class NuevoCliente extends AppCompatActivity_Job implements
             case R.id.bottomsheetlayout_cam1:{}
             case R.id.bottomsheetlayout_cam2:{
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                takePicture();
+                checkPermissionCamera();
                 break;
             }
             case R.id.bottomsheetlayout_galeria1:{}
@@ -760,15 +807,17 @@ public class NuevoCliente extends AppCompatActivity_Job implements
             analyticsBundle.putString("cliente_id", stID);
             WS.registerAnalyticsEvent("cliente_creado",analyticsBundle);
 
-            progressDialogFragment.changeTitle("Cliente creado exitosamente!");
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    progressDialogFragment.dismiss();
-                    onBackPressed();
-                }
-            }, 1500);
+            try {
+                progressDialogFragment.changeTitle("Cliente creado exitosamente!");
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialogFragment.dismiss();
+                        onBackPressed();
+                    }
+                }, 1500);
+            }catch(Exception e){e.printStackTrace();}
         }
     }
 
@@ -1015,5 +1064,47 @@ public class NuevoCliente extends AppCompatActivity_Job implements
             //finalCreationPlanFirebase();
 
         }catch(Exception e){e.printStackTrace();}
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case CAMERA_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    takePicture();
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.d(TAG, "PERMISSION DENIED!");
+
+                    WS.showAlert(
+                            NuevoCliente.this,
+                            getString(R.string.alerts_permiso_titulo),
+                            getString(R.string.alerts_permiso_mensaje),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    //delayAndContinue(success);
+                                }
+                            }
+                    );
+                    /*
+                    ActivityCompat.requestPermissions(NuevoCliente.this,
+                            new String[]{Manifest.permission.CAMERA},
+                            CAMERA_REQUEST);
+                    */
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 }

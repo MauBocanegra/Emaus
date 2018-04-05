@@ -25,6 +25,7 @@ public class AppCompatActivity_Job extends AppCompatActivity{
         super.onStop();
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(getApplicationContext()));
         dispatcher.cancelAll();
+        //Ha
     }
 
     @Override
