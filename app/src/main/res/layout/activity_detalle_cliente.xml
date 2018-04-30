@@ -43,13 +43,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="32dp"
+                    android:layout_marginEnd="8dp"
                     android:maxLines="1"
                     android:textColor="@color/textColorPrimary"
                     android:textSize="36sp"
                     app:autoSizeMinTextSize="5sp"
                     app:autoSizeTextType="uniform"
-                    app:layout_constraintEnd_toStartOf="parent"
                     app:layout_constraintBottom_toTopOf="@+id/guideline"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
                 <TextView

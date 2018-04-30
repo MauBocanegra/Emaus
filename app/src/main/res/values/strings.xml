@@ -124,6 +124,8 @@
 
     <string name="detallecliente_format_letras">%s%s</string>
     <string name="detallecliente_format_nomap">%s %s</string>
+    <string name="crearplan_format_texto_mensualidades">%d Mensualidades de</string>
+    <string name="crearplan_format_dinero">$%s</string>
     <string name="title_activity_catalog">Catalog</string>
     <string name="title_activity_nuevo_plan">NuevoPlan</string>
     <string name="planes_frag_prompt_nohay">No existen planes para este cliente</string>
@@ -164,7 +166,11 @@
         <item>36 Meses</item>
     </string-array>
 
-    <string name="nuevoplan_prompt_pago">Pagos</string>
+    <string name="nuevoplan_prompt_descuentos">Descuentos</string>
+    <string name="nuevoplan_prompt_descuentos_contado">Descuentos de contado</string>
+    <string name="nuevoplan_prompt_descuentos_financiamiento">Descuentos de financiamiento</string>
+    <string name="nuevoplan_prompt_pago">Frecuencia de pagos</string>
+    <string name="nuevoplan_prompt_pago_contado">Pago de contado</string>
     <string-array name="nuevoplan_array_pago">
         <item>Pago único</item>
         <item>Quincenales</item>
@@ -172,8 +178,11 @@
         <item>Semestrales</item>
     </string-array>
 
-    <string name="nuevoplan_label_montocontrato">Monto contrato</string>
+    <string name="nuevoplan_label_montocontrato">Total a pagar</string>
+    <string name="nuevoplan_label_saldo">Saldo</string>
+    <string name="nuevoplan_label_titulodescuento">DESCUENTO</string>
     <string name="nuevoplan_label_titulopago">PAGO</string>
+
 
     <string name="nuevoplan_prompt_formapago">Forma de pago</string>
     <string-array name="nuevoplan_array_formapago">
@@ -193,11 +202,21 @@
     <string name="nuevoplan_label_inefrontal">INE FRONTAL</string>
     <string name="nuevoplan_label_inereverso">INE REVERSO</string>
     <string name="nuevoplan_label_comprobante">COMPROBANTE DOMICILIO</string>
+    <string name="nuevoplan_label_tarjeta_descuento">TARJETA DESCUENTO</string>
 
     <string name="nuevoplan_label_titulocamera">Cámara</string>
     <string name="nuevoplan_label_titulogaleria">Galería</string>
     <string name="nuevoplan_label_tituloimagencon">Cargar imagen mediante:</string>
+
     <string name="nuevoplan_formatted_monto">$%1$s.00</string>
+    <string name="nuevoplan_format_labeldescuento">%d%% de Descuento</string>
+    <string name="nuevoplan_format_numeropagos">%d pago(s) de %s</string>
+    <string name="nuevoplan_sindescuento">Sin descuento</string>
+
+    <string name="nuevoplan_error_plan">Elige correctamente entre las opciones de los planes</string>
+    <string name="nuevoplan_error_comprobantes">Verifica las imágenes de comprobantes de domicilio e identidad</string>
+    <string name="nuevoplan_error_descuento">Verifica la imagen de comprobante de descuento</string>
+    <string name="nuevoplan_error_meses">Elige la cantidad de meses en el financiamiento</string>
 
     <string name="nuevoplan_button_crearplan">AÑADIR PLAN</string>
 

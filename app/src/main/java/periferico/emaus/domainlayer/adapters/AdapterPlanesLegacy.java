@@ -12,38 +12,28 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import periferico.emaus.R;
-import periferico.emaus.domainlayer.WS;
-import periferico.emaus.domainlayer.firebase_objects.ConfiguracionPlanes_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.configplan.FormasPago_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.configplan.FrecuenciasPago_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.configplan.MatrizPlanes_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.configplan.Financiamientos_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.PlanLegacy_Firebase;
 
 /**
  * Created by maubocanegra on 14/12/17.
  */
 
-public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder> implements WS.FirebaseObjectRetrieved{
+public class AdapterPlanesLegacy extends RecyclerView.Adapter<AdapterPlanesLegacy.ViewHolder>{
 
     private ArrayList<Object_Firebase> mDataset;
-
-    private MatrizPlanes_Firebase configPlan;
-    private Financiamientos_Firebase mensualidadesFirebase;
-    private FormasPago_Firebase formasPagoFirebase;
-    private Financiamientos_Firebase financiamientoFirebase;
-    private FrecuenciasPago_Firebase frecuenciasPagoFirebase;
-
-
+    private String[] planes;
+    private String[][] ataudes;
+    private String[] servicios;
+    private String[] financiamientos;
+    private String[] pagos;
+    private String[] formaPago;
 
     Context c;
 
-    public AdapterPlanes(ArrayList<Object_Firebase> myDataset, Context context){
+    public AdapterPlanesLegacy(ArrayList<Object_Firebase> myDataset, Context context){
         mDataset = myDataset;
         c = context;
-
-        WS.readConfiguracionPlanes(AdapterPlanes.this);
     }
 
     // ----------------------------------------------------------- //
@@ -54,8 +44,6 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.item_planes, parent, false);
-
-        /*
         planes = c.getResources().getStringArray(R.array.nuevoplan_array_planes);
         ataudes = new String[][]{
                 c.getResources().getStringArray(R.array.nuevoplan_array_planbasico),
@@ -66,29 +54,21 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
         financiamientos = c.getResources().getStringArray(R.array.nuevoplan_array_financiamiento);
         pagos = c.getResources().getStringArray(R.array.nuevoplan_array_pago);
         formaPago = c.getResources().getStringArray(R.array.nuevoplan_array_formapago);
-        */
 
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Plan_Firebase planFirebase = ((Plan_Firebase)mDataset.get(position));
+        PlanLegacy_Firebase planFirebase = ((PlanLegacy_Firebase)mDataset.get(position));
         holder.textviewContrato.setText(planFirebase.getStID());
-
-        try {
-            holder.textviewPlan.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getNombre());
-            holder.textviewAtaud.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getAtaudByID(planFirebase.getAtaudID()).getNombre());
-            holder.textviewServicio.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getAtaudByID(planFirebase.getAtaudID()).getServicioByID(planFirebase.getServicioID()).getNombre());
-            holder.textviewFinanciamiento.setText(financiamientoFirebase.getFinanciamientoByID(planFirebase.getFinanciamientoID()).getNombre());
-            holder.textviewFrecuencia.setText(frecuenciasPagoFirebase.getFrecuenciaByID(planFirebase.getFrecuenciaPagoID()).getNombre());
-            holder.textviewForma.setText(formasPagoFirebase.getFormaPagoByID(planFirebase.getFormaPagoID()).getNombre());
-
-
-            String montoFormateado = NumberFormat.getNumberInstance(Locale.US).format(planFirebase.getTotalAPagar());
-            holder.textviewTotal.setText(String.format( c.getString(R.string.nuevoplan_formatted_monto),montoFormateado));
-        }catch(Exception e){}
-
+        holder.textviewPlan.setText(planes[planFirebase.getIntPlan()]);
+        holder.textviewAtaud.setText(ataudes[planFirebase.getIntPlan()][planFirebase.getIntAtaud()]);
+        holder.textviewServicio.setText(servicios[planFirebase.getIntServicio()]);
+        holder.textviewFinanciamiento.setText(financiamientos[planFirebase.getIntFinanciamiento()]);
+        holder.textviewFrecuencia.setText(pagos[planFirebase.getIntFrecuenciaPagos()]);
+        holder.textviewForma.setText(formaPago[planFirebase.getIntFormaPago()]);
+        holder.textviewTotal.setText(c.getString(R.string.nuevoplan_formatted_monto, NumberFormat.getNumberInstance(Locale.US).format(planFirebase.getIntMonto())));
     }
 
     @Override
@@ -122,22 +102,5 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
             textviewFrecuencia = view.findViewById(R.id.itemplan_textview_frecpago);
             textviewForma = view.findViewById(R.id.itemplan_textview_formapago);
         }
-    }
-
-    // ----------------------------------------------------------- //
-    // ---------------- FIREBASE OBJECT RETRIEVED ---------------- //
-    //------------------------------------------------------------ //
-
-
-    @Override
-    public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
-        ConfiguracionPlanes_Firebase configuracionPlanesFirebase = (ConfiguracionPlanes_Firebase)objectFirebase;
-
-        configPlan = configuracionPlanesFirebase.getPlanes();
-        mensualidadesFirebase = configuracionPlanesFirebase.getListamensualidades();
-        formasPagoFirebase = configuracionPlanesFirebase.getListaformaspago();
-
-        financiamientoFirebase = configuracionPlanesFirebase.getListamensualidades();
-        frecuenciasPagoFirebase = configuracionPlanesFirebase.getListafrecuenciaspago();
     }
 }

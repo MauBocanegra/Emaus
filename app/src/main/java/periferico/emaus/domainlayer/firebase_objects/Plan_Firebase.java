@@ -1,99 +1,134 @@
 package periferico.emaus.domainlayer.firebase_objects;
 
-/**
- * Created by maubocanegra on 12/12/17.
- */
-
 public class Plan_Firebase extends Object_Firebase {
-    private int intPlan;
-    private int intAtaud;
-    private int intServicio;
-    private int intFinanciamiento;
-    private int intFrecuenciaPagos;
-    private int intFormaPago;
-    private int intAnticipo;
-    private int intMonto;
+
+    private int planID;
+    private int ataudID;
+    private int servicioID;
+    private int financiamientoID;
+    private int formaPagoID;
+    private int frecuenciaPagoID;
+
+    private int status;
+
+    private int creadoOffline;
+
+    private int descuentoID;
+    private String comprobanteDescuentoURL;
+
     private boolean boolFacturacion;
     private String stRFC;
     private String stEmailFacturacion;
-    private String linkINEFrontal;
-    private String linkINEReverso;
-    private String linkComprobante;
 
+    private int mensualidadesID;
+    private int numMensualidades;
+
+    private float anticipo;
+    private float totalAPagar;
+    private float saldo;
+
+    private String comprobanteINEFrontalURL;
+    private String comprobanteINEReversoURL;
+    private String comprobanteDomicilioURL;
+
+    private long createdAt;
+    private String stVendedor;
     private String stCliente;
 
-    private String stVendedor;
-    private Long createdAt;
-
     public String toString(){
-        return "stID="+stID+" intPlan="+intPlan+" intAtaud="+intAtaud+" intServicio="+intServicio+" intFinanciamiento="+intFinanciamiento
-        +" intFrecuenciaPagos="+intFrecuenciaPagos+" intFormaPago="+intFormaPago+" intAnticipo="+intAnticipo
-        +" intMonto="+intMonto+" boolFacturacion="+boolFacturacion+" stRFC="+stRFC+" stEmailFacturacion="+stEmailFacturacion
-        +" linkINEFrontal="+linkINEFrontal+" linkINEReverso="+linkINEReverso+" linkComprobante="+linkComprobante;
+        return "planID="+planID+" ataudID="+ataudID+" servicioID"+servicioID+" financiamientoID="+ financiamientoID
+                +" formaPagoID="+formaPagoID+" creadoOffline="+creadoOffline+" descuentoID="+descuentoID
+                +" comprobanteDescuentoURL="+comprobanteDescuentoURL+" boolFacturacion="+boolFacturacion
+                +" stRFC="+stRFC+" stEmailFacturacion="+stEmailFacturacion+" mensualidadesID="+mensualidadesID
+                +" numMensualidades="+numMensualidades+" anticipo="+anticipo+" totalAPagar=";
     }
 
-    public int getIntPlan() {
-        return intPlan;
+
+    public Plan_Firebase() {
     }
 
-    public void setIntPlan(int intPlan) {
-        this.intPlan = intPlan;
+    // --------------------------------------------------- //
+    // ---------------- GETTERS & SETTERS ---------------- //
+    //---------------------------------------------------- //
+
+    public int getPlanID() {
+        return planID;
     }
 
-    public int getIntAtaud() {
-        return intAtaud;
+    public void setPlanID(int planID) {
+        this.planID = planID;
     }
 
-    public void setIntAtaud(int intAtaud) {
-        this.intAtaud = intAtaud;
+    public int getAtaudID() {
+        return ataudID;
     }
 
-    public int getIntServicio() {
-        return intServicio;
+    public void setAtaudID(int ataudID) {
+        this.ataudID = ataudID;
     }
 
-    public void setIntServicio(int intServicio) {
-        this.intServicio = intServicio;
+    public int getServicioID() {
+        return servicioID;
     }
 
-    public int getIntFinanciamiento() {
-        return intFinanciamiento;
+    public void setServicioID(int servicioID) {
+        this.servicioID = servicioID;
     }
 
-    public void setIntFinanciamiento(int intFinanciamiento) {
-        this.intFinanciamiento = intFinanciamiento;
+    public int getFinanciamientoID() {
+        return financiamientoID;
     }
 
-    public int getIntFrecuenciaPagos() {
-        return intFrecuenciaPagos;
+    public void setFinanciamientoID(int financiamientoID) {
+        this.financiamientoID = financiamientoID;
     }
 
-    public void setIntFrecuenciaPagos(int intFrecuenciaPagos) {
-        this.intFrecuenciaPagos = intFrecuenciaPagos;
+    public int getStatus() {
+        return status;
     }
 
-    public int getIntMonto() {
-        return intMonto;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
-    public void setIntMonto(int intMonto) {
-        this.intMonto = intMonto;
+    public int getFormaPagoID() {
+        return formaPagoID;
     }
 
-    public int getIntFormaPago() {
-        return intFormaPago;
+    public void setFormaPagoID(int formaPagoID) {
+        this.formaPagoID = formaPagoID;
     }
 
-    public void setIntFormaPago(int intFormaPago) {
-        this.intFormaPago = intFormaPago;
+    public int getFrecuenciaPagoID() {
+        return frecuenciaPagoID;
     }
 
-    public int getIntAnticipo() {
-        return intAnticipo;
+    public void setFrecuenciaPagoID(int frecuenciaPagoID) {
+        this.frecuenciaPagoID = frecuenciaPagoID;
     }
 
-    public void setIntAnticipo(int intAnticipo) {
-        this.intAnticipo = intAnticipo;
+    public int getCreadoOffline() {
+        return creadoOffline;
+    }
+
+    public void setCreadoOffline(int creadoOffline) {
+        this.creadoOffline = creadoOffline;
+    }
+
+    public int getDescuentoID() {
+        return descuentoID;
+    }
+
+    public void setDescuentoID(int descuentoID) {
+        this.descuentoID = descuentoID;
+    }
+
+    public String getComprobanteDescuentoURL() {
+        return comprobanteDescuentoURL;
+    }
+
+    public void setComprobanteDescuentoURL(String comprobanteDescuentoURL) {
+        this.comprobanteDescuentoURL = comprobanteDescuentoURL;
     }
 
     public boolean isBoolFacturacion() {
@@ -120,28 +155,60 @@ public class Plan_Firebase extends Object_Firebase {
         this.stEmailFacturacion = stEmailFacturacion;
     }
 
-    public String getLinkINEFrontal() {
-        return linkINEFrontal;
+    public int getMensualidadesID() {
+        return mensualidadesID;
     }
 
-    public void setLinkINEFrontal(String linkINEFrontal) {
-        this.linkINEFrontal = linkINEFrontal;
+    public void setMensualidadesID(int mensualidadesID) {
+        this.mensualidadesID = mensualidadesID;
     }
 
-    public String getLinkINEReverso() {
-        return linkINEReverso;
+    public int getNumMensualidades() {
+        return numMensualidades;
     }
 
-    public void setLinkINEReverso(String linkINEReverso) {
-        this.linkINEReverso = linkINEReverso;
+    public void setNumMensualidades(int numMensualidades) {
+        this.numMensualidades = numMensualidades;
     }
 
-    public String getLinkComprobante() {
-        return linkComprobante;
+    public float getAnticipo() {
+        return anticipo;
     }
 
-    public void setLinkComprobante(String linkComprobante) {
-        this.linkComprobante = linkComprobante;
+    public void setAnticipo(float anticipo) {
+        this.anticipo = anticipo;
+    }
+
+    public String getComprobanteINEFrontalURL() {
+        return comprobanteINEFrontalURL;
+    }
+
+    public void setComprobanteINEFrontalURL(String comprobanteINEFrontalURL) {
+        this.comprobanteINEFrontalURL = comprobanteINEFrontalURL;
+    }
+
+    public String getComprobanteINEReversoURL() {
+        return comprobanteINEReversoURL;
+    }
+
+    public void setComprobanteINEReversoURL(String comprobanteINEReversoURL) {
+        this.comprobanteINEReversoURL = comprobanteINEReversoURL;
+    }
+
+    public String getComprobanteDomicilioURL() {
+        return comprobanteDomicilioURL;
+    }
+
+    public void setComprobanteDomicilioURL(String comprobanteDomicilioURL) {
+        this.comprobanteDomicilioURL = comprobanteDomicilioURL;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getStVendedor() {
@@ -152,19 +219,27 @@ public class Plan_Firebase extends Object_Firebase {
         this.stVendedor = stVendedor;
     }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Long createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public String getStCliente() {
         return stCliente;
     }
 
     public void setStCliente(String stCliente) {
         this.stCliente = stCliente;
+    }
+
+    public float getTotalAPagar() {
+        return totalAPagar;
+    }
+
+    public void setTotalAPagar(float totalAPagar) {
+        this.totalAPagar = totalAPagar;
+    }
+
+    public float getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(float saldo) {
+        this.saldo = saldo;
     }
 }

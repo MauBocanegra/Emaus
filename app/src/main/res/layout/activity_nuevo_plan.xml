@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="periferico.emaus.presentationlayer.activities.NuevoPlan"
     android:animateLayoutChanges="true"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context="periferico.emaus.presentationlayer.activities.NuevoPlan">
 
     <!--
     <android.support.design.widget.AppBarLayout
@@ -45,8 +45,9 @@
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- android:entries="@array/nuevoplan_array_planes" -->
             <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
                 android:id="@+id/nuevoplan_spinner_tipoplan"
                 style="@style/Base.Widget.AppCompat.Spinner.Underlined"
@@ -55,12 +56,13 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:entries="@array/nuevoplan_array_planes"
+
                 android:prompt="@string/nuevoplan_prompt_planes"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/toolbar"/>
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
+            <!-- android:entries="@array/nuevoplan_array_planbasico" -->
             <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
                 android:id="@+id/nuevoplan_spinner_ataud"
                 style="@style/Base.Widget.AppCompat.Spinner.Underlined"
@@ -69,12 +71,13 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:entries="@array/nuevoplan_array_planbasico"
+
                 android:prompt="@string/nuevoplan_prompt_ataud"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_tipoplan" />
 
+            <!-- android:entries="@array/nuevoplan_array_servicio" -->
             <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
                 android:id="@+id/nuevoplan_spinner_servicio"
                 style="@style/Base.Widget.AppCompat.Spinner.Underlined"
@@ -83,12 +86,13 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:entries="@array/nuevoplan_array_servicio"
+
                 android:prompt="@string/nuevoplan_prompt_servicio"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_ataud" />
 
+            <!-- android:entries="@array/nuevoplan_array_financiamiento" -->
             <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
                 android:id="@+id/nuevoplan_spinner_financiamiento"
                 style="@style/Base.Widget.AppCompat.Spinner.Underlined"
@@ -97,59 +101,64 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:entries="@array/nuevoplan_array_financiamiento"
+
                 android:prompt="@string/nuevoplan_prompt_financiamiento"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_servicio" />
 
+            <!-- android:entries="@array/nuevoplan_array_pago" -->
+            <TextView
+                android:id="@+id/nuevoplan_label_titulodescuento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/nuevoplan_label_titulodescuento"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_financiamiento" />
+
             <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
-                android:id="@+id/nuevoplan_spinner_pagos"
+                android:id="@+id/nuevoplan_spinner_descuentos"
                 style="@style/Base.Widget.AppCompat.Spinner.Underlined"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:entries="@array/nuevoplan_array_pago"
+                android:prompt="@string/nuevoplan_prompt_descuentos"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_label_titulodescuento" />
+
+            <TextView
+                android:id="@+id/nuevoplan_label_descuentoaplicado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/colorPrimaryDark"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_descuentos" />
+
+            <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+                android:id="@+id/nuevoplan_spinner_frecuencia_pagos"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
                 android:prompt="@string/nuevoplan_prompt_pago"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_financiamiento" />
-
-            <TextView
-                android:id="@+id/nuevocliente_label_montocontrato"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                android:text="@string/nuevoplan_label_montocontrato"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_pagos" />
-
-            <TextView
-                android:id="@+id/nuevoplan_textview_monto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:textColor="@color/textColorPrimary"
-                android:textSize="38dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/nuevocliente_label_montocontrato" />
-
-            <TextView
-                android:id="@+id/nuevocliente_label_titulo_pago"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:text="@string/nuevoplan_label_titulopago"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_textview_monto" />
+                app:layout_constraintTop_toBottomOf="@+id/nuevocliente_label_titulo_pago" />
 
             <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
                 android:id="@+id/nuevoplan_spinner_formapago"
@@ -159,11 +168,11 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:entries="@array/nuevoplan_array_formapago"
+
                 android:prompt="@string/nuevoplan_prompt_formapago"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/nuevocliente_label_titulo_pago" />
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_spinner_frecuencia_pagos" />
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/nuevoplan_inputlayou_anticipo"
@@ -184,14 +193,89 @@
                     android:inputType="number" />
             </android.support.design.widget.TextInputLayout>
 
+            <TextView
+                android:id="@+id/nuevoplan_label_montocontrato"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/nuevoplan_label_montocontrato"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_inputlayou_anticipo" />
+
+            <TextView
+                android:id="@+id/nuevoplan_textview_totalapagar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_label_montocontrato" />
+
+            <TextView
+                android:id="@+id/nuevoplan_label_titulosaldo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/nuevoplan_label_saldo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_textview_totalapagar" />
+
+            <TextView
+                android:id="@+id/nuevoplan_label_saldo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_label_titulosaldo" />
+
+            <TextView
+                android:id="@+id/nuevoplan_numero_pagos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_label_saldo" />
+
+            <TextView
+                android:id="@+id/nuevoplan_mensualidad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_numero_pagos" />
+
+            <TextView
+                android:id="@+id/nuevocliente_label_titulo_pago"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/nuevoplan_label_titulopago"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_label_descuentoaplicado" />
+
+            <!-- android:entries="@array/nuevoplan_array_formapago" -->
+
             <Switch
                 android:id="@+id/nuevoplan_switch_facturacion"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="25dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_inputlayou_anticipo"
+                app:layout_constraintTop_toBottomOf="@+id/nuevoplan_mensualidad"
                 tools:checked="false" />
 
             <TextView
@@ -262,6 +346,20 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.5" />
 
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.25" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/guideline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.75" />
+
             <android.support.v7.widget.CardView
                 android:id="@+id/cardview_tarjetafrente"
                 android:layout_width="0dp"
@@ -272,7 +370,7 @@
                 app:layout_constraintDimensionRatio="w,4:7"
                 app:layout_constraintEnd_toStartOf="@id/guideline3"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView5" >
+                app:layout_constraintTop_toBottomOf="@+id/textView5">
 
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
@@ -281,7 +379,7 @@
                     <ImageView
                         android:id="@+id/nuevoplan_img_frontal"
                         android:layout_width="0dp"
-                        android:layout_height="0dp"
+                        android:layout_height="101dp"
                         android:adjustViewBounds="true"
                         android:scaleType="centerCrop"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -321,14 +419,14 @@
                 android:id="@+id/cardview_tarjetareverso"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:layout_marginBottom="32dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="32dp"
                 app:layout_constraintDimensionRatio="w,4:7"
                 app:layout_constraintEnd_toStartOf="@id/guideline3"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjetafrente" >
+                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjetafrente">
 
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
@@ -427,18 +525,74 @@
                 </android.support.constraint.ConstraintLayout>
             </android.support.v7.widget.CardView>
 
+            <android.support.v7.widget.CardView
+                android:id="@+id/cardview_tarjeta_descuento"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintDimensionRatio="16:9"
+                app:layout_constraintEnd_toEndOf="@+id/guideline6"
+                app:layout_constraintStart_toStartOf="@+id/guideline4"
+                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjetareverso">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/nuevoplan_img_tarjeta_descuento"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/common_full_open_on_phone" />
+
+                    <TextView
+                        android:id="@+id/textView_tarjeta_descuento"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="8dp"
+                        android:background="#DDFFFFFF"
+                        android:gravity="center"
+                        android:text="@string/nuevoplan_label_tarjeta_descuento"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ProgressBar
+                        android:id="@+id/nuevocliente_progress_tarjeta_descuento"
+                        style="@android:style/Widget.Material.ProgressBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+
             <TextView
-                android:id="@+id/textView6"
+                android:id="@+id/nuevoplan_errores_pendientes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjetareverso" />
+                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjeta_descuento" />
 
             <Button
                 android:id="@+id/nuevoplan_button_nuevoplan"
@@ -454,13 +608,14 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjetareverso" />
+                app:layout_constraintTop_toBottomOf="@+id/cardview_tarjeta_descuento" />
 
         </android.support.constraint.ConstraintLayout>
 
     </ScrollView>
 
     <include layout="@layout/bottomsheet_layout" />
+
 
     <TextView
         android:id="@+id/nuevoplan_banner_network"

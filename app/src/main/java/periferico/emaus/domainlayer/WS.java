@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
@@ -34,11 +33,16 @@ import java.util.Collections;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.firebase_objects.CatalogItem_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.PlanLegacy_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.MatrizPlanes_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.ConfiguracionPlanes_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Directorio_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
+//import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.User_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.VersionesAPK_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.Financiamientos_Firebase;
 
 /**
  * Created by maubocanegra on 27/10/17.
@@ -297,6 +301,8 @@ public class WS{
         ((Plan_Firebase)obj_firebase).setCreatedAt(System.currentTimeMillis()/1000);
         ((Plan_Firebase)obj_firebase).setStVendedor(vendedor);
 
+        Log.d(TAG, "stVendedor="+vendedor+" stCliente="+((Plan_Firebase)obj_firebase).getStCliente());
+
         mDatabase.child(KEY_CLIENTES).child(((Plan_Firebase)obj_firebase).getStCliente()).child("intStatus").setValue(1);
         mDatabase.child(KEY_VENDEDORES).child(((Plan_Firebase)obj_firebase).getStVendedor()).child(KEY_CLIENTES).child(((Plan_Firebase)obj_firebase).getStCliente()).child("intStatus").setValue(1);
         mDatabase.child("planes").child(((Plan_Firebase)obj_firebase).getStCliente()).child(((Plan_Firebase)obj_firebase).getStID()).setValue(obj_firebase,
@@ -445,7 +451,7 @@ public class WS{
                 Log.d(TAG,dataSnapshot.toString());
                 ArrayList<Object_Firebase> planes = new ArrayList<>();
                 for(DataSnapshot planSnapshot : dataSnapshot.getChildren()){
-                    planes.add(planSnapshot.getValue(Plan_Firebase.class));
+                    planes.add(planSnapshot.getValue(PlanLegacy_Firebase.class));
                 }
                 firebaseArrayRetreivedListener.firebaseCompleted(planes);
             }
@@ -454,6 +460,93 @@ public class WS{
             public void onCancelled(DatabaseError databaseError) {}
         });
     }
+
+    public static void readPlanesListFirebase(String stID, final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
+        mDatabase.child("planes").child(stID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG,dataSnapshot.toString());
+                ArrayList<Object_Firebase> planes = new ArrayList<>();
+                for(DataSnapshot planSnapshot : dataSnapshot.getChildren()){
+                    try {
+                        planes.add(planSnapshot.getValue(Plan_Firebase.class));
+                    }catch(Exception e){
+                        planes.add(planSnapshot.getValue(PlanLegacy_Firebase.class));
+                    }
+                }
+                firebaseArrayRetreivedListener.firebaseCompleted(planes);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
+
+    public static void readMensualidadesFinanciamiento (final FirebaseObjectRetrieved firebaseObjectRetrieved){
+        Log.d(TAG,"beforeDownloadingMensualidadesFinanciamiento");
+        mDatabase.child("configplanes").child("listamensualidades").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, dataSnapshot.toString());
+                Financiamientos_Firebase mensualidadesPago = dataSnapshot.getValue(Financiamientos_Firebase.class);
+                firebaseObjectRetrieved.firebaseObjectRetrieved(mensualidadesPago);
+            }
+
+            @Override public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
+
+    public static void readConfigPlanes(final FirebaseObjectRetrieved firebaseObjectRetrieved){
+        Log.d(TAG,"beforeDownloadingConfigPlanes");
+        mDatabase.child("configplanes").child("planes").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, dataSnapshot.toString());
+                MatrizPlanes_Firebase configPlanes = dataSnapshot.getValue(MatrizPlanes_Firebase.class);
+                firebaseObjectRetrieved.firebaseObjectRetrieved(configPlanes);
+            }
+
+            @Override public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
+
+    public static void readConfiguracionPlanes(final FirebaseObjectRetrieved firebaseObjectRetrieved){
+        Log.d(TAG,"beforeDownloadingConfiguracionPlanes");
+        mDatabase.child("configplanes").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, dataSnapshot.toString());
+                ConfiguracionPlanes_Firebase configPlanes = dataSnapshot.getValue(ConfiguracionPlanes_Firebase.class);
+                firebaseObjectRetrieved.firebaseObjectRetrieved(configPlanes);
+            }
+
+            @Override public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
+
+
+
+    /*
+    public static void readConfigPlanes(final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
+        Log.d(TAG,"beforeDownloadingConfigPlanes");
+        mDatabase.child("configplanes").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, dataSnapshot.toString());
+                ArrayList<Object_Firebase> configPlanes = new ArrayList<>();
+                for(DataSnapshot configSnapshot : dataSnapshot.getChildren()){
+                    Log.d(TAG,"plan="+configSnapshot);
+                    ConfigPlan_Firebase planFirebase = configSnapshot.getValue(ConfigPlan_Firebase.class);
+                    configPlanes.add(planFirebase);
+                }
+                firebaseArrayRetreivedListener.firebaseCompleted(configPlanes);
+            }
+
+            @Override public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
+    */
+
 
     public static void readVersionesAPKFirebase(/*final FirebaseObjectRetrieved firebaseObjectRetrieved*/Activity activity){
 

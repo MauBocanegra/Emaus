@@ -15,8 +15,8 @@ import java.util.ArrayList;
 
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
-import periferico.emaus.domainlayer.adapters.AdapterClientes;
 import periferico.emaus.domainlayer.adapters.AdapterPlanes;
+import periferico.emaus.domainlayer.adapters.AdapterPlanesLegacy;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 
 /**
@@ -116,7 +116,8 @@ public class PlanesFrag extends Fragment implements
 
     private void refreshPlanesList(){
         mSwipeRefreshLayout.setRefreshing(true);
-        WS.readPlansListFirebase(stID, PlanesFrag.this);
+        //WS.readPlansListFirebase(stID, PlanesFrag.this);
+        WS.readPlanesListFirebase(stID, PlanesFrag.this);
     }
 
     // --------------------------------------------------------- //

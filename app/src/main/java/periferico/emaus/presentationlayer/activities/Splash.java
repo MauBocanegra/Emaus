@@ -25,6 +25,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import java.util.Calendar;
 import java.util.Date;
 
+import periferico.emaus.BuildConfig;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
@@ -73,7 +74,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
             int verCode = pInfo.versionCode;
 
             tvVersion.setText("Ver: "+version);
-            tvCodigo.setText("Cod: "+verCode);
+            tvCodigo.setText("Cod: "+verCode+" Rev: "+BuildConfig.revision);
 
         }catch(Exception e){e.printStackTrace();}
 
@@ -204,7 +205,6 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                     Intent intent = new Intent(Splash.this, Login.class);
                     startActivity(intent);
                     finish();
-
                 }else{
                     //Iniciar actividad de Menu
 
@@ -215,20 +215,9 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                     mAuth.signOut();
                     */
 
-
-                    /*
-                    Intent intent = null;
-                    if((Splash.this).getString(R.string.flavor_string).equals("Ventas")){
-                        intent = new Intent(Splash.this, MainTabs.class);
-                    }else{
-
-                    }
-                    */
-                    Intent intent = new Intent(Splash.this, periferico.emaus.presentationlayer.activities.MainTabs.class);
+                    Intent intent = new Intent(Splash.this, MainTabs.class);
                     startActivity(intent);
                     finish();
-
-
                 }
             }
         }, 1500);

@@ -1,0 +1,57 @@
+{
+  "project_info": {
+    "project_number": "551116985673",
+    "firebase_url": "https://fir-emaus.firebaseio.com",
+    "project_id": "firebase-emaus",
+    "storage_bucket": "firebase-emaus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551116985673:android:424717e3e2538953",
+        "android_client_info": {
+          "package_name": "periferico.emaus.ventas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551116985673-eubk4hpkahe1snpvt6ucm7949183g6dj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "periferico.emaus.ventas",
+            "certificate_hash": "4177ed43113763058ff452496d3cb65afc0798fb"
+          }
+        },
+        {
+          "client_id": "551116985673-9qu3epidkqvk5v31khc8hdfu63ahn1kt.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "551116985673-ekprmsn8etpf3s11f1oloach0a470nao.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFzd0qXDUKpkK46Wl9cjWkvGmGS9GRrcE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-108856172-1"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
