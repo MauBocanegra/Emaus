@@ -4,4 +4,11 @@
         <item name="colorButtonNormal">@color/colorAccent</item>
         <item name="background">?attr/selectableItemBackground</item>
     </style>
+
+    <style name="AppTheme.ButtonMaterialLight" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/cardview_light_background</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="background">?attr/selectableItemBackground</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

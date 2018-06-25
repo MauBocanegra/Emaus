@@ -27,7 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
-            android:minHeight="?attr/actionBarSize"
+            android:minHeight="?android:attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"

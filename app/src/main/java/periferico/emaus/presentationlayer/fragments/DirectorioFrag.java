@@ -212,12 +212,14 @@ public class DirectorioFrag extends Fragment implements
     public void onItemClick(int position, int tipoUsuario, String telToCall_) {
 
         if(tipoUsuario==Cliente_Firebase.TIPOUSUARIO_CLIENTE){
+            /*
             Intent intent = new Intent(getContext(), DetalleCliente.class);
             Log.d("ClientesFrag","stID="+mDataset.get(position).toString());
             intent.putExtra("clientID",mDataset.get(position).getStID());
             intent.putExtra("stNombre",((Cliente_Firebase)mDataset.get(position)).getStNombre());
             intent.putExtra("intStatus",((Cliente_Firebase)mDataset.get(position)).getIntStatus());
             startActivity(intent);
+            */
         }else{
 
             telToCall = telToCall_;

@@ -27,20 +27,26 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.firebase_objects.CatalogItem_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.PerfilEmpleado;
 import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.PlanLegacy_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.Ticket_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.configplan.MatrizPlanes_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.ConfiguracionPlanes_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.Directorio_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 //import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.User_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.UserType_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.VersionesAPK_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.configplan.Financiamientos_Firebase;
 
@@ -52,7 +58,11 @@ public class WS{
 
     private static final String KEY_VENDEDORES = "vendedores";
     private static final String KEY_CLIENTES = "clientes";
-    private static final String KEY_SEGMENTO = "segmento";
+    private static final String KEY_EMPLEADOS = "empleados";
+    private static final String KEY_TICKETS = "tickets";
+    private static final String KEY_REL_TICKETS = "_relacionesTicket";
+    private static final String KEY_REL_TICKETS_COBRADOR = "_porCobrador";
+    private static final String KEY_REL_TICKETS_DIA = "_porDia";
 
     private static String KEY_USER = "";
 
@@ -71,6 +81,12 @@ public class WS{
     private static boolean loggedIn;
     private static boolean actualNetworkState;
 
+    private static int HELPERrutasDescargadas;
+
+    public static FirebaseUser getCurrentUser() {
+        return currentUser;
+    }
+
     /**
      * Metodo que instancia el singleton de los WebServices (Firebase)
      * @param c que es el contexto con el cual se hará la instancia
@@ -79,7 +95,7 @@ public class WS{
     public synchronized static WS getInstance(final Context c, boolean forceUpdate){
 
         switch (c.getString(R.string.flavor_string)){
-            case "Ventas":{setKeyUser("vendedores"); break;}
+            case "Ventas":{setKeyUser(KEY_VENDEDORES); break;}
             case "Cobranza":{setKeyUser("cobranza"); break;}
         }
 
@@ -118,6 +134,22 @@ public class WS{
                         Long tsLong = System.currentTimeMillis()/1000;
                         Log.d("FirebaseDebug","usuario="+usuario);
 
+                        //--------------------------------------------
+
+                        Calendar cal = Calendar.getInstance();
+                        TimeZone tz = cal.getTimeZone();
+
+                        /* debug: is it local time? */
+                        Log.d("Time zone: ", tz.getDisplayName());
+
+                        /* date formatter in local timezone */
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                        sdf.setTimeZone(tz);
+
+                        /* print your timestamp and double check it's the date you expect */
+                        String localTime = sdf.format(new Date(System.currentTimeMillis())); // I assume your timestamp is in seconds and you're converting to milliseconds?
+                        Log.d("LocalTime: ", localTime);
+
                         //13 - 35 - 450
                         //14 - 35 - 490
                         //15 - 35 - 4525
@@ -126,10 +158,21 @@ public class WS{
 
                         //readUserType(c);
 
-                        //if(mDatabase.child(c.getString(R.string.alerts_sinconexion_mensaje)))
+                        Map<String,Object> updateUser = new HashMap<>();
+                        updateUser.put("lastLogin",tsLong);
+                        updateUser.put("lastLoginString",localTime);
 
-
-                        mDatabase.child(WS.getKeyUser()).child(usuario).child("lastLogin").setValue(tsLong,
+                        mDatabase.child(KEY_EMPLEADOS).child(usuario).updateChildren(updateUser,new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                if(databaseError!=null) {
+                                    loggedIn = true;
+                                    onLoginRequested.loginAnswered(true, null);
+                                }
+                            }
+                        });
+                        /*
+                        mDatabase.child(KEY_EMPLEADOS).child(usuario).child("lastLogin").setValue(tsLong,
                                 new DatabaseReference.CompletionListener() {
                             @Override
                             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
@@ -139,6 +182,8 @@ public class WS{
                                 }
                             }
                         });
+                        */
+
 
 
 
@@ -247,11 +292,20 @@ public class WS{
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    public static void showAlert(Activity activity, String title, String message, DialogInterface.OnClickListener listener){
+    public static void showAlert(Activity activity, String title, String message, DialogInterface.OnClickListener listener, boolean hasCancelButton){
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(title).setMessage(message);
         if(listener!=null){
             builder.setPositiveButton("Entendido", listener);
+        }
+
+        if(hasCancelButton){
+            builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
         }
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
@@ -262,38 +316,24 @@ public class WS{
     // ---------------- WRITING METHODS ---------------- //
     //-------------------------------------------------- //
 
-    public static void escribirFirebase(Object_Firebase obj_firebase, final FirebaseCompletionListener firebaseCompletionListener_){
-    }
+    public static void writeClientFirebase(final Cliente_Firebase clienteFirebase, final FirebaseCompletionListener firebaseCompletionListener){
+        final String vendedor = currentUser.getEmail().split("@")[0].replace(".","");
+        clienteFirebase.setCreatedAt(System.currentTimeMillis()/1000);
+        clienteFirebase.setStVendedor(vendedor);
 
-    public static void crearClienteFirebase(final Object_Firebase obj_firebase, final FirebaseCompletionListener firebaseCompletionListener_){
-        String vendedor = currentUser.getEmail().split("@")[0].replace(".","");
-        ((Cliente_Firebase)obj_firebase).setCreatedAt(System.currentTimeMillis()/1000);
-        ((Cliente_Firebase)obj_firebase).setStVendedor(vendedor);
-        mDatabase.child(KEY_CLIENTES).child(obj_firebase.getStID()).setValue(obj_firebase);
-        mDatabase.child(KEY_CLIENTES).child(obj_firebase.getStID()).child(KEY_VENDEDORES).child(vendedor).setValue(true, new DatabaseReference.CompletionListener() {
+        mDatabase.child(KEY_CLIENTES).child(clienteFirebase.getStID()).setValue(clienteFirebase, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if(databaseError!=null) {
-                    Log.e(TAG, "ERROR = " + databaseError.getDetails() + "\n" + databaseError.getMessage());
-                    firebaseCompletionListener_.firebaseCompleted(true);
-                }else {
-                    Log.d(TAG, "SUCCESFULLY WRITEN!");
-                    firebaseCompletionListener_.firebaseCompleted(false);
-                }
+                Object_Firebase objF = new Object_Firebase();
+                objF.setStID(clienteFirebase.getStID());
+                mDatabase.child(KEY_VENDEDORES).child(vendedor).child(KEY_CLIENTES).child(clienteFirebase.getStID()).setValue(true, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        firebaseCompletionListener.firebaseCompleted(false);
+                    }
+                });
             }
         });
-
-        Directorio_Firebase directorioFirebase = new Directorio_Firebase();
-        directorioFirebase.setStNombre(((Cliente_Firebase)obj_firebase).getStNombre()+" "+((Cliente_Firebase)obj_firebase).getStApellido());
-        directorioFirebase.setCreatedAt(System.currentTimeMillis()/1000);
-        directorioFirebase.setIntStatus(((Cliente_Firebase)obj_firebase).getIntStatus());
-        directorioFirebase.setTipoUsuario(1);
-        directorioFirebase.setStID(obj_firebase.getStID());
-        mDatabase.child(KEY_VENDEDORES).child(vendedor).child(KEY_CLIENTES).child(directorioFirebase.getStID()).setValue(directorioFirebase);
-
-        if(!actualNetworkState){
-            firebaseCompletionListener_.firebaseCompleted(true);
-        }
     }
 
     public static void writePlanFirebase(final Object_Firebase obj_firebase, final FirebaseCompletionListener firebaseCompletionListener_){
@@ -303,70 +343,226 @@ public class WS{
 
         Log.d(TAG, "stVendedor="+vendedor+" stCliente="+((Plan_Firebase)obj_firebase).getStCliente());
 
+        //Guardamos la referencia del plan en el cliente
+        mDatabase.child(KEY_CLIENTES).child(((Plan_Firebase)obj_firebase).getStCliente()).child("planes").child(obj_firebase.getStID()).setValue(true);
+
+        //Actualizamos el status del cliente
         mDatabase.child(KEY_CLIENTES).child(((Plan_Firebase)obj_firebase).getStCliente()).child("intStatus").setValue(1);
-        mDatabase.child(KEY_VENDEDORES).child(((Plan_Firebase)obj_firebase).getStVendedor()).child(KEY_CLIENTES).child(((Plan_Firebase)obj_firebase).getStCliente()).child("intStatus").setValue(1);
-        mDatabase.child("planes").child(((Plan_Firebase)obj_firebase).getStCliente()).child(((Plan_Firebase)obj_firebase).getStID()).setValue(obj_firebase,
-                new DatabaseReference.CompletionListener() {
+
+        //((Plan_Firebase)obj_firebase).
+        mDatabase.child(KEY_CLIENTES).child(((Plan_Firebase)obj_firebase).getStCliente()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if(databaseError!=null) {
-                    Log.e(TAG, "ERROR = " + databaseError.getDetails() + "\n" + databaseError.getMessage());
-                    firebaseCompletionListener_.firebaseCompleted(true);
-                }else {
-                    Log.d(TAG, "SUCCESFULLY WRITEN!");
-                    firebaseCompletionListener_.firebaseCompleted(false);
-                }
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Cliente_Firebase clienteFirebase = dataSnapshot.getValue(Cliente_Firebase.class);
+                ((Plan_Firebase)obj_firebase).setDirecciones(clienteFirebase.getDirecciones());
+                Log.d(TAG, "previo a subirse="+((Plan_Firebase)obj_firebase));
+
+                //Escribimos el plan en la lista de planes
+                mDatabase.child("planes").child(((Plan_Firebase)obj_firebase).getStID()).setValue(obj_firebase,
+                        new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                if(databaseError!=null) {
+                                    Log.e(TAG, "ERROR = " + databaseError.getDetails() + "\n" + databaseError.getMessage());
+                                    firebaseCompletionListener_.firebaseCompleted(true);
+                                }else {
+                                    Log.d(TAG, "SUCCESFULLY WRITEN!");
+                                    firebaseCompletionListener_.firebaseCompleted(false);
+                                }
+                            }
+                        });
             }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
         });
     }
+
+    public static void writeTicketFirebase(
+            final Ticket_Firebase ticketFirebase,
+            final FirebaseCompletionListener firebaseCompletionListener){
+        final String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+        final Object_Firebase ticketObj = new Object_Firebase();
+
+
+        //-------GUARDAMOS EL TICKET
+        mDatabase.child(KEY_TICKETS).child(ticketFirebase.getStID()).setValue(ticketFirebase, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                Log.d(TAG, "Paso1 TicketGuardado!");
+            }
+        });
+
+
+        //-------GUARDAMOS EL ID del ticket por cobrador
+        mDatabase.child(KEY_REL_TICKETS).child(KEY_REL_TICKETS_COBRADOR).child(empleado).child(ticketFirebase.getStID()).setValue(true, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                Log.d(TAG, "Paso2 TicketHistorialCobrador Guardado!");
+            }
+        });
+
+        //-------GUARDAMOS EL ID del ticket por DIA
+        mDatabase.child(KEY_REL_TICKETS).child(KEY_REL_TICKETS_DIA).child(empleado).child(ticketFirebase.getKeyDiaCreacion()).child(ticketFirebase.getStID()).setValue(true, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                Log.d(TAG, "Paso3 TicketHistorialDia Guardado!");
+            }
+        });
+
+        //-------Guardamos la referencia en el Plan
+        mDatabase.child("planes")
+                .child(ticketFirebase.getPlanID())
+                .child("tickets")
+                .child(ticketFirebase.getStID())
+                .setValue(true, new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                Log.d(TAG, "Paso4 GuardadoListaTicketsPlan");
+                            }
+                        }
+                );
+
+        //-------Actualizamos el numero de pagos realizados y el saldo en el plan
+        Map<String, Object> childrenToUpdate = new HashMap<>();
+        childrenToUpdate.put("pagosRealizados",ticketFirebase.getNumAbono());
+        childrenToUpdate.put("saldo",ticketFirebase.getNuevoSaldo());
+        childrenToUpdate.put("ultimoTicketRealizado",ticketFirebase.getStID());
+        childrenToUpdate.put("fechaUltimoPago",ticketFirebase.getCreatedAt());
+        mDatabase.child("planes").child(ticketFirebase.getPlanID()).updateChildren(childrenToUpdate, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                Log.d(TAG, "Paso5 PlanUpdated");
+                firebaseCompletionListener.firebaseCompleted(false);
+            }
+        });
+
+    }
+
 
     // ------------------------------------------------- //
     // ---------------- READING METHODS ---------------- //
     //-------------------------------------------------- //
 
-    public static void readUserType(Context c, final FirebaseObjectRetrieved firebaseObjectRetrieved){
+    public static void readUserType(Context c, final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
         String userKey = c.getString(R.string.flavor_string);
 
+
         switch (userKey){
-            case "Ventas":{ userKey = "vendedores"; break;}
+            case "Ventas":{ userKey = KEY_VENDEDORES; break;}
             case "Cobranza":{ userKey = "cobranza"; break;}
         }
 
+
         String usuario = currentUser.getEmail().split("@")[0].replace(".","");
 
-        mDatabase.child(userKey).child(usuario).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child(KEY_EMPLEADOS).child(usuario).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Log.d(TAG,"userKey="+key+"usuario="+currentUser.getEmail().split("@")[0].replace(".","")+"SEGMENTO dataSnapshot = "+dataSnapshot.getValue());
                 if(dataSnapshot.getValue()!=null){
-                    firebaseObjectRetrieved.firebaseObjectRetrieved(dataSnapshot.getValue(User_Firebase.class));
+                    firebaseObjectRetrievedListener.firebaseObjectRetrieved(dataSnapshot.getValue(UserType_Firebase.class));
                 }
             }
 
-            @Override public void onCancelled(DatabaseError databaseError) {}
+            @Override public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readUserType",databaseError.toString());}
         });
     }
 
     public static void readClientAndDirectoryFirebase(final FirebaseArrayRetreivedListener arrayRetreivedListener){
         String vendedor = currentUser.getEmail().split("@")[0].replace(".","");
-        mDatabase.child(KEY_VENDEDORES).child(vendedor).child(KEY_CLIENTES).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList<Object_Firebase> fullDirectory = new ArrayList<Object_Firebase>();
-                for(DataSnapshot clienteSnapshot : dataSnapshot.getChildren()){
-                    fullDirectory.add(clienteSnapshot.getValue(Cliente_Firebase.class));
-                }
-                arrayRetreivedListener.firebaseCompleted(fullDirectory);
+
+        switch(getKeyUser()){
+            case KEY_VENDEDORES:{
+                final ArrayList<Object_Firebase> fullDirectory = new ArrayList<>();
+                mDatabase.child(KEY_VENDEDORES).child(vendedor).child("clientes").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final long snapFatherCount = dataSnapshot.getChildrenCount();
+                        for(DataSnapshot snap : dataSnapshot.getChildren()){
+                            mDatabase.child("clientes").child(snap.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    fullDirectory.add(dataSnapshot.getValue(Cliente_Firebase.class));
+                                    if(fullDirectory.size()==snapFatherCount){
+                                        arrayRetreivedListener.firebaseCompleted(fullDirectory);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG, databaseError.toString());
+                    }
+                });
+                break;
             }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
+            case "cobranza":{
+
+                final ArrayList<Object_Firebase> fullDirectory = new ArrayList<>();
+
+                String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+                mDatabase.child("asignacionRutas").child(empleado).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final DataSnapshot dataSnapshotFather = dataSnapshot;
+                        ArrayList<String> cps = new ArrayList<>();
+                        final ArrayList<Object_Firebase> planes = new ArrayList<>();
+                        for(DataSnapshot cpSnap : dataSnapshotFather.getChildren()){
+
+                            String spToFilterBy = cpSnap.getKey();
+                            spToFilterBy = spToFilterBy.replace("\"","");
+                            mDatabase.child("planes").orderByChild("direcciones/0/stCP").equalTo(spToFilterBy).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    final DataSnapshot dataSnapshotplanes = dataSnapshot;
+                                    for(DataSnapshot snap : dataSnapshot.getChildren()){
+                                        Plan_Firebase planFirebase = snap.getValue(Plan_Firebase.class);
+
+                                        mDatabase.child(KEY_CLIENTES).child(planFirebase.getStCliente()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                fullDirectory.add(dataSnapshot.getValue(Cliente_Firebase.class));
+                                                if(dataSnapshotFather.getChildrenCount()== fullDirectory.size()){
+                                                    arrayRetreivedListener.firebaseCompleted(fullDirectory);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+                                                Log.e(TAG, databaseError.toString());
+                                            }
+                                        });
+                                    }
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    Log.e(TAG, databaseError.toString());
+                                }
+                            });
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readRutasAsig",databaseError.toString());}
+                });
+
+
+                break;
+            }
+        }
 
         mDatabase.child("directorio").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList<Object_Firebase> fullDirectory = new ArrayList<Object_Firebase>();
+                ArrayList<Object_Firebase> fullDirectory = new ArrayList<>();
                 for(DataSnapshot clienteSnapshot : dataSnapshot.getChildren()){
                     fullDirectory.add(clienteSnapshot.getValue(Cliente_Firebase.class));
                 }
@@ -374,29 +570,26 @@ public class WS{
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readClientAndDir",databaseError.toString());}
         });
     }
 
-    public static void readClientListFirebase(final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
+    public static void readClientListFirebase(final FirebaseKeyListRetrievedListener firebaseKeyListRetrievedListener){
         String vendedor = currentUser.getEmail().split("@")[0].replace(".","");
-        mDatabase.child(KEY_VENDEDORES).child(vendedor).child(KEY_CLIENTES).orderByChild("createdAt").addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child(KEY_VENDEDORES).child(vendedor).child(KEY_CLIENTES).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterable<DataSnapshot> itClientes = dataSnapshot.getChildren();
-                ArrayList<Object_Firebase> clientes = new ArrayList<>();
+                ArrayList<String> allClients = new ArrayList<>();
                 for(DataSnapshot clienteSnapshot : dataSnapshot.getChildren()){
-                    Object_Firebase objectFirebase = clienteSnapshot.getValue(Cliente_Firebase.class);
-                    objectFirebase.setStID(clienteSnapshot.getKey());
-                    clientes.add(objectFirebase);
+                    allClients.add(clienteSnapshot.getKey());
                 }
-                Collections.reverse(clientes);
-                firebaseArrayRetreivedListener.firebaseCompleted(clientes);
+                firebaseKeyListRetrievedListener.firebaseKeyListRetrieved(allClients);
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readClientList",databaseError.toString());}
         });
+        /*
 
         mDatabase.child(KEY_VENDEDORES).child(vendedor).child(KEY_CLIENTES).orderByChild("createdAt").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -409,6 +602,7 @@ public class WS{
 
             }
         });
+        */
     }
 
     public static void readCatalogListFirebase(final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
@@ -425,22 +619,22 @@ public class WS{
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readCatalogList",databaseError.toString());}
         });
 
     }
 
-    public static void readClientFirebase(String clientID, final FirebaseObjectRetrieved firebaseObjectRetrieved){
+    public static void readClientFirebase(String clientID, final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
         Log.d(TAG,"breforeAskingFullClient = "+clientID);
         mDatabase.child(KEY_CLIENTES).child(clientID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Cliente_Firebase clienteFirebase = dataSnapshot.getValue(Cliente_Firebase.class);
-                firebaseObjectRetrieved.firebaseObjectRetrieved(clienteFirebase);
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(clienteFirebase);
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readClientF",databaseError.toString());}
         });
     }
 
@@ -457,132 +651,252 @@ public class WS{
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readPlansList",databaseError.toString());}
         });
     }
 
-    public static void readPlanesListFirebase(String stID, final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
-        mDatabase.child("planes").child(stID).addListenerForSingleValueEvent(new ValueEventListener() {
+    public static void readPlanFirebase(String planID, final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
+        mDatabase.child("planes").child(planID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG,dataSnapshot.toString());
-                ArrayList<Object_Firebase> planes = new ArrayList<>();
-                for(DataSnapshot planSnapshot : dataSnapshot.getChildren()){
-                    try {
-                        planes.add(planSnapshot.getValue(Plan_Firebase.class));
-                    }catch(Exception e){
-                        planes.add(planSnapshot.getValue(PlanLegacy_Firebase.class));
-                    }
-                }
-                firebaseArrayRetreivedListener.firebaseCompleted(planes);
+                Plan_Firebase planFirebase = dataSnapshot.getValue(Plan_Firebase.class);
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(planFirebase);
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) { Log.e("WS -> readPlan",databaseError.toString());}
         });
     }
 
-    public static void readMensualidadesFinanciamiento (final FirebaseObjectRetrieved firebaseObjectRetrieved){
+    /*
+    public static void readPlanFirebase(String clienteID, String planID, final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
+        mDatabase.child("planes").child(clienteID).child(planID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Plan_Firebase planFirebase = dataSnapshot.getValue(Plan_Firebase.class);
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(planFirebase);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { }
+        });
+    }
+    */
+
+    public static void readPlanesListFirebase(String clientID, final FirebaseKeyListRetrievedListener firebaseKeyListRetrievedListener){
+        mDatabase.child(KEY_CLIENTES).child(clientID).child("planes").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG,dataSnapshot.toString());
+                ArrayList<String> planes = new ArrayList<>();
+                for(DataSnapshot planSnapshot : dataSnapshot.getChildren()){
+                    Log.d(TAG, "leido="+planSnapshot.getKey());
+                    planes.add(planSnapshot.getKey());
+                }
+                firebaseKeyListRetrievedListener.firebaseKeyListRetrieved(planes);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readPlanesList",databaseError.toString());}
+        });
+    }
+
+    public static void readMensualidadesFinanciamiento (final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
         Log.d(TAG,"beforeDownloadingMensualidadesFinanciamiento");
         mDatabase.child("configplanes").child("listamensualidades").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, dataSnapshot.toString());
                 Financiamientos_Firebase mensualidadesPago = dataSnapshot.getValue(Financiamientos_Firebase.class);
-                firebaseObjectRetrieved.firebaseObjectRetrieved(mensualidadesPago);
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(mensualidadesPago);
             }
 
-            @Override public void onCancelled(DatabaseError databaseError) { }
+            @Override public void onCancelled(DatabaseError databaseError) { Log.e("WS -> readMensualidades",databaseError.toString());}
         });
     }
 
-    public static void readConfigPlanes(final FirebaseObjectRetrieved firebaseObjectRetrieved){
+    public static void readConfigPlanes(final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
         Log.d(TAG,"beforeDownloadingConfigPlanes");
         mDatabase.child("configplanes").child("planes").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, dataSnapshot.toString());
                 MatrizPlanes_Firebase configPlanes = dataSnapshot.getValue(MatrizPlanes_Firebase.class);
-                firebaseObjectRetrieved.firebaseObjectRetrieved(configPlanes);
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(configPlanes);
             }
 
-            @Override public void onCancelled(DatabaseError databaseError) { }
+            @Override public void onCancelled(DatabaseError databaseError) { Log.e("WS -> rConfigPlanes",databaseError.toString());}
         });
     }
 
-    public static void readConfiguracionPlanes(final FirebaseObjectRetrieved firebaseObjectRetrieved){
+    public static void readConfiguracionPlanes(final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
         Log.d(TAG,"beforeDownloadingConfiguracionPlanes");
         mDatabase.child("configplanes").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, dataSnapshot.toString());
                 ConfiguracionPlanes_Firebase configPlanes = dataSnapshot.getValue(ConfiguracionPlanes_Firebase.class);
-                firebaseObjectRetrieved.firebaseObjectRetrieved(configPlanes);
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(configPlanes);
             }
 
             @Override public void onCancelled(DatabaseError databaseError) { }
         });
     }
 
-
-
-    /*
-    public static void readConfigPlanes(final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
-        Log.d(TAG,"beforeDownloadingConfigPlanes");
-        mDatabase.child("configplanes").addListenerForSingleValueEvent(new ValueEventListener() {
+    public static void readRutasAsignadas(final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
+        String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+        mDatabase.child("asignacionRutas").child(empleado).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d(TAG, dataSnapshot.toString());
-                ArrayList<Object_Firebase> configPlanes = new ArrayList<>();
-                for(DataSnapshot configSnapshot : dataSnapshot.getChildren()){
-                    Log.d(TAG,"plan="+configSnapshot);
-                    ConfigPlan_Firebase planFirebase = configSnapshot.getValue(ConfigPlan_Firebase.class);
-                    configPlanes.add(planFirebase);
+                final DataSnapshot dataSnapshotFather = dataSnapshot;
+                ArrayList<String> cps = new ArrayList<>();
+                final ArrayList<Object_Firebase> planes = new ArrayList<>();
+                if(dataSnapshotFather.getChildrenCount()==0){firebaseArrayRetreivedListener.firebaseCompleted(planes);}
+                for(DataSnapshot cpSnap : dataSnapshotFather.getChildren()){
+                    Log.d(TAG, "rutasAsignadas="+cpSnap.getKey());
+
+                    String spToFilterBy = cpSnap.getKey();
+                    spToFilterBy = spToFilterBy.replace("\"","");
+                    mDatabase.child("planes").orderByChild("direcciones/0/stCP").equalTo(spToFilterBy).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for(DataSnapshot snap : dataSnapshot.getChildren()){
+                                Log.d(TAG, "ruta -- CPDownloaded="+snap.getKey());
+                                planes.add(snap.getValue(Plan_Firebase.class));
+
+                                if(planes.size()==dataSnapshotFather.getChildrenCount()){
+                                    firebaseArrayRetreivedListener.firebaseCompleted(planes);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.e(TAG, databaseError.toString());
+                        }
+                    });
                 }
-                firebaseArrayRetreivedListener.firebaseCompleted(configPlanes);
             }
 
-            @Override public void onCancelled(DatabaseError databaseError) { }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readRutasAsig",databaseError.toString());}
         });
     }
-    */
+
+    public static void descargarTicketsPorPlan(final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener, final ArrayList<String> keys){
+        final ArrayList<Object_Firebase> tickets = new ArrayList<>();
+        if(keys.size()==0){firebaseArrayRetreivedListener.firebaseCompleted(tickets);}
+        for(String keyTicket : keys){
+            mDatabase.child(KEY_TICKETS).child(keyTicket).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    tickets.add(dataSnapshot.getValue(Ticket_Firebase.class));
+                    if(tickets.size()==keys.size()){firebaseArrayRetreivedListener.firebaseCompleted(tickets);}
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {Log.e("WS -> tickPorFech_Inn",databaseError.toString());}
+            });
+        }
+    }
+
+    public static void descargarTicketsPorCobrador(final FirebaseKeyListRetrievedListener firebaseKeyListRetrievedListener){
+        String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+        mDatabase.child(KEY_REL_TICKETS).child(KEY_REL_TICKETS_COBRADOR).child(empleado).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<String> keys = new ArrayList<>();
+                for(DataSnapshot snap : dataSnapshot.getChildren()){
+                    keys.add(snap.getKey());
+                }
+                firebaseKeyListRetrievedListener.firebaseKeyListRetrieved(keys);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> ticketsPorCobr",databaseError.toString());}
+        });
+    }
+
+    public static void descargarTicketsPorFechaYCobrador(String keyFecha, final FirebaseArrayRetreivedListener firebaseArrayRetrievedListener){
+        String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+        Log.d(TAG, "willAsk="+KEY_REL_TICKETS+" > "+KEY_REL_TICKETS_DIA+" > "+empleado+" > "+keyFecha);
+        mDatabase.child(KEY_REL_TICKETS).child(KEY_REL_TICKETS_DIA).child(empleado).child(keyFecha).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<String> keys = new ArrayList<>();
+                final long numTickets=dataSnapshot.getChildrenCount();
+                for(DataSnapshot snap : dataSnapshot.getChildren()){
+                    keys.add(snap.getKey());
+                }
+
+                final ArrayList<Object_Firebase> tickets = new ArrayList<>();
+                if(keys.size()==0){firebaseArrayRetrievedListener.firebaseCompleted(tickets);}
+                for(String keyTicket : keys){
+                    mDatabase.child(KEY_TICKETS).child(keyTicket).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            tickets.add(dataSnapshot.getValue(Ticket_Firebase.class));
+                            if(tickets.size()==numTickets){firebaseArrayRetrievedListener.firebaseCompleted(tickets);}
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {Log.e("WS -> tickPorFech_Inn",databaseError.toString());}
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> ticketsPorFech",databaseError.toString());}
+        });
+    }
+
+    public static void readTicket(String ticketID, final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
+        mDatabase.child(KEY_TICKETS).child(ticketID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(dataSnapshot.getValue(Ticket_Firebase.class));
+            }
+
+            @Override public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readTicket",databaseError.toString());}
+        });
+    }
+
+    public static void readPerfilEmpleado(final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
+        String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+        mDatabase.child(KEY_EMPLEADOS).child(empleado).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(dataSnapshot.getValue(PerfilEmpleado.class));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("WS -> readEmpleado",databaseError.toString());
+            }
+        });
+    }
+
 
 
     public static void readVersionesAPKFirebase(/*final FirebaseObjectRetrieved firebaseObjectRetrieved*/Activity activity){
 
-        final FirebaseObjectRetrieved firebaseObjectRetrieved = (FirebaseObjectRetrieved)activity;
-
-        //This is ONLY in case there is no INTERNET connection
-        /*
-        if(!hasInternet(activity)){
-            firebaseObjectRetrieved.firebaseObjectRetrieved(null);
-            return;
-        }
-        */
-
-        String userKey = activity.getString(R.string.flavor_string);
-
-        switch (userKey){
-            case "Ventas":{ userKey = "ventas"; break;}
-            case "Cobranza":{ userKey = "cobranza"; break;}
-        }
+        final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener = (FirebaseObjectRetrievedListener)activity;
 
         String usuario = currentUser.getEmail().split("@")[0].replace(".","");
-
-
-
-        mDatabase.child("versionesAPK").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
+        String keyUser = KEY_USER.equals(KEY_VENDEDORES) ? "ventas" : "cobranza";
+        mDatabase.child("versionesAPK").child(keyUser).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 try {
                     VersionesAPK_Firebase versionesAPKFirebase = dataSnapshot.getValue(VersionesAPK_Firebase.class);
+                    Log.d(TAG, "versiones="+dataSnapshot.toString());
                     Log.d(TAG, "ultimaVersion=" + versionesAPKFirebase.getUltimaVersion());
-                    firebaseObjectRetrieved.firebaseObjectRetrieved(versionesAPKFirebase);
+                    firebaseObjectRetrievedListener.firebaseObjectRetrieved(versionesAPKFirebase);
                 }catch(Exception e){e.printStackTrace();}
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readAPK",databaseError.toString());}
         });
     }
 
@@ -673,8 +987,12 @@ public class WS{
         public void firebaseCompleted(ArrayList<Object_Firebase> arrayList);
     }
 
-    public interface FirebaseObjectRetrieved{
+    public interface FirebaseObjectRetrievedListener {
         public void firebaseObjectRetrieved(Object_Firebase objectFirebase);
+    }
+
+    public interface FirebaseKeyListRetrievedListener{
+        public void firebaseKeyListRetrieved(ArrayList<String> keys);
     }
 
     /**

@@ -17,6 +17,8 @@ public class Direcciones {
     String stCP;
     String stColonia;
     String linkFachada;
+    double lat;
+    double lon;
 
     public Direcciones(){ }
 
@@ -58,6 +60,22 @@ public class Direcciones {
 
     public void setLinkFachada(String linkFachada) {
         this.linkFachada = linkFachada;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLon() {
+        return lon;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
     }
 
     /*

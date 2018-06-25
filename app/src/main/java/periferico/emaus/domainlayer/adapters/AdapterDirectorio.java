@@ -1,6 +1,7 @@
 package periferico.emaus.domainlayer.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
+import periferico.emaus.presentationlayer.activities.DetalleCliente;
 
 /**
  * Created by maubocanegra on 08/12/17.
@@ -65,33 +67,60 @@ public class AdapterDirectorio extends RecyclerView.Adapter<AdapterDirectorio.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
-        telToCall = ((Cliente_Firebase)mDataset.get(position)).getStTelefono();
-        if(telToCall==null){telToCall="5555555555";}
-
-        holder.fullView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {onItemClickListener.onItemClick(position, ((Cliente_Firebase)mDataset.get(position)).getTipoUsuario(),telToCall);}
-        });
-
-        holder.textviewNombre.setText(((Cliente_Firebase)mDataset.get(position)).getStNombre());
-        holder.textviewNombre.setTag(((Cliente_Firebase)mDataset.get(position)).getStTelefono());
-        holder.textviewLetra.setText(((Cliente_Firebase)mDataset.get(position)).getStNombre().substring(0,1));
-
-        switch (((Cliente_Firebase)mDataset.get(position)).getTipoUsuario()){
-            case Cliente_Firebase.TIPOUSUARIO_CLIENTE:{
-                //holder.viewColorStatus.setBackgroundColor(Color.parseColor("#f3f3f3"));
-                holder.textviewStatus.setText("Cliente");
-                holder.iconPhone.setVisibility(View.GONE);
-                break;
+        try {
+            telToCall = ((Cliente_Firebase) mDataset.get(position)).getStTelefono();
+            if (telToCall == null) {
+                telToCall = "5555555555";
             }
-            case Cliente_Firebase.TIPOUSUARIO_DIRECTORIO:{
-                holder.viewColorStatus.setBackgroundColor(Color.parseColor("#000000"));
-                holder.textviewStatus.setText("Emaus");
-                holder.textviewLetra.setTextColor(Color.WHITE);
-                holder.iconPhone.setVisibility(View.VISIBLE);
-                break;
+
+            holder.fullView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onItemClickListener.onItemClick(position, ((Cliente_Firebase) mDataset.get(position)).getTipoUsuario(), telToCall);
+                }
+            });
+
+            holder.textviewNombre.setText(c.getString(
+                    R.string.format_fullname,
+                    ((Cliente_Firebase) mDataset.get(position)).getStNombre(),
+                    ((Cliente_Firebase) mDataset.get(position)).getStApellido()==null ? "" : ((Cliente_Firebase) mDataset.get(position)).getStApellido()
+            ));
+            holder.textviewNombre.setTag(((Cliente_Firebase) mDataset.get(position)).getStTelefono());
+            holder.textviewLetra.setText(((Cliente_Firebase) mDataset.get(position)).getStNombre().substring(0, 1));
+
+            View.OnClickListener clickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(c, DetalleCliente.class);
+                    //Log.d("ClientesFrag","stID="+cliente.toString());
+                    intent.putExtra("clientID",((Cliente_Firebase) mDataset.get(position)).getStID());
+                    intent.putExtra("stNombre",((Cliente_Firebase) mDataset.get(position)).getStNombre().split(" ")[0]+" "+((Cliente_Firebase) mDataset.get(position)).getStApellido().split(" ")[0]);
+                    intent.putExtra("intStatus",((Cliente_Firebase) mDataset.get(position)).getIntStatus());
+
+                    c.startActivity(intent);
+                }
+            };
+
+            holder.textviewNombre.setOnClickListener(clickListener);
+            holder.textviewLetra.setOnClickListener(clickListener);
+            holder.textviewStatus.setOnClickListener(clickListener);
+
+            switch (((Cliente_Firebase) mDataset.get(position)).getTipoUsuario()) {
+                case Cliente_Firebase.TIPOUSUARIO_CLIENTE: {
+                    //holder.viewColorStatus.setBackgroundColor(Color.parseColor("#f3f3f3"));
+                    holder.textviewStatus.setText("Cliente");
+                    holder.iconPhone.setVisibility(View.GONE);
+                    break;
+                }
+                case Cliente_Firebase.TIPOUSUARIO_DIRECTORIO: {
+                    holder.viewColorStatus.setBackgroundColor(Color.parseColor("#000000"));
+                    holder.textviewStatus.setText("Emaus");
+                    holder.textviewLetra.setTextColor(Color.WHITE);
+                    holder.iconPhone.setVisibility(View.VISIBLE);
+                    break;
+                }
             }
-        }
+        }catch(Exception e){Log.e("AdapterDirectorio", "Directorio sigue fallando!");}
     }
 
     @Override

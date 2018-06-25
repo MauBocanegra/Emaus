@@ -61,18 +61,22 @@ public class DetalleCliente extends AppCompatActivity_Job {
         setSupportActionBar(toolbar);
         if(getSupportActionBar()!=null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            String[] splitNombre = getIntent().getStringExtra("stNombre").split(" ");
-            getSupportActionBar().setTitle(splitNombre[0]+" "+splitNombre[1]);
 
-            String letras = getString(
-                    R.string.detallecliente_format_letras,
-                    splitNombre[0].substring(0,1),
-                    splitNombre[1].substring(0,1)
-            );
-            textviewLetras.setText(letras);
+            try {
+                String[] splitNombre = getIntent().getStringExtra("stNombre").split(" ");
+                Log.d(TAG, "nombre completo = " + getIntent().getStringExtra("stNombre") + " size=" + getIntent().getStringExtra("stNombre").split(" ").length);
+                getSupportActionBar().setTitle(splitNombre[0] + " " + splitNombre[1]);
 
-            String[] statusArray = getResources().getStringArray(R.array.array_status);
-            textviewStatus.setText(statusArray[getIntent().getIntExtra("intStatus", 0)]);
+                String letras = getString(
+                        R.string.detallecliente_format_letras,
+                        splitNombre[0].substring(0, 1),
+                        splitNombre[1].substring(0, 1)
+                );
+                textviewLetras.setText(letras);
+
+                String[] statusArray = getResources().getStringArray(R.array.array_status);
+                textviewStatus.setText(statusArray[getIntent().getIntExtra("intStatus", 0)]);
+            }catch(Exception e){e.printStackTrace();}
         }
 
         CollapsingToolbarLayout ctl =  findViewById(R.id.collapsingToolbarLayout);

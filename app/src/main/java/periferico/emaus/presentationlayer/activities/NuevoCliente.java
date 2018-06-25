@@ -386,6 +386,7 @@ public class NuevoCliente extends AppCompatActivity_Job implements
 
             }
         }
+
         if(errors>0){
             if(inputLayoutNombre.hasFocus())
                 inputLayoutApellido.requestFocus();
@@ -409,6 +410,22 @@ public class NuevoCliente extends AppCompatActivity_Job implements
             inputLayoutNombre.setError(getString(R.string.nuevocliente_error_nombre));
             inputLayoutNombre.requestFocus();
             errors++;
+        }
+
+        int dirErrors=0;
+        for(DireccionesHelper dirH : direcciones) {
+            if (dirH.getLat() == 0) {
+                dirErrors++;
+                errors++;
+            }
+
+        }
+        if(dirErrors>0){
+            if(inputLayoutNombre.hasFocus())
+                inputLayoutApellido.requestFocus();
+            else
+                inputLayoutNombre.requestFocus();
+            Toast.makeText(NuevoCliente.this, "Ubica en el mapa la dirección ingresada", Toast.LENGTH_SHORT).show();
         }
 
         /*
@@ -563,6 +580,8 @@ public class NuevoCliente extends AppCompatActivity_Job implements
             dir.setStColonia(dirHelper.getStColonia());
             dir.setStCalleNum(dirHelper.getStCalleNum());
             dir.setLinkFachada(dirHelper.getLinkFachada());
+            dir.setLat(dirHelper.getLat());
+            dir.setLon(dirHelper.getLon());
             direcs.add(dir);
         }
 
@@ -573,7 +592,8 @@ public class NuevoCliente extends AppCompatActivity_Job implements
 
 
         FirebaseCrash.log("NuevoCliente_TRY_CrearCliente");
-        WS.crearClienteFirebase(clienteFirebase, NuevoCliente.this);
+        WS.writeClientFirebase(clienteFirebase, NuevoCliente.this);
+        //WS.crearClienteFirebase(clienteFirebase, NuevoCliente.this);
 
 
         if(!WS.hasInternet(NuevoCliente.this)){
@@ -1092,7 +1112,7 @@ public class NuevoCliente extends AppCompatActivity_Job implements
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     //delayAndContinue(success);
                                 }
-                            }
+                            }, false
                     );
                     /*
                     ActivityCompat.requestPermissions(NuevoCliente.this,

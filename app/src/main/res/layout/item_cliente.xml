@@ -73,6 +73,7 @@
                 android:layout_height="0dp"
                 android:gravity="center"
                 android:maxLines="1"
+                android:padding="8dp"
                 app:autoSizeMinTextSize="5sp"
                 app:autoSizeTextType="uniform"
                 android:textAppearance="?android:textAppearanceMedium"

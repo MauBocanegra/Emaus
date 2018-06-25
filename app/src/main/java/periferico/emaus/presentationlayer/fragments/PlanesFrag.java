@@ -23,7 +23,7 @@ import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
  * A simple {@link Fragment} subclass.
  */
 public class PlanesFrag extends Fragment implements
-        WS.FirebaseArrayRetreivedListener,
+        WS.FirebaseKeyListRetrievedListener,
         SwipeRefreshLayout.OnRefreshListener{
 
     RecyclerView mRecyclerView;
@@ -31,7 +31,7 @@ public class PlanesFrag extends Fragment implements
     android.support.v7.widget.LinearLayoutManager mLayoutManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private ArrayList<Object_Firebase> mDataset;
+    private ArrayList<String> mDataset;
     private String stID;
     private TextView labelNoHayPlanes;
 
@@ -100,7 +100,7 @@ public class PlanesFrag extends Fragment implements
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
-        mDataset = new ArrayList<Object_Firebase>();
+        mDataset = new ArrayList<String>();
 
         mAdapter = new AdapterPlanes(mDataset, getContext());
         mRecyclerView.setAdapter(mAdapter);
@@ -124,6 +124,7 @@ public class PlanesFrag extends Fragment implements
     // ---------------- FIREBASE IMPLEMENTATION ---------------- //
     //---------------------------------------------------------- //
 
+    /*
     @Override
     public void firebaseCompleted(ArrayList<Object_Firebase> arrayList) {
 
@@ -134,7 +135,16 @@ public class PlanesFrag extends Fragment implements
         mAdapter.notifyDataSetChanged();
         mSwipeRefreshLayout.setRefreshing(false);
     }
+    */
 
+    @Override
+    public void firebaseKeyListRetrieved(ArrayList<String> keys) {
+        labelNoHayPlanes.setVisibility((keys.size()>0) ? View.GONE : View.VISIBLE);
+        mDataset.clear();
+        mDataset.addAll(keys);
+        mAdapter.notifyDataSetChanged();
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
     // ------------------------------------------------------------- //
     // ---------------- SWIPEREFRESH IMPLEMENTATION ---------------- //
     //-------------------------------------------------------------- //

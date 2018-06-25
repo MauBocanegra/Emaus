@@ -17,7 +17,7 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="?android:attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:theme="?attr/actionBarTheme" />
 
@@ -39,8 +39,8 @@
                 android:id="@+id/toolbar"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorPrimary"
-                android:minHeight="?attr/actionBarSize"
+                android:background="@color/colorPrimary"
+                android:minHeight="?android:attr/actionBarSize"
                 android:theme="?attr/actionBarTheme"
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -403,7 +403,7 @@
 
                     <ProgressBar
                         android:id="@+id/nuevocliente_progress_frontal"
-                        style="@android:style/Widget.Material.ProgressBar"
+                        style="@style/Widget.AppCompat.ProgressBar"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_marginEnd="8dp"
@@ -458,7 +458,7 @@
 
                     <ProgressBar
                         android:id="@+id/nuevocliente_progress_reverso"
-                        style="@android:style/Widget.Material.ProgressBar"
+                        style="@style/Widget.AppCompat.ProgressBar"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_marginEnd="8dp"
@@ -513,7 +513,7 @@
 
                     <ProgressBar
                         android:id="@+id/nuevocliente_progress_comprobante"
-                        style="@android:style/Widget.Material.ProgressBar"
+                        style="@style/Widget.AppCompat.ProgressBar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
@@ -568,7 +568,7 @@
 
                     <ProgressBar
                         android:id="@+id/nuevocliente_progress_tarjeta_descuento"
-                        style="@android:style/Widget.Material.ProgressBar"
+                        style="@style/Widget.AppCompat.ProgressBar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
@@ -583,12 +583,13 @@
 
             <TextView
                 android:id="@+id/nuevoplan_errores_pendientes"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginTop="24dp"
+                android:gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -12,7 +12,7 @@
     </style>
 
     <!-- Base application theme. -->
-    <style name="AppThemeNoBar" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeNoBar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -20,6 +20,8 @@
 
         <item name="actionBarStyle">@style/Widget.AppTheme.ActionBar</item>
         <item name="actionBarTheme">@style/ThemeOverlay.AppTheme.ActionBar</item>
+
+        <item name="cardViewStyle">@style/CardView</item>
     </style>
 
     <style name="Widget.AppTheme.ActionBar" parent="Widget.AppCompat.ActionBar.Solid">

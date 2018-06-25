@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="periferico.emaus.presentationlayer.activities.DetallePlan"
+    android:animateLayoutChanges="true">
+    <ScrollView
+        android:id="@+id/scrollviewNuevoCliente"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayoutDetallePlan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            tools:context="periferico.emaus.presentationlayer.activities.NuevoCliente">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="0dp"
+                android:layout_height="51dp"
+                android:background="@color/colorPrimary"
+                android:minHeight="?android:attr/actionBarSize"
+                android:theme="?attr/actionBarTheme"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/detalleplan_nombre_letras"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="32dp"
+                android:background="@color/colorPrimary"
+                android:gravity="center"
+                android:maxLines="1"
+                android:padding="10dp"
+                android:textColor="#000"
+                app:autoSizeMinTextSize="15sp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/button2" />
+
+            <TextView
+                android:id="@+id/textView16"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                app:layout_constraintBottom_toBottomOf="@+id/detalleplan_nombre_letras"
+                app:layout_constraintStart_toEndOf="@+id/detalleplan_nombre_letras"
+                app:layout_constraintTop_toTopOf="@+id/detalleplan_nombre_letras" />
+
+            <TextView
+                android:id="@+id/detalleplan_cliente"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginStart="16dp"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintBottom_toTopOf="@+id/textView16"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/detalleplan_nombre_letras"
+                app:layout_constraintTop_toTopOf="@+id/detalleplan_nombre_letras" />
+
+            <TextView
+                android:id="@+id/detalleplan_plan_cliente"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintBottom_toBottomOf="@+id/detalleplan_nombre_letras"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/textView16"
+                app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_plan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:text="Tipo de Plan"
+                android:textColor="#AAA"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_nombre_letras" />
+
+            <TextView
+                android:id="@+id/detalleplan_plan_tipoplan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_label_plan" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_ataud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Modelo de Ataud"
+                android:textColor="#AAA"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_plan_tipoplan" />
+
+            <TextView
+                android:id="@+id/detalleplan_plan_ataud"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_label_ataud" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_servicio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Servicio"
+                android:textColor="#AAA"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_plan_ataud" />
+
+            <TextView
+                android:id="@+id/detalleplan_plan_servicio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_label_servicio" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_financiamiento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Financiamiento"
+                android:textColor="#AAA"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_plan_servicio" />
+
+            <TextView
+                android:id="@+id/detalleplan_plan_financiamiento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_label_financiamiento" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_pagos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Pagos"
+                android:textColor="#AAA"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_plan_financiamiento" />
+
+            <TextView
+                android:id="@+id/detalleplan_plan_pagos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_label_pagos" />
+
+
+            <TextView
+                android:id="@+id/detalleplan_label_formapago"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Forma de Pago"
+                android:textColor="#AAA"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_plan_pagos" />
+
+
+            <TextView
+                android:id="@+id/detalleplan_plan_formapago"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_label_plan"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_label_formapago" />
+
+            <TextView
+                android:id="@+id/detalleplan_pagado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="24dp"
+                android:textColor="#000"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_plan_formapago" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_pagado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Pagado |"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintEnd_toStartOf="@+id/detalleplan_pagado"
+                app:layout_constraintTop_toTopOf="@+id/detalleplan_pagado" />
+
+            <TextView
+                android:id="@+id/detalleplan_saldoactual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
+                android:textColor="#000"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_pagado" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_saldoactual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Saldo Actual |"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintEnd_toStartOf="@+id/detalleplan_saldoactual"
+                app:layout_constraintTop_toTopOf="@+id/detalleplan_saldoactual" />
+
+            <TextView
+                android:id="@+id/detalleplan_saldovencido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
+                android:textColor="#000"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_saldoactual" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_saldovencido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Saldo Vencido |"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintEnd_toStartOf="@+id/detalleplan_saldovencido"
+                app:layout_constraintTop_toTopOf="@+id/detalleplan_saldovencido" />
+
+            <ProgressBar
+                android:id="@+id/detalleplan_progress_porcentaje"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="64dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="32dp"
+                android:indeterminate="false"
+                android:progressDrawable="@xml/preogress"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_saldovencido" />
+
+            <TextView
+                android:id="@+id/detalleplan_porcentaje"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@color/cardview_light_background"
+                app:layout_constraintBottom_toBottomOf="@+id/detalleplan_progress_porcentaje"
+                app:layout_constraintEnd_toEndOf="@+id/detalleplan_progress_porcentaje"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_progress_porcentaje"
+                app:layout_constraintTop_toTopOf="@+id/detalleplan_progress_porcentaje" />
+
+            <ImageView
+                android:id="@+id/imageView7"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintEnd_toStartOf="@+id/detalleplan_plan_titulo"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_description" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/detalleplan_plan_titulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:autoSizeMinTextSize="15sp"
+                app:autoSizeTextType="uniform"
+                android:textStyle="bold"
+                android:textColor="#000"
+                app:layout_constraintBottom_toTopOf="@+id/textView13"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/imageView7"
+                app:layout_constraintTop_toTopOf="@+id/imageView7" />
+
+            <View
+                android:id="@+id/textView13"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView7"
+                app:layout_constraintStart_toEndOf="@+id/imageView7"
+                app:layout_constraintTop_toTopOf="@+id/imageView7" />
+
+            <TextView
+                android:id="@+id/detalleplan_plan_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="#000"
+                app:layout_constraintStart_toEndOf="@+id/imageView7"
+                app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+            <Button
+                android:id="@+id/detalleplan_button_cobro"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:textSize="20sp"
+                android:text="Hacer cobro"
+                android:background="@color/greenEmaus"
+                android:textColor="@color/cardview_light_background"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView7" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:text="Cambiar dia de pago"
+                android:background="@color/greenEmaus"
+                android:textColor="@color/cardview_light_background"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_button_cobro" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_label_pagadolista"
+                tools:itemCount="1"
+                tools:listitem="@layout/item_perfilcobrador" />
+
+            <TextView
+                android:id="@+id/detalleplan_label_pagadolista"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Pagado"
+                android:textColor="#AAA"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/detalleplan_progress_porcentaje"
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_progress_porcentaje" />
+
+
+        </android.support.constraint.ConstraintLayout>
+
+    </ScrollView>
+    <!-- <include layout="@layout/bottomsheet_layout" /> -->
+
+    <TextView
+        android:id="@+id/nuevocliente_banner_offline"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:gravity="center_vertical|end"
+        android:text="Sin Conexión"
+        android:background="@color/colorPrimaryT"
+        android:textStyle="bold" />
+
+</android.support.constraint.ConstraintLayout>

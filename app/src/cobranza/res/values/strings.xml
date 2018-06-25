@@ -1,4 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Emaus[C]</string>
     <string name="flavor_string">Cobranza</string>
+
+    <string name="bottomsheet_cobros_cargando_titulo">Cargando ruta</string>
+    <string name="bottomsheet_cobros_cargando_subtitulo">Cargando ubicaciones</string>
+    <string name="bottomsheet_cobros_button_mostrar">Mostrar lista</string>
+
+    <string name="tab_text_1">Cobros</string>
+    <string name="tab_text_2">Directorio</string>
+    <string name="tab_text_3">Perfil</string>
+
+    <string name="fragment_cobros_advertencia_titulo">Todos los permisos deben ser aceptados para el correcto funcionemiento de la aplicación</string>
+    <string name="fragment_cobros_advertencia_boton_ajustes">Abrir ajustes</string>
+
+    <string name="item_ruta_button_pagar">Pagar</string>
+    <string name="item_ruta_button_mover">Mover</string>
+    <string name="cobrosfrag_mostrarlista">Mostrar Lista</string>
+    <string name="cobrosfrag_ocultarlista">Ocultar Lista</string>
+
+    <string name="detallecobro_pagar">Pagar</string>
+    <string name="detallecobro_pagado">Pagado</string>
+    <string name="detallecobro_imprimir">Imprimir</string>
+    <string name="detallecobro_label_costototal">Costo total</string>
+    <string name="detallecobro_label_idplan">Plan</string>
+    <string name="detallecobro_label_lugar">Lugar</string>
+    <string name="detallecobro_button_ver_cliente">Mostrar\nperfil</string>
+
+    <string name="perfilcobrador_imprimir">Imprimir</string>
+
+    <string name="format_cobro">Cobro %d</string>
+    <string name="format_abono">Abono no. %d | </string>
+    <string name="format_fulldireccion">%s %s CP %s</string>
+    <string name="format_fullname">%s %s</string>
+    <string name="format_cantidad">$%s</string>
+    <string name="format_letras">%s%s</string>
+    <string name="format_porcientos">%d%%</string>
+    <string name="format_fullfecha">%d de %s de %d</string>
+
+    <string name="item_pagado">Pagado</string>
+
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

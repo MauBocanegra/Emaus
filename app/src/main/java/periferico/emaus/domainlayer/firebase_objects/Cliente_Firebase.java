@@ -3,6 +3,7 @@ package periferico.emaus.domainlayer.firebase_objects;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import periferico.emaus.domainlayer.objetos.Direcciones;
 import periferico.emaus.domainlayer.objetos.Telefonos;
@@ -47,6 +48,7 @@ public class Cliente_Firebase extends Object_Firebase{
     private String stTelefono;
     private List<Direcciones> direcciones;
     private List<Telefonos> telefonos;
+    private Map<String,Object> planes;
 
     public Cliente_Firebase(){}
 
@@ -212,5 +214,13 @@ public class Cliente_Firebase extends Object_Firebase{
 
     public void setDirecciones(List<Direcciones> direcciones) {
         this.direcciones = direcciones;
+    }
+
+    public Map<String, Object> getPlanes() {
+        return planes;
+    }
+
+    public void setPlanes(Map<String, Object> planes) {
+        this.planes = planes;
     }
 }

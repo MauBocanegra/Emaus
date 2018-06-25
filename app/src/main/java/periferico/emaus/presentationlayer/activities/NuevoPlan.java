@@ -80,7 +80,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         OnFailureListener, OnSuccessListener<UploadTask.TaskSnapshot>,
         WS.FirebaseCompletionListener,
         //WS.FirebaseArrayRetreivedListener,
-        WS.FirebaseObjectRetrieved,
+        WS.FirebaseObjectRetrievedListener,
         WS.OnNetworkListener{
 
     private static final String TAG = "NuevoPlanDebug";
@@ -445,7 +445,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
             if(hasInternet){
                 if(chosenImageFrontal!=null && chosenImageReverse!=null && chosenImageComprobante!=null){
                     //Si escogio descuento debe tener foto tarjeta de descuento
-                    if(descuento!=-1 &&chosenImageDescuento!=null){
+                    if(descuento>0 && chosenImageDescuento!=null || descuento==0){
                         noPendingErrors();
                         buttonNuevoplan.setVisibility(View.VISIBLE);
                     }else{
@@ -456,11 +456,12 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                     showPendingFields(ERROR_COMPROBANTES);
                     buttonNuevoplan.setVisibility(View.GONE);
                 }
-
+                /*
                 if(descuento==-1){
                     noPendingErrors();
                     buttonNuevoplan.setVisibility(View.VISIBLE);
                 }
+                */
             }
             //No tiene internet, puede seguir sin imagenes
             else{
@@ -482,7 +483,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         uploadImageFirebase(imgReverso, REVERSO_REQUESTED);
         uploadImageFirebase(imgComprobante, COMPROBANTE_REQUESTED);
 
-        if(imgDescuento!=null && descuento!=-1){
+        if(imgDescuento!=null && descuento>0){
             uploadImageFirebase(imgDescuento, DESCUENTO_REQUESTED);
         }
     }
@@ -495,7 +496,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                 return;
             }
 
-            if(descuento!=-1 && descuentoURL==null){
+            if(descuento>0 && descuentoURL==null){
                 Log.d(TAG, "************* FALTA SUBIR DESCUENTO **********");
                 return;
             }
@@ -516,10 +517,11 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         planV2_firebase.setFinanciamientoID(financiamientoFirebase.getMensualidades().get(financiamiento).getMensualidadID());
         planV2_firebase.setFrecuenciaPagoID(frecuenciasPagoFirebase.getFrecuenciaspago().get(frecPagos).getFrecuenciaID());
         planV2_firebase.setFormaPagoID(formasPagoFirebase.getFormaspago().get(formaPago).getFormaPagoID());
+        planV2_firebase.setNumeroDePagosARealizar(frecuenciasPagoFirebase.getFrecuenciaspago().get(frecPagos).getPagosAlAnio());
 
         planV2_firebase.setCreadoOffline(hasInternet ? 0 : 1);
 
-        if(descuento!=-1){
+        if(descuento>0){
             planV2_firebase.setDescuentoID(descuentosPlanesFirebase.getDescuentos().get(descuento).getDescuentoID());
             if(hasInternet){
                 planV2_firebase.setComprobanteDescuentoURL(descuentoURL);
@@ -534,11 +536,11 @@ public class NuevoPlan extends AppCompatActivity_Job implements
             planV2_firebase.setBoolFacturacion(false);
         }
 
-        planV2_firebase.setTotalAPagar(totalAPagarFinal);
-        planV2_firebase.setSaldo(saldoFinal);
+        planV2_firebase.setTotalAPagar(Math.round(totalAPagarFinal));
+        planV2_firebase.setSaldo(Math.round(saldoFinal));
 
         if(anticipo!=0 && (anticipo<totalAPagarFinal)){
-            planV2_firebase.setAnticipo(anticipo);
+            planV2_firebase.setAnticipo(Math.round(anticipo));
         }else{
             planV2_firebase.setAnticipo(0);
         }
@@ -550,9 +552,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         }
 
         planV2_firebase.setStatus(0);
-
-
-
+        //planV2_firebase.setPrioridadEnCobros(0);
 
         planV2_firebase.setStID(stID);
         planV2_firebase.setStCliente(getIntent().getStringExtra("stID"));
@@ -1188,6 +1188,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
 
             case R.id.nuevoplan_spinner_formapago: {
                 formaPago=selectedInt;
+                Log.d(TAG, "formaPagoID="+formasPagoFirebase.getFormaspago().get(formaPago).getFormaPagoID());
                 break;
             }
 

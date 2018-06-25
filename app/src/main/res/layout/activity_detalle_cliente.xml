@@ -17,7 +17,7 @@
             android:id="@+id/collapsingToolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorPrimary"
             android:fitsSystemWindows="true"
             app:contentScrim="@color/colorAccent"
             app:expandedTitleGravity="center"
@@ -82,7 +82,7 @@
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="?android:attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 app:title="@string/title_activity_detalle_cliente"/>
@@ -92,7 +92,7 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="35dp"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">

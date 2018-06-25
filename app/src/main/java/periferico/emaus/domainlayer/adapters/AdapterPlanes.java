@@ -1,6 +1,8 @@
 package periferico.emaus.domainlayer.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,14 +22,15 @@ import periferico.emaus.domainlayer.firebase_objects.configplan.FormasPago_Fireb
 import periferico.emaus.domainlayer.firebase_objects.configplan.FrecuenciasPago_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.configplan.MatrizPlanes_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.configplan.Financiamientos_Firebase;
+import periferico.emaus.presentationlayer.activities.DetallePlan;
 
 /**
  * Created by maubocanegra on 14/12/17.
  */
 
-public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder> implements WS.FirebaseObjectRetrieved{
+public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder> implements WS.FirebaseObjectRetrievedListener {
 
-    private ArrayList<Object_Firebase> mDataset;
+    private ArrayList<String> mDataset;
 
     private MatrizPlanes_Firebase configPlan;
     private Financiamientos_Firebase mensualidadesFirebase;
@@ -39,7 +42,7 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
 
     Context c;
 
-    public AdapterPlanes(ArrayList<Object_Firebase> myDataset, Context context){
+    public AdapterPlanes(ArrayList<String> myDataset, Context context){
         mDataset = myDataset;
         c = context;
 
@@ -72,22 +75,45 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        Plan_Firebase planFirebase = ((Plan_Firebase)mDataset.get(position));
-        holder.textviewContrato.setText(planFirebase.getStID());
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        WS.readPlanFirebase(mDataset.get(position), new WS.FirebaseObjectRetrievedListener(){
+            @Override
+            public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
+                final Plan_Firebase planFirebase = (Plan_Firebase)objectFirebase;
 
-        try {
-            holder.textviewPlan.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getNombre());
-            holder.textviewAtaud.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getAtaudByID(planFirebase.getAtaudID()).getNombre());
-            holder.textviewServicio.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getAtaudByID(planFirebase.getAtaudID()).getServicioByID(planFirebase.getServicioID()).getNombre());
-            holder.textviewFinanciamiento.setText(financiamientoFirebase.getFinanciamientoByID(planFirebase.getFinanciamientoID()).getNombre());
-            holder.textviewFrecuencia.setText(frecuenciasPagoFirebase.getFrecuenciaByID(planFirebase.getFrecuenciaPagoID()).getNombre());
-            holder.textviewForma.setText(formasPagoFirebase.getFormaPagoByID(planFirebase.getFormaPagoID()).getNombre());
+                holder.textviewContrato.setText(planFirebase.getStID());
+
+                try {
+                    holder.textviewPlan.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getNombre());
+                    holder.textviewAtaud.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getAtaudByID(planFirebase.getAtaudID()).getNombre());
+                    holder.textviewServicio.setText(configPlan.getPlanByPlanID(planFirebase.getPlanID()).getAtaudByID(planFirebase.getAtaudID()).getServicioByID(planFirebase.getServicioID()).getNombre());
+                    holder.textviewFinanciamiento.setText(financiamientoFirebase.getFinanciamientoByID(planFirebase.getFinanciamientoID()).getNombre());
+                    holder.textviewFrecuencia.setText(frecuenciasPagoFirebase.getFrecuenciaByID(planFirebase.getFrecuenciaPagoID()).getNombre());
+                    holder.textviewForma.setText(formasPagoFirebase.getFormaPagoByID(planFirebase.getFormaPagoID()).getNombre());
 
 
-            String montoFormateado = NumberFormat.getNumberInstance(Locale.US).format(planFirebase.getTotalAPagar());
-            holder.textviewTotal.setText(String.format( c.getString(R.string.nuevoplan_formatted_monto),montoFormateado));
-        }catch(Exception e){}
+                    String montoFormateado = NumberFormat.getNumberInstance(Locale.US).format(planFirebase.getTotalAPagar());
+                    holder.textviewTotal.setText(String.format( c.getString(R.string.nuevoplan_formatted_monto),montoFormateado));
+
+                    switch (c.getString(R.string.flavor_string)){
+                        case "Cobranza":{
+
+                            holder.fullView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Intent intent = new Intent(c, DetallePlan.class);
+                                    intent.putExtra("clienteID", planFirebase.getStCliente());
+                                    intent.putExtra("planID", planFirebase.getStID());
+                                    c.startActivity(intent);
+                                }
+                            });
+
+                            break;
+                        }
+                    }
+                }catch(Exception e){}
+            }
+        });
 
     }
 
@@ -102,6 +128,8 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
+        private View fullView;
+
         private TextView textviewContrato;
         private TextView textviewPlan;
         private TextView textviewAtaud;
@@ -113,6 +141,7 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
 
         ViewHolder(View view){
             super(view);
+            fullView=view;
             textviewContrato = view.findViewById(R.id.itemplan_textview_contrato);
             textviewPlan = view.findViewById(R.id.itemplan_textview_plan);
             textviewAtaud = view.findViewById(R.id.itemplan_textview_ataud);

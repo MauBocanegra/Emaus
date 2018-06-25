@@ -14,9 +14,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import periferico.emaus.R;
+import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
-import periferico.emaus.presentationlayer.fragments.ClientesFrag;
 
 /**
  * Created by maubocanegra on 08/12/17.
@@ -28,7 +28,8 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
     private final int VIEW_VERIFICACION = 1;
     private final int VIEW_ACTIVO = 2;
 
-    private ArrayList<Object_Firebase> mDataset;
+    private ArrayList<String> mDataset;
+    private ArrayList<Cliente_Firebase> clientes;
     Context c;
 
     /**
@@ -36,7 +37,7 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
      */
     public OnItemClickListener onItemClickListener;
     public interface OnItemClickListener{
-        void onItemClick(int position);
+        void onItemClick(String clientID, String clientNombreSt, int clientStatus);
     }
 
     /**
@@ -44,8 +45,9 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
      * @param myDataset
      * @param onItemClickListener_
      */
-    public AdapterClientes(ArrayList<Object_Firebase> myDataset, OnItemClickListener onItemClickListener_, Context context){
+    public AdapterClientes(ArrayList<String> myDataset, OnItemClickListener onItemClickListener_, Context context){
         mDataset = myDataset;
+        clientes = new ArrayList<>();
         onItemClickListener = onItemClickListener_;
         c = ((Fragment)onItemClickListener_).getContext();
     }
@@ -61,37 +63,54 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        Log.d("AdapterClienteDebug",((Cliente_Firebase)mDataset.get(position)).toString() );
+        //Log.d("AdapterClienteDebug",((Cliente_Firebase)mDataset.get(position)).toString() );
 
-        holder.fullCard.setOnClickListener(new View.OnClickListener() {
+        WS.readClientFirebase(mDataset.get(position), new WS.FirebaseObjectRetrievedListener() {
             @Override
-            public void onClick(View view) {onItemClickListener.onItemClick(position);}
+            public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
+                final Cliente_Firebase clienteFirebase = (Cliente_Firebase)objectFirebase;
+                //if(clientes==null){clientes = new ArrayList<>();}
+                //clientes.set(position, clienteFirebase);
+                final String fullName=c.getString(
+                        R.string.format_fullname,
+                        clienteFirebase.getStNombre(),
+                        clienteFirebase.getStApellido());
+                holder.textviewNombre.setText(fullName);
+                holder.textviewStatus.setText(getStatusLabel(
+                        clienteFirebase.getIntStatus()
+                ));
+
+                holder.fullCard.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {onItemClickListener.onItemClick(clienteFirebase.getStID(), fullName, clienteFirebase.getIntStatus());}
+                });
+
+                holder.textviewLetra.setText(c.getString(
+                        R.string.format_letras,
+                        clienteFirebase.getStNombre().substring(0,1),
+                        clienteFirebase.getStApellido().substring(0,1)));
+                Log.d("AdpterClientesDebug", ""+clienteFirebase.getIntStatus());
+                switch (clienteFirebase.getIntStatus()){
+                    case Cliente_Firebase.STATUS_PROSPECTO:{
+                        holder.viewColorStatus.setBackgroundColor(Color.parseColor("#f3f3f3"));
+                        break;
+                    }
+                    case Cliente_Firebase.STATUS_ENVERIFICACION:{
+                        holder.viewColorStatus.setBackgroundColor(Color.parseColor("#9b9b9b"));
+                        break;
+                    }
+                    case Cliente_Firebase.STATUS_ACTIVO:{
+                        holder.viewColorStatus.setBackgroundColor(ContextCompat.getColor(c,R.color.colorAccent));
+                        holder.textviewStatus.setTextColor(ContextCompat.getColor(c,R.color.colorPrimaryDark));
+                        holder.iconVerificado.setVisibility(View.VISIBLE);
+                        break;
+                    }
+                }
+
+            }
         });
-        holder.textviewNombre.setText(((Cliente_Firebase)mDataset.get(position)).getStNombre());
-        holder.textviewStatus.setText(getStatusLabel(
-                ((Cliente_Firebase)mDataset.get(position)).getIntStatus()
-        ));
-
-        holder.textviewLetra.setText(((Cliente_Firebase)mDataset.get(position)).getStNombre().substring(0,1));
-
-        switch (((Cliente_Firebase)mDataset.get(position)).getIntStatus()){
-            case Cliente_Firebase.STATUS_PROSPECTO:{
-                holder.viewColorStatus.setBackgroundColor(Color.parseColor("#f3f3f3"));
-                break;
-            }
-            case Cliente_Firebase.STATUS_ENVERIFICACION:{
-                holder.viewColorStatus.setBackgroundColor(Color.parseColor("#9b9b9b"));
-                break;
-            }
-            case Cliente_Firebase.STATUS_ACTIVO:{
-                holder.viewColorStatus.setBackgroundColor(ContextCompat.getColor(c,R.color.colorAccent));
-                holder.textviewStatus.setTextColor(ContextCompat.getColor(c,R.color.colorPrimaryDark));
-                holder.iconVerificado.setVisibility(View.VISIBLE);
-                break;
-            }
-        }
     }
 
     @Override
@@ -141,5 +160,7 @@ public class AdapterClientes extends RecyclerView.Adapter<AdapterClientes.ViewHo
         }
     }
 
-
+    public ArrayList<Cliente_Firebase> getClientes() {
+        return clientes;
+    }
 }

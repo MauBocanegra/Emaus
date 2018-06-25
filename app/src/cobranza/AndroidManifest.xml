@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <activity
+            android:name="periferico.emaus.presentationlayer.activities.DetalleCobro"
+            android:label="@string/title_activity_nuevo_plan"
+            android:theme="@style/AppThemeNoBar" />
+        <activity android:name="periferico.emaus.presentationlayer.activities.PrintTicket" />
+        <activity android:name="periferico.emaus.presentationlayer.activities.PrintCorte"></activity>
+    </application>
+
+</manifest>

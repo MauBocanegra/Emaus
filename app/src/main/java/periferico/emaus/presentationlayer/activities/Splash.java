@@ -8,13 +8,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,18 +20,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.crash.FirebaseCrash;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import periferico.emaus.BuildConfig;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.User_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.UserType_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.VersionesAPK_Firebase;
 import periferico.emaus.domainlayer.ws_helpers.APKDownloader;
 
-public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS.FirebaseObjectRetrieved, OnSuccessListener<Uri> {
+public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS.FirebaseObjectRetrievedListener, OnSuccessListener<Uri> {
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -109,7 +104,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
 
     private void manageUserType() {
 
-        WS.readUserType(Splash.this, new WS.FirebaseObjectRetrieved() {
+        WS.readUserType(Splash.this, new WS.FirebaseObjectRetrievedListener() {
             @Override
             public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
                 Log.d("","");
@@ -129,11 +124,59 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                                     startActivity(intent);
                                     finish();
                                 }
-                            }
+                            }, false
                     );
                 }else{
                     boolean login = false;
-                    String segmento = ((User_Firebase)objectFirebase).getSegmento();
+                    //String segmento = ((User_Firebase)objectFirebase).getSegmento();
+
+                    switch( (Splash.this).getString(R.string.flavor_string) ){
+                        case "Cobranza":{
+                            if( ((UserType_Firebase)objectFirebase).isCobranza() ){
+                                delayAndContinue(true);
+                                login=true;
+                            }else{login=false;}
+                            break;
+                        }
+
+                        case "Ventas":{
+                            if( ((UserType_Firebase)objectFirebase).isVentas() ){
+                                delayAndContinue(true);
+                                login=true;
+                            }else{login=false;}
+                            break;
+                        }
+                    }
+
+                    if(!login){
+                        WS.showAlert(
+                                Splash.this,
+                                getString(R.string.alerta_segmentoerroneo_titulo),
+                                getString(R.string.alerta_segmentoerroneo_texto),
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        mAuth = FirebaseAuth.getInstance();
+                                        mAuth.signOut();
+
+                                        Intent intent = new Intent(Splash.this, Login.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                }, false
+                        );
+                    }
+
+
+
+                    /*
+
+                    if( ((Splash.this).getString(R.string.flavor_string).equals("Cobranza")) && ((User_Firebase)objectFirebase).isCobranza() ){
+
+                    }
+
+
+
                     Log.d(TAG,"segmentoObtenido="+segmento);
                     switch(segmento){
                         case "omni":{
@@ -182,6 +225,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                                 }
                         );
                     }
+                    */
                 }
             }
         });
@@ -191,9 +235,8 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
     }
 
     private void delayAndContinue(final boolean loggedIn){
-        /**
-         * Fragmento de codigo que cuenta 2 segundos para mostrar el logo y despues verifica el estado de la sesion
-         */
+
+        //Fragmento de codigo que cuenta 2 segundos para mostrar el logo y despues verifica el estado de la sesion
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -266,7 +309,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 delayAndContinue(success);
                             }
-                        }
+                        }, false
                 );
                 break;
             }
@@ -284,7 +327,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 finish();
                             }
-                        }
+                        }, false
                 );
                 break;
             }
@@ -297,7 +340,7 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
     public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
 
         if(objectFirebase==null){
-            Toast.makeText(Splash.this, "No hay conetsion a interneee", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Splash.this, "No hay conexión a internet", Toast.LENGTH_SHORT).show();
             return;
         }
 

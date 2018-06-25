@@ -1,16 +1,13 @@
 package periferico.emaus.presentationlayer.fragments;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.icu.text.IDNA;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -22,11 +19,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
@@ -36,11 +29,10 @@ import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.objetos.Direcciones;
 import periferico.emaus.domainlayer.objetos.Telefonos;
-import periferico.emaus.presentationlayer.activities.DetalleCliente;
 import periferico.emaus.presentationlayer.activities.NuevoPlan;
 
 public class InfoClienteFrag extends Fragment implements
-        WS.FirebaseObjectRetrieved,
+        WS.FirebaseObjectRetrievedListener,
         AdapterTelsLista.OnItemClickListener,
         AdapterDirsLista.OnItemDirClickListener{
 
@@ -139,9 +131,30 @@ public class InfoClienteFrag extends Fragment implements
         textviewGenero = v.findViewById(R.id.detallecliente_textview_genero);
         textviewReligion = v.findViewById(R.id.detallecliente_textview_religion);
         textviewEmail = v.findViewById(R.id.detallecliente_textview_email);
+
     }
 
     private void setListeners(View view){
+        switch (getString(R.string.flavor_string)){
+
+            case "Ventas":{
+                view.findViewById(R.id.detallecliente_button_nuevoplan).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getActivity(), NuevoPlan.class);
+                        intent.putExtra("stID",stID);
+                        startActivity(intent);
+                    }
+                });
+                break;
+            }
+
+            case "Cobranza":{
+                view.findViewById(R.id.detallecliente_button_nuevoplan).setVisibility(View.INVISIBLE);
+                break;
+            }
+        }
+
         view.findViewById(R.id.detallecliente_button_nuevoplan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

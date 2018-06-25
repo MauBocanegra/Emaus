@@ -1,11 +1,16 @@
 <resources>
-    <string name="app_name">Emaus</string>
 
     <string name="FirebaseStorageBucket">gs://firebase-emaus.appspot.com</string>
 
+    <string name="maps_api_key">AIzaSyDrqznB93GKpCyQY3rSQ9yNLLvME-dPDLE</string>
+    <string name="awareness_api_key">AIzaSyC4Ygxn2dKbAvR-BcBUSHJ4qK35jbHJoNk</string>
+    <string name="geocoding_api_key">AIzaSyBzMIX6UM_laa3R-Ht1KjPr2x1xUWPrNyg</string>
+    <string name="maps_static_api_key">AIzaSyCBt6kPozCEvAN_scD5DLIt7qZ3T_jNZ3U</string>
+    <string name="streetview_api_key">AIzaSyDp_owv2HnZz6m6TYPoJjnj5EhaDRON1_k</string>
+
     <string name="frag_title_clientes">Clientes</string>
     <string name="frag_title_catalogo">Catálogo</string>
-    <string name="frag_title_directorio">Directorio</string>
+    <string name="frag_title_directorio">Dire</string>
 
     <string name="login_field_usuario_hint">Usuario</string>
     <string name="login_field_contra_hint">Contraseña</string>
@@ -90,10 +95,19 @@
         <item>Testigo de Jehová</item>
         <item>Judía</item>
         <item>Ateo</item>
+        <item>Mormón</item>
+        <item>Otra</item>
     </string-array>
     <string name="nuevocliente_prompt_notas">Notas</string>
     <string name="nuevocliente_error_telefonovacio">Ingresa un teléfono válido</string>
     <string name="nuevocliente_error_telefonotipovacio">Elige el tipo</string>
+    <string name="nuevocliente_label_buscardireccion">Ubicar en el mapa</string>
+
+    <string name="itemdir_error_calle">Ingresa la calle y el número</string>
+    <string name="itemdir_error_cp">Verificar</string>
+    <string name="itemdir_error_colonia">Ingresa la colonia</string>
+    <string name="itemdir_url_geocoding">https://maps.googleapis.com/maps/api/geocode/json?address=%s&amp;key=AIzaSyBzMIX6UM_laa3R-Ht1KjPr2x1xUWPrNyg</string>
+    <string name="itemdir_url_mapsnapshots">https://maps.googleapis.com/maps/api/staticmap?zoom=15&amp;size=600x240&amp;maptype=roadmap&amp;markers=%.6f,%.6f&amp;key=AIzaSyCBt6kPozCEvAN_scD5DLIt7qZ3T_jNZ3U</string>
 
 
     <string name="title_activity_main_tabs">MainTabs</string>
@@ -121,6 +135,11 @@
     <string name="detallecliente_label_email">E-mail</string>
     <string name="detallecliente_label_telefono">Teléfonos</string>
     <string name="detallecliente_label_direccion">Direcciones</string>
+
+    <string name="format_cantidad">$%s</string>
+    <string name="format_porcientos">%d%%</string>
+
+    <string name="item_pagado">Pagado</string>
 
     <string name="detallecliente_format_letras">%s%s</string>
     <string name="detallecliente_format_nomap">%s %s</string>
@@ -215,7 +234,7 @@
 
     <string name="nuevoplan_error_plan">Elige correctamente entre las opciones de los planes</string>
     <string name="nuevoplan_error_comprobantes">Verifica las imágenes de comprobantes de domicilio e identidad</string>
-    <string name="nuevoplan_error_descuento">Verifica la imagen de comprobante de descuento</string>
+    <string name="nuevoplan_error_descuento">Verifica la imagen de comprobante de descuento o elige la opción SIN DESCUENTO</string>
     <string name="nuevoplan_error_meses">Elige la cantidad de meses en el financiamiento</string>
 
     <string name="nuevoplan_button_crearplan">AÑADIR PLAN</string>
@@ -241,7 +260,7 @@
     <string name="alerta_segmentoerroneo_texto">El usuario con el que estás intentando iniciar sesión no está habilitado para entrar en este segmento de la aplicación, ponte en contacto con el área de sistemas para cualquier aclaración</string>
 
     <string name="alerts_sinsegmento_titulo">Usuario sin asignación</string>
-    <string name="alerts_sinsegmento_texto">El usuario con el que intntas iniciar sesión no está asignado a ningún segmento.\nPonte en contacto con el área de sistemas para que seas asignado al segmento correspondiente.</string>
+    <string name="alerts_sinsegmento_texto">El usuario con el que intentas iniciar sesión no está asignado a ningún segmento.\nPonte en contacto con el área de sistemas para que seas asignado al segmento correspondiente.</string>
 
     <string name="alerts_sinconexion_titulo">Estado SIN CONEXIÓN</string>
     <string name="alerts_sinconexion_mensaje">En estos momentos estas trabajando sin conexión, recuerda que algunos datos pueden cambiar mientras trabajas sin conexión de datos</string>

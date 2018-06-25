@@ -30,7 +30,7 @@ import periferico.emaus.presentationlayer.activities.NuevoCliente;
  * create an instance of this fragment.
  */
 public class ClientesFrag extends Fragment implements
-        WS.FirebaseArrayRetreivedListener,
+        WS.FirebaseKeyListRetrievedListener,
         AdapterClientes.OnItemClickListener,
         SwipeRefreshLayout.OnRefreshListener{
 
@@ -40,7 +40,7 @@ public class ClientesFrag extends Fragment implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private TextView labelNoHay;
 
-    private ArrayList<Object_Firebase> mDataset;
+    private ArrayList<String> mDataset;
 
     /**
      * Use this factory method to create a new instance of
@@ -66,13 +66,13 @@ public class ClientesFrag extends Fragment implements
         labelNoHay = view.findViewById(R.id.clientes_label_nohay);
 
         // Inflate the layout for this fragment
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        mRecyclerView = view.findViewById(R.id.recyclerView);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
 
-        mDataset = new ArrayList<Object_Firebase>();
+        mDataset = new ArrayList<String>();
 
         mAdapter = new AdapterClientes(mDataset, ClientesFrag.this, getContext());
         mRecyclerView.setAdapter(mAdapter);
@@ -117,14 +117,31 @@ public class ClientesFrag extends Fragment implements
     // ---------------- FIREBASE IMPLEMENTATION ---------------- //
     //---------------------------------------------------------- //
 
+
+    @Override
+    public void firebaseKeyListRetrieved(ArrayList<String> keys) {
+        labelNoHay.setVisibility((keys.size()>0) ? View.GONE : View.VISIBLE);
+        mDataset.clear();
+        mDataset.addAll(keys);
+        mAdapter.notifyDataSetChanged();
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    /*
     @Override
     public void firebaseCompleted(ArrayList<Object_Firebase> arrayList) {
         labelNoHay.setVisibility((arrayList.size()>0) ? View.GONE : View.VISIBLE);
         mDataset.clear();
-        mDataset.addAll(arrayList);
+        for(Object_Firebase arrayObject : arrayList){
+            Cliente_Firebase cliente = new Cliente_Firebase();
+            cliente.setStID(arrayObject.getStID());
+            mDataset.add(cliente);
+        }
+        //mDataset.addAll(arrayList);
         mAdapter.notifyDataSetChanged();
         mSwipeRefreshLayout.setRefreshing(false);
     }
+    */
 
     // ------------------------------------------------------------- //
     // ---------------- ONCLICK ITEM IMPLEMENTATION ---------------- //
@@ -132,12 +149,13 @@ public class ClientesFrag extends Fragment implements
 
 
     @Override
-    public void onItemClick(int position) {
+    public void onItemClick(String clienteID, String fullName, int status) {
         Intent intent = new Intent(getContext(), DetalleCliente.class);
-        Log.d("ClientesFrag","stID="+mDataset.get(position).toString());
-        intent.putExtra("clientID",mDataset.get(position).getStID());
-        intent.putExtra("stNombre",((Cliente_Firebase)mDataset.get(position)).getStNombre());
-        intent.putExtra("intStatus",((Cliente_Firebase)mDataset.get(position)).getIntStatus());
+        //Log.d("ClientesFrag","stID="+cliente.toString());
+        intent.putExtra("clientID",clienteID);
+        intent.putExtra("stNombre",fullName);
+        intent.putExtra("intStatus",status);
+
         startActivity(intent);
     }
 

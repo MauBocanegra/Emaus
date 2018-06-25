@@ -31,7 +31,9 @@ import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.utils.AppCompatActivity_Job;
 import periferico.emaus.presentationlayer.fragments.CatalogFrag;
 import periferico.emaus.presentationlayer.fragments.ClientesFrag;
+import periferico.emaus.presentationlayer.fragments.CobrosFrag;
 import periferico.emaus.presentationlayer.fragments.DirectorioFrag;
+import periferico.emaus.presentationlayer.fragments.PerfilCobrador;
 
 public class MainTabs extends AppCompatActivity_Job implements WS.OnNetworkListener{
 
@@ -53,15 +55,11 @@ public class MainTabs extends AppCompatActivity_Job implements WS.OnNetworkListe
     private ViewPager mViewPager;
     TabLayout tabLayout;
 
-    private static final int CLIENTES = 0;
-    private static final int CATALOGO = 1;
-    private static final int DIRECTORIO = 2;
+    private static final int COBROS = 0;
+    private static final int PERFIL = 2;
+    private static final int DIRECTORIO = 1;
     boolean doubleBackToExitPressedOnce = false;
     private TextView bannerNetworkListener;
-
-    ClientesFrag clientesFrag;
-    CatalogFrag catalogFrag;
-    DirectorioFrag directorioFrag;
 
     @Override
     protected void onStart() {
@@ -98,8 +96,8 @@ public class MainTabs extends AppCompatActivity_Job implements WS.OnNetworkListe
         try{
             for(int i=0; i<tabLayout.getTabCount(); i++){
 
-                if(i==CLIENTES){setTabIcon(i,R.drawable.ic_handshake, R.color.textColorSecondary);}
-                if(i==CATALOGO){setTabIcon(i,R.drawable.ic_cart, R.color.textColorSecondary);}
+                if(i==COBROS){setTabIcon(i,R.drawable.ic_home, R.color.textColorSecondary);}
+                if(i==PERFIL){setTabIcon(i,R.drawable.ic_usuario, R.color.textColorSecondary);}
                 if(i==DIRECTORIO){setTabIcon(i,R.drawable.ic_agenda, R.color.textColorSecondary);}
             }
         }catch(Exception e){e.printStackTrace();}
@@ -190,9 +188,9 @@ public class MainTabs extends AppCompatActivity_Job implements WS.OnNetworkListe
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if(position==CLIENTES){ return PlaceholderFragmentMain.newInstance();}
-            if(position==CATALOGO){ return PlaceholderFragmentMain.newInstance(); }
-            if(position==DIRECTORIO){ return PlaceholderFragmentMain.newInstance();}
+            if(position==COBROS){ return CobrosFrag.newInstance();}
+            if(position==PERFIL){ return PerfilCobrador.newInstance(); }
+            if(position==DIRECTORIO){ return DirectorioFrag.newInstance();}
             return PlaceholderFragmentMain.newInstance();
         }
 

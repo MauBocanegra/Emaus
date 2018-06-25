@@ -1,5 +1,11 @@
 package periferico.emaus.domainlayer.firebase_objects;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import periferico.emaus.domainlayer.objetos.Direcciones;
+
 public class Plan_Firebase extends Object_Firebase {
 
     private int planID;
@@ -20,12 +26,13 @@ public class Plan_Firebase extends Object_Firebase {
     private String stRFC;
     private String stEmailFacturacion;
 
-    private int mensualidadesID;
-    private int numMensualidades;
-
     private float anticipo;
     private float totalAPagar;
     private float saldo;
+
+    private int diaDeCobro;
+    private int numeroDePagosARealizar;
+    private int pagosRealizados;
 
     private String comprobanteINEFrontalURL;
     private String comprobanteINEReversoURL;
@@ -35,12 +42,18 @@ public class Plan_Firebase extends Object_Firebase {
     private String stVendedor;
     private String stCliente;
 
+    private Map<String,Object> tickets;
+    //private List<String> tickets;
+    private String ultimoTicketRealizado;
+    private long fechaUltimoPago;
+    private List<Direcciones> direcciones;
+
     public String toString(){
         return "planID="+planID+" ataudID="+ataudID+" servicioID"+servicioID+" financiamientoID="+ financiamientoID
                 +" formaPagoID="+formaPagoID+" creadoOffline="+creadoOffline+" descuentoID="+descuentoID
                 +" comprobanteDescuentoURL="+comprobanteDescuentoURL+" boolFacturacion="+boolFacturacion
-                +" stRFC="+stRFC+" stEmailFacturacion="+stEmailFacturacion+" mensualidadesID="+mensualidadesID
-                +" numMensualidades="+numMensualidades+" anticipo="+anticipo+" totalAPagar=";
+                +" stRFC="+stRFC+" stEmailFacturacion="+stEmailFacturacion
+                +" anticipo="+anticipo+" totalAPagar=";
     }
 
 
@@ -155,6 +168,7 @@ public class Plan_Firebase extends Object_Firebase {
         this.stEmailFacturacion = stEmailFacturacion;
     }
 
+    /*
     public int getMensualidadesID() {
         return mensualidadesID;
     }
@@ -170,6 +184,7 @@ public class Plan_Firebase extends Object_Firebase {
     public void setNumMensualidades(int numMensualidades) {
         this.numMensualidades = numMensualidades;
     }
+    */
 
     public float getAnticipo() {
         return anticipo;
@@ -241,5 +256,71 @@ public class Plan_Firebase extends Object_Firebase {
 
     public void setSaldo(float saldo) {
         this.saldo = saldo;
+    }
+
+    /*
+    public float getCantidadPorPago() {
+        return cantidadPorPago;
+    }
+
+    public void setCantidadPorPago(float cantidadPorPago) {
+        this.cantidadPorPago = cantidadPorPago;
+    }
+    */
+
+    public int getNumeroDePagosARealizar() {
+        return numeroDePagosARealizar;
+    }
+
+    public void setNumeroDePagosARealizar(int numeroDePagosARealizar) {
+        this.numeroDePagosARealizar = numeroDePagosARealizar;
+    }
+
+    public int getPagosRealizados() {
+        return pagosRealizados;
+    }
+
+    public void setPagosRealizados(int pagosRealizados) {
+        this.pagosRealizados = pagosRealizados;
+    }
+
+    public int getDiaDeCobro() {
+        return diaDeCobro;
+    }
+
+    public void setDiaDeCobro(int diaDeCobro) {
+        this.diaDeCobro = diaDeCobro;
+    }
+
+    public Map<String, Object> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(Map<String, Object> tickets) {
+        this.tickets = tickets;
+    }
+
+    public String getUltimoTicketRealizado() {
+        return ultimoTicketRealizado;
+    }
+
+    public void setUltimoTicketRealizado(String ultimoTicketRealizado) {
+        this.ultimoTicketRealizado = ultimoTicketRealizado;
+    }
+
+    public List<Direcciones> getDirecciones() {
+        return direcciones;
+    }
+
+    public void setDirecciones(List<Direcciones> direcciones) {
+        this.direcciones = direcciones;
+    }
+
+    public long getFechaUltimoPago() {
+        return fechaUltimoPago;
+    }
+
+    public void setFechaUltimoPago(long fechaUltimoPago) {
+        this.fechaUltimoPago = fechaUltimoPago;
     }
 }
