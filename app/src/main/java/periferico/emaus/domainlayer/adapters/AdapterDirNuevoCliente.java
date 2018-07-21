@@ -87,7 +87,14 @@ public class AdapterDirNuevoCliente extends RecyclerView.Adapter<AdapterDirNuevo
             @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
             @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override public void afterTextChanged(Editable editable) {
-                mDataSet.get(position).setStCP(""+Integer.parseInt(editable.toString()));
+
+                mDataSet.get(position).setStCP(""+Integer.parseInt(editable.toString().length()>0 ? editable.toString() : "0"));
+                if(editable.toString().length()!=5){
+                    //holder.editTextCP.setError(activity.getString(R.string.nuevocliente_error_cp));
+                    holder.inputLayoutCP.setError(activity.getString(R.string.nuevocliente_error_cp));
+                }else{
+                    holder.inputLayoutCP.setError(null);
+                }
             }
         });
 

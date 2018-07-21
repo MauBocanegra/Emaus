@@ -26,14 +26,16 @@
     <string name="detallecobro_label_idplan">Plan</string>
     <string name="detallecobro_label_lugar">Lugar</string>
     <string name="detallecobro_button_ver_cliente">Mostrar\nperfil</string>
+    <string name="detallecobro_hint_abono">Cantidad del abono</string>
+    <string name="detallecobro_error_abono">El abono debe ser al menos de un ciclo de cobro equivalente a %s</string>
+    <string name="detallecobro_exception_abono">Verifica la cantidad</string>
 
     <string name="perfilcobrador_imprimir">Imprimir</string>
 
-    <string name="format_cobro">Cobro %d</string>
     <string name="format_abono">Abono no. %d | </string>
-    <string name="format_fulldireccion">%s %s CP %s</string>
     <string name="format_fullname">%s %s</string>
     <string name="format_cantidad">$%s</string>
+    <string name="format_cantidad_sinpesos">%s</string>
     <string name="format_letras">%s%s</string>
     <string name="format_porcientos">%d%%</string>
     <string name="format_fullfecha">%d de %s de %d</string>

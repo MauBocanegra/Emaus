@@ -1,14 +1,8 @@
 package periferico.emaus.domainlayer.bluetoothprinter;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.util.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class BTPrinter{
@@ -16,6 +10,7 @@ public class BTPrinter{
     private final String TAG = "BTPrinterDebug";
 
     private ConnectThread connectThread;
+    private ArrayList<PrintingCommands> printingCommands;
 
     public BTPrinter(){}
 
@@ -25,6 +20,7 @@ public class BTPrinter{
             connectThread.writingBufferReady = new ConnectThread.WritingBufferReady() {
                 @Override
                 public void notifyBTPrinter() {
+                    Log.d(TAG, "BTPrinter activity has been notified");
                     btprtpListener.notifyPrinterActivity();
                 }
             };
@@ -41,17 +37,62 @@ public class BTPrinter{
         }catch (Exception e){e.printStackTrace();}
     }
 
-    private void createTicketCanvas(){
-
-    }
-
-    private void skipLines(int nLines){
-        // /d(n)
-    }
-
     public interface ReadyToPrintListener{  public void notifyPrinterActivity();
     }public void setPrintingReadyListener(ReadyToPrintListener btprtpL){
         btprtpListener=btprtpL;
     }public ReadyToPrintListener btprtpListener;
+
+    //----------------------------------
+    //----------------------------------
+    //----------------------------------
+
+    public void startPrintingCanvas(){
+        printingCommands = new ArrayList<>();
+        printingCommands.add(new PrintingCommands(PrintingCommands.printLinebreak));
+    }
+
+    public void printLinebreak(){
+        printingCommands.add(new PrintingCommands(PrintingCommands.printLinebreak));
+    }
+
+    public void addLineBreak(){
+        printingCommands.add(new PrintingCommands(PrintingCommands.addLineBreak));
+    }
+
+    public void sameLinePrinting(){
+        printingCommands.add(new PrintingCommands(PrintingCommands.samelinePrinting));
+    }
+
+    public void printAlignedText(int alignment, String textToPrint){
+        PrintingCommands printingCommandsObj = new PrintingCommands();
+        printingCommandsObj.stringToPrintcode(alignment, textToPrint);
+        printingCommands.add(printingCommandsObj);
+    }
+
+
+    public void printTicket(){
+
+        printingCommands.add(new PrintingCommands(PrintingCommands.addEnding));
+
+        //Primero calculamos el total de bytes
+        int byteArrayLength = 0;
+        for(PrintingCommands printingCommand : printingCommands){
+            byteArrayLength+=printingCommand.byteArray.length;
+        }
+
+        //ahora creamos un solo array con todos los bytes
+        byte[] byteArray = new byte[byteArrayLength];
+        int byteArrayLengthIterator=0;
+        for(PrintingCommands printingCommand : printingCommands){
+            for(int i=0; i<printingCommand.byteArray.length; i++){
+                Log.d(TAG, "b["+byteArrayLengthIterator+"] = printingCommand.byteArray["+i+"]("+Integer.toString(printingCommand.byteArray[i],16)+")");
+                byteArray[byteArrayLengthIterator] = printingCommand.byteArray[i];
+                byteArrayLengthIterator++;
+            }
+        }
+
+        //mandamos a imprimir ese tren de bytes
+        connectThread.writeBTPrinter(byteArray);
+    }
 
 }

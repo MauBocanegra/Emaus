@@ -303,8 +303,10 @@
                     android:id="@+id/nuevoplan_edittext_rfc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxLength="13"
                     android:hint="@string/nuevoplan_hint_rfc"
-                    android:inputType="textCapCharacters" />
+                    android:inputType="textCapCharacters"
+                    android:singleLine="true" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout

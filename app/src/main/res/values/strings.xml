@@ -1,7 +1,5 @@
 <resources>
 
-    <string name="FirebaseStorageBucket">gs://firebase-emaus.appspot.com</string>
-
     <string name="maps_api_key">AIzaSyDrqznB93GKpCyQY3rSQ9yNLLvME-dPDLE</string>
     <string name="awareness_api_key">AIzaSyC4Ygxn2dKbAvR-BcBUSHJ4qK35jbHJoNk</string>
     <string name="geocoding_api_key">AIzaSyBzMIX6UM_laa3R-Ht1KjPr2x1xUWPrNyg</string>
@@ -89,6 +87,7 @@
     <string name="nuevocliente_title_agregarDireccion">Agregar dirección</string>
     <string name="nuevocliente_hint_correo">E-mail</string>
     <string name="nuevocliente_prompt_religion">Religión</string>
+    <string name="nuevocliente_error_cp">*5 dígitos</string>
     <string-array name="array_religiones">
         <item>Católica</item>
         <item>Cristiana</item>
@@ -98,6 +97,13 @@
         <item>Mormón</item>
         <item>Otra</item>
     </string-array>
+    <string-array name="array_direcciones">
+        <item>Casa</item>
+        <item>Oficina</item>
+        <item>Particular</item>
+        <item>Otro</item>
+    </string-array>
+
     <string name="nuevocliente_prompt_notas">Notas</string>
     <string name="nuevocliente_error_telefonovacio">Ingresa un teléfono válido</string>
     <string name="nuevocliente_error_telefonotipovacio">Elige el tipo</string>
@@ -145,9 +151,14 @@
     <string name="detallecliente_format_nomap">%s %s</string>
     <string name="crearplan_format_texto_mensualidades">%d Mensualidades de</string>
     <string name="crearplan_format_dinero">$%s</string>
+    <string name="crearplan_error_anticipo">El anticipo debe ser mínimo de %s</string>
+    <string name="crearplan_error_anticipo_gral">El anticipo debe ser menor al total del saldo y mayor o igual a un ciclo de pago</string>
     <string name="title_activity_catalog">Catalog</string>
     <string name="title_activity_nuevo_plan">NuevoPlan</string>
     <string name="planes_frag_prompt_nohay">No existen planes para este cliente</string>
+
+    <string name="format_cobro">Cobro %d</string>
+    <string name="format_fulldireccion">%s %s CP %s</string>
 
     <string name="nuevoplan_prompt_planes">Tipo de plan</string>
     <string-array name="nuevoplan_array_planes">
@@ -202,7 +213,6 @@
     <string name="nuevoplan_label_titulodescuento">DESCUENTO</string>
     <string name="nuevoplan_label_titulopago">PAGO</string>
 
-
     <string name="nuevoplan_prompt_formapago">Forma de pago</string>
     <string-array name="nuevoplan_array_formapago">
         <item>Cobranza Emaús</item>
@@ -236,6 +246,7 @@
     <string name="nuevoplan_error_comprobantes">Verifica las imágenes de comprobantes de domicilio e identidad</string>
     <string name="nuevoplan_error_descuento">Verifica la imagen de comprobante de descuento o elige la opción SIN DESCUENTO</string>
     <string name="nuevoplan_error_meses">Elige la cantidad de meses en el financiamiento</string>
+    <string name="nuevoplan_error_rfc">Verifica que el RFC tenga 12 o 13 dígitos</string>
 
     <string name="nuevoplan_button_crearplan">AÑADIR PLAN</string>
 

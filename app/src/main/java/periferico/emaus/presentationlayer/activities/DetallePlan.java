@@ -32,7 +32,6 @@ import periferico.emaus.domainlayer.firebase_objects.configplan.FrecuenciasPago_
 import periferico.emaus.domainlayer.firebase_objects.configplan.MatrizPlanes_Firebase;
 import periferico.emaus.domainlayer.objetos.TicketWrapper;
 import periferico.emaus.domainlayer.utils.AppCompatActivity_Job;
-import periferico.emaus.presentationlayer.fragments.PerfilCobrador;
 
 public class DetallePlan extends AppCompatActivity_Job implements
         WS.OnNetworkListener,
@@ -78,6 +77,7 @@ public class DetallePlan extends AppCompatActivity_Job implements
     TextView porcentajeTextView;
     ProgressBar progressPorcentaje;
     Button buttonHacerCobro;
+    Button buttonCambiarDiaPago;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +133,14 @@ public class DetallePlan extends AppCompatActivity_Job implements
         porcentajeTextView = findViewById(R.id.detalleplan_porcentaje);
         progressPorcentaje = findViewById(R.id.detalleplan_progress_porcentaje);
         buttonHacerCobro = findViewById(R.id.detalleplan_button_cobro);
+        buttonCambiarDiaPago = findViewById(R.id.detalleplan_button_cambiardiapago);
+
+        switch (getString(R.string.flavor_string)){
+            case "Ventas":{
+                buttonHacerCobro.setVisibility(View.GONE);
+                buttonCambiarDiaPago.setVisibility(View.GONE);
+            }
+        }
 
     }
 

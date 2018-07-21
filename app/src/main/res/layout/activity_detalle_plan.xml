@@ -48,7 +48,7 @@
                 app:autoSizeMinTextSize="15sp"
                 app:autoSizeTextType="uniform"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button2" />
+                app:layout_constraintTop_toBottomOf="@+id/detalleplan_button_cambiardiapago" />
 
             <TextView
                 android:id="@+id/textView16"
@@ -381,16 +381,16 @@
                 app:layout_constraintTop_toBottomOf="@+id/imageView7" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/detalleplan_button_cambiardiapago"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:textSize="20sp"
-                android:text="Cambiar dia de pago"
                 android:background="@color/greenEmaus"
+                android:text="Cambiar dia de pago"
                 android:textColor="@color/cardview_light_background"
+                android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/detalleplan_button_cobro" />

@@ -13,11 +13,11 @@
         android:layout_height="90dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/itemdir_inputlayout_colonia"
         app:layout_constraintDimensionRatio="h,1:1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="@+id/itemdir_inputlayout_int">
 
         <ImageView
             android:id="@+id/itemdir_foto_fachada"
@@ -100,16 +100,17 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/itemdir_inputlayout_int"
-        app:layout_constraintStart_toEndOf="@id/itemdir_card_fotofachada"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/itemdir_edittext_calle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/itemdir_hint_calle" />
+            android:hint="@string/itemdir_hint_calle"
+            android:inputType="textPostalAddress" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -117,16 +118,17 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guideline4"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/itemdir_inputlayout_calle">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/itemdir_edittext_int"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/itemdir_hint_interior" />
+            android:hint="@string/itemdir_hint_interior"
+            android:inputType="number" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -134,19 +136,20 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/itemdir_inputlayout_colonia"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
-        app:layout_constraintStart_toStartOf="@+id/itemdir_inputlayout_calle"
-        app:layout_constraintTop_toTopOf="@+id/itemdir_inputlayout_colonia">
+        app:layout_constraintStart_toEndOf="@+id/itemdir_card_fotofachada"
+        app:layout_constraintTop_toBottomOf="@+id/itemdir_inputlayout_int">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/itemdir_edittext_cp"
             android:layout_width="match_parent"
-            android:maxLength="5"
             android:layout_height="wrap_content"
             android:digits="0123456789"
             android:hint="@string/itemdir_hint_cp"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:maxLength="5" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -154,16 +157,17 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guideline5"
-        app:layout_constraintTop_toBottomOf="@+id/itemdir_inputlayout_calle">
+        app:layout_constraintTop_toBottomOf="@+id/itemdir_inputlayout_int">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/itemdir_edittext_colonia"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/itemdir_hint_colonia" />
+            android:hint="@string/itemdir_hint_colonia"
+            android:inputType="textCapWords" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.constraint.Guideline
@@ -230,6 +234,32 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/itemdir_mapa_snapshot"
         app:layout_constraintTop_toTopOf="@+id/itemdir_mapa_snapshot" />
+
+    <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+        android:id="@+id/spinner"
+        android:layout_width="0dp"
+        android:layout_height="43dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:entries="@array/array_direcciones"
+        android:prompt="@string/nuevocliente_prompt_telefonos"
+
+        app:layout_constraintBottom_toBottomOf="@+id/itemdir_inputlayout_int"
+        app:layout_constraintEnd_toStartOf="@+id/guideline4"
+        app:layout_constraintStart_toEndOf="@+id/itemdir_card_fotofachada"
+        app:layout_constraintTop_toTopOf="@+id/itemdir_inputlayout_int" />
+
+    <View
+        android:id="@+id/textView14"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="2dp"
+        android:background="@color/textColorSecondary"
+        app:layout_constraintEnd_toEndOf="@+id/spinner"
+        app:layout_constraintStart_toStartOf="@+id/spinner"
+        app:layout_constraintTop_toBottomOf="@+id/spinner" />
 
 
 </android.support.constraint.ConstraintLayout>

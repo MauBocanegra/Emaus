@@ -11,11 +11,15 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -73,6 +77,9 @@ public class DetalleCobro extends AppCompatActivity_Job implements
     TextView costoTotalTextView;
     TextView numeroAbonoTextView;
     TextView cantidadAbonoTextView;
+    ImageView buttonEditarAbono;
+    TextInputLayout cantidadAbonoInputLayout;
+    EditText cantidadAbonotEditText;
     TextView cantidadPagadoTextView;
     TextView cantidadSaldoActualTextView;
     TextView cantidadSaldoVencidoTextView;
@@ -83,6 +90,8 @@ public class DetalleCobro extends AppCompatActivity_Job implements
     //TextView rutaTextView;
     Button buttonPagar;
     Button buttonImprimir;
+
+    float cantidadAbonoMinimo=0;
 
     ProgressDialogFragment progressDialogFragment;
 
@@ -136,7 +145,10 @@ public class DetalleCobro extends AppCompatActivity_Job implements
         planTextView = findViewById(R.id.detallecobro_plan_plan);
         costoTotalTextView = findViewById(R.id.detallecobro_plan_costototal);
         numeroAbonoTextView = findViewById(R.id.detallecobro_abono_numero);
-        cantidadAbonoTextView = findViewById(R.id.detallecobro_abono_cantidad);
+        cantidadAbonoTextView = findViewById(R.id.detallecobro_textview_abonocantidad);
+        buttonEditarAbono = findViewById(R.id.detallecobro_button_editabono);
+        cantidadAbonoInputLayout = findViewById(R.id.detallecobro_inputlayout_abonocantidad);
+        cantidadAbonotEditText = findViewById(R.id.detallecobro_edittext_abonocantidad);
         cantidadPagadoTextView = findViewById(R.id.detallecobro_pagado);
         cantidadSaldoActualTextView = findViewById(R.id.detallecobro_saldoactual);
         cantidadSaldoVencidoTextView = findViewById(R.id.detallecobro_saldovencido);
@@ -201,6 +213,16 @@ public class DetalleCobro extends AppCompatActivity_Job implements
         });
 
         buttonImprimir.setVisibility(View.GONE);
+
+        buttonEditarAbono.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(cantidadAbonoInputLayout.getVisibility()==View.GONE){
+                    cantidadAbonoInputLayout.setVisibility(View.VISIBLE);
+                    setEditTextListener();
+                }
+            }
+        });
     }
 
     private void instanciateToolbar(){
@@ -292,6 +314,33 @@ public class DetalleCobro extends AppCompatActivity_Job implements
         TextView tipoDomicilioTextView;
     }
 
+    private void setEditTextListener(){
+        cantidadAbonotEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                try {
+                    if (Integer.parseInt(editable.toString()) < cantidadAbonoMinimo) {
+                        cantidadAbonoInputLayout.setError(getString(R.string.detallecobro_error_abono, formatMoney(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar())));
+                    }else{
+                        cantidadAbonoInputLayout.setError(null);
+                    }
+                }catch (Exception e){
+                    cantidadAbonoInputLayout.setError(getString(R.string.detallecobro_exception_abono));
+                }
+            }
+        });
+    }
+
     private void setPlanData(){
         planClienteTextView.setText(planFirebase.getStID());
         planTextView.setText(planFirebase.getStID());
@@ -301,7 +350,11 @@ public class DetalleCobro extends AppCompatActivity_Job implements
         );
 
         cantidadAbonoTextView.setText(formatMoney(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar()));
+        cantidadAbonotEditText.setText(""+Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar()), TextView.BufferType.EDITABLE);
+        cantidadAbonoMinimo=planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar();
         cantidadPagadoTextView.setText(formatMoney(planFirebase.getTotalAPagar()-planFirebase.getSaldo()));
+        setEditTextListener();
+
         cantidadSaldoActualTextView.setText(formatMoney(planFirebase.getSaldo()));
         cantidadSaldoVencidoTextView.setText(formatMoney(0.0f));
 

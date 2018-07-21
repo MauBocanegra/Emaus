@@ -904,7 +904,7 @@ public class WS{
         FirebaseStorage storage;
         StorageReference storageRef;
 
-        storage = FirebaseStorage.getInstance(c.getString(R.string.FirebaseStorageBucket));
+        storage = FirebaseStorage.getInstance("gs://"+c.getResources().getString(R.string.google_storage_bucket));
         storageRef = storage.getReference();
 
         Log.d(TAG, "apkLink="+apkLink);

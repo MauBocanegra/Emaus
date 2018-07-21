@@ -9,6 +9,9 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.StrictMode;
@@ -28,6 +31,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -363,6 +367,7 @@ public class NuevoCliente extends AppCompatActivity_Job implements
 
         int errors=0;
 
+
         //Verifica que haya al menos un campo de telefono
         if(telefonos.size()==0){
             textviewAgregarTelefono.setTextColor(Color.RED);
@@ -385,6 +390,8 @@ public class NuevoCliente extends AppCompatActivity_Job implements
                 }
 
             }
+            textviewAgregarTelefono.setTextColor(getResources().getColor(R.color.colorAccent));
+            buttonAgregarTelefono.setColorFilter(ContextCompat.getColor(NuevoCliente.this,R.color.colorAccent));
         }
 
         if(errors>0){
@@ -412,9 +419,11 @@ public class NuevoCliente extends AppCompatActivity_Job implements
             errors++;
         }
 
+        //Rutina que verifica que se haya ehecho la busqueda
+        /*
         int dirErrors=0;
         for(DireccionesHelper dirH : direcciones) {
-            if (dirH.getLat() == 0) {
+            if (dirH.getLat() == 0 ) {
                 dirErrors++;
                 errors++;
             }
@@ -427,6 +436,7 @@ public class NuevoCliente extends AppCompatActivity_Job implements
                 inputLayoutNombre.requestFocus();
             Toast.makeText(NuevoCliente.this, "Ubica en el mapa la dirección ingresada", Toast.LENGTH_SHORT).show();
         }
+        */
 
         /*
         if(intGenero==0){
@@ -987,7 +997,7 @@ public class NuevoCliente extends AppCompatActivity_Job implements
 
     private void uploadImagesFirebase(){
 
-        storage = FirebaseStorage.getInstance(getString(R.string.FirebaseStorageBucket));
+        storage = FirebaseStorage.getInstance("gs://"+getResources().getString(R.string.google_storage_bucket));
         storageRef = storage.getReference();
 
 
@@ -999,8 +1009,8 @@ public class NuevoCliente extends AppCompatActivity_Job implements
             ChosenImage chosenImg=direcciones.get(i).chosenImage;
             String name="fachada"+i;
 
-            String ref = name+chosenImg.getFileExtensionFromMimeType();
-            String fullRef = "fachadas/"+stID+"/"+"direccion"+i+"/"+ref;
+            String ref = stID+"_"+"direccion"+i+chosenImg.getFileExtensionFromMimeType();
+            String fullRef = "fachadas/"+ref;
 
             Log.d(TAG,"fullRef="+fullRef);
             direcciones.get(i).imgName=ref;

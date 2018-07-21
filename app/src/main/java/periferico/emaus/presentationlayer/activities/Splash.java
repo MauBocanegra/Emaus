@@ -64,13 +64,14 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
         try{
             TextView tvVersion = findViewById(R.id.textviewVersion);
             TextView tvCodigo = findViewById(R.id.textviewCodigo);
+            TextView tvAmbiente = findViewById(R.id.textviewAmbiente);
             PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
             String version = pInfo.versionName;
             int verCode = pInfo.versionCode;
 
             tvVersion.setText("Ver: "+version);
             tvCodigo.setText("Cod: "+verCode+" Rev: "+BuildConfig.revision);
-
+            tvAmbiente.setText("Ambiente "+(getResources().getString(R.string.firebase_database_url).equals("https://fir-emaus.firebaseio.com") ? "Productivo" : "Desarrollo"));
         }catch(Exception e){e.printStackTrace();}
 
 
@@ -238,6 +239,10 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
 
         //Fragmento de codigo que cuenta 2 segundos para mostrar el logo y despues verifica el estado de la sesion
         final Handler handler = new Handler();
+        if(loggedIn){
+            TextView tvUsuario = findViewById(R.id.textViewUsuario);
+            tvUsuario.setText("Usuario: "+WS.getCurrentUser().getEmail().split("@")[0].replace(".",""));
+        }
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {

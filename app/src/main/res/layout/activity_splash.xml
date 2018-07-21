@@ -33,7 +33,6 @@
         android:id="@+id/textviewVersion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toTopOf="@+id/textviewCodigo"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -45,9 +44,25 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:text="@string/flavor_string"
-        android:textAppearance="@android:style/TextAppearance.Material.Large"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintBottom_toTopOf="@+id/imageView3"
         app:layout_constraintEnd_toEndOf="@+id/imageView3"
         app:layout_constraintStart_toStartOf="@+id/imageView3" />
+
+    <TextView
+        android:id="@+id/textviewAmbiente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/textviewVersion"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewUsuario"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/textviewAmbiente"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

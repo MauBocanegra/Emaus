@@ -97,6 +97,9 @@ public class NuevoPlan extends AppCompatActivity_Job implements
     private static final int ERROR_DESCUENTOS=3;
     private static final int ERROR_MESES=4;
     private static final int ERROR_RFC=5;
+    private static final int ERROR_ANTICIPO=6;
+
+    int ran=-1;
 
     ImagePicker imagePicker;
     CameraImagePicker cameraPicker;
@@ -172,6 +175,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
     private boolean spinnerFunctionalityIsLocked=false;
 
     private int anticipo=0;
+    private boolean anticipoOkToGo;
     private String RFC; private String email;
 
     @Override
@@ -268,6 +272,8 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         imagePicker.setImagePickerCallback(NuevoPlan.this);
         imagePicker.allowMultiple();
 
+        editTextAnticipo.setEnabled(false);
+
         plan=-1; ataud=-1; servicio=-1; financiamiento=-1; frecPagos=-1; formaPago=-1;
     }
 
@@ -303,6 +309,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         spinnerDescuentos.setOnItemSelectedListener(this);
         switchFactura.setOnCheckedChangeListener(this);
         editTextAnticipo.addTextChangedListener(setTextWatcher());
+        editTextRFC.addTextChangedListener(setRFCTextWatcher());
     }
 
     private void setConfigInSpinners(){
@@ -314,12 +321,25 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         }
     }
 
-    private void setFormasPagoSpinner(){
-        if(formasPagoFirebase!=null){
-            ArrayAdapter<String> adapterFormasPago = new ArrayAdapter<String>(
-                    NuevoPlan.this, android.R.layout.simple_spinner_item, formasPagoFirebase.getFormasPagoStrings());
-            adapterFormasPago.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerFormaPago.setAdapter(adapterFormasPago);
+    private void setFormasPagoSpinner(boolean setEmpty){
+        if(setEmpty) {
+            if (formasPagoFirebase != null) {
+                ArrayAdapter<String> adapterFormasPago = new ArrayAdapter<String>(
+                        NuevoPlan.this, android.R.layout.simple_spinner_item, formasPagoFirebase.getFormasPagoStrings());
+                if(descuento<1){
+                    adapterFormasPago.remove(adapterFormasPago.getItem(adapterFormasPago.getCount()-1));
+                }
+                adapterFormasPago.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerFormaPago.setAdapter(adapterFormasPago);
+                spinnerFormaPago.setEnabled(true);
+            }
+        }else{
+            ArrayList<String> emptyArray = new ArrayList<>();
+            ArrayAdapter<String> adapterFormaPago = new ArrayAdapter<String>(
+                    NuevoPlan.this, android.R.layout.simple_spinner_item, emptyArray);
+            adapterFormaPago.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerFormaPago.setAdapter(adapterFormaPago);
+            spinnerFormaPago.setEnabled(false);
         }
     }
 
@@ -419,6 +439,9 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                 error="Ingresa correctamente el RFV y un correo";
                 break;
             }
+            case ERROR_ANTICIPO:{
+                error=getString(R.string.crearplan_error_anticipo_gral);
+            }
         }
         textViewErrores.setVisibility(View.VISIBLE);
         textViewErrores.setText(error);
@@ -446,8 +469,14 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                 if(chosenImageFrontal!=null && chosenImageReverse!=null && chosenImageComprobante!=null){
                     //Si escogio descuento debe tener foto tarjeta de descuento
                     if(descuento>0 && chosenImageDescuento!=null || descuento==0){
-                        noPendingErrors();
-                        buttonNuevoplan.setVisibility(View.VISIBLE);
+
+                        if(anticipoOkToGo) {
+                            noPendingErrors();
+                            buttonNuevoplan.setVisibility(View.VISIBLE);
+                        }else{
+                            showPendingFields(ERROR_ANTICIPO);
+                            buttonNuevoplan.setVisibility(View.GONE);
+                        }
                     }else{
                         showPendingFields(ERROR_DESCUENTOS);
                         buttonNuevoplan.setVisibility(View.GONE);
@@ -476,7 +505,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
     }
 
     private void uploadAllImages(){
-        storage = FirebaseStorage.getInstance(getString(R.string.FirebaseStorageBucket));
+        storage = FirebaseStorage.getInstance("gs://"+getResources().getString(R.string.google_storage_bucket));
         storageRef = storage.getReference();
 
         uploadImageFirebase(imgFrontal, FRONTAL_REQUESTED);
@@ -642,11 +671,19 @@ public class NuevoPlan extends AppCompatActivity_Job implements
             totalAPagarFinal-=((descuentosPlanesFirebase.getDescuentos().get(descuento).getDescuento()*totalAPagarFinal)/100);
         }
 
-        if(anticipo!=0 && anticipo<totalAPagarFinal){
+        if(anticipo<totalAPagarFinal){
             saldoFinal=totalAPagarFinal-anticipo;
-            inputLayoutAnticipo.setError(null);
+                if( formaPago!=-1 && (totalAPagarFinal!=0 && numPagosFinal!=0) && Math.round(anticipo)<Math.round(totalAPagarFinal/numPagosFinal) && formasPagoFirebase.getFormaspago().get(formaPago).getFormaPagoID()!=5){
+                    String montoFrecuenciaFormateado = NumberFormat.getNumberInstance(Locale.US).format(Math.round(totalAPagarFinal/numPagosFinal));
+                    inputLayoutAnticipo.setError(  getString( R.string.crearplan_error_anticipo, getString(R.string.nuevoplan_formatted_monto,montoFrecuenciaFormateado)));
+                    anticipoOkToGo=false;
+                }else{
+                    anticipoOkToGo=true;
+                    inputLayoutAnticipo.setError(null);
+                }
         }else{
             if(anticipo>=totalAPagarFinal) {
+                anticipoOkToGo=false;
                 inputLayoutAnticipo.setError("El anticipo NO puede ser mayor al saldo total");
             }
             saldoFinal=totalAPagarFinal;
@@ -661,7 +698,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
             String totalApagarFormateado = NumberFormat.getNumberInstance(Locale.US).format(Math.round(totalAPagarFinal));
             textviewTotalAPagar.setText(String.format( getString(R.string.nuevoplan_formatted_monto),totalApagarFormateado));
         }else{
-            textviewTotalAPagar.setText("x");
+            textviewTotalAPagar.setText("");
         }
 
         //Si el saldo final esta disponible lo presentamos
@@ -680,6 +717,14 @@ public class NuevoPlan extends AppCompatActivity_Job implements
             textViewMensualidades.setText(String.format(getString(R.string.nuevoplan_format_numeropagos),
                     numPagosFinal,
                     String.format( getString(R.string.nuevoplan_formatted_monto),montoFrecuenciaFormateado)));
+            /*
+            if(Math.round(anticipo)>=Math.round(anticipoMinimo) && totalAPagarFinal!=0 && numPagosFinal!=0) {
+                anticipoMinimo = Math.round(totalAPagarFinal / numPagosFinal);
+                inputLayoutAnticipo.setError(  getString( R.string.crearplan_error_anticipo, getString(R.string.nuevoplan_formatted_monto,montoFrecuenciaFormateado)));
+                //editTextAnticipo.setText(Integer.toString(Math.round(totalAPagarFinal / numPagosFinal)), TextView.BufferType.EDITABLE);
+            }
+            */
+            //jhkhjk
         }else{
             textViewMensualidades.setText("");
         }
@@ -697,12 +742,14 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         //int financiamientoID = configPlan.getTiposPlan().get(plan).getTiposAtaud().get(ataud).getTiposServicio().get(servicio).getTiposPago().get(financiamiento).getPagoID();
 
 
-        Random r = new Random();
-        int i1 = r.nextInt(1000 - 1) + 1;
-        stID = getIntent().getStringExtra("stID")+"_P"+planID+"A"+ataudID+"S"+servicioID+"F"+financiamientoID+"_"+i1;
+        if(ran==-1) {
+            Random r = new Random();
+            ran = r.nextInt(1000 - 1) + 1;
+        }
+        stID = getIntent().getStringExtra("stID")+"_P"+planID+"A"+ataudID+"S"+servicioID+"F"+financiamientoID+"_"+ran;
 
         ChosenImage chosenImg=null;
-        String name="";
+        String name=stID+"_";
         switch (imgIDToUpload){
             case FRONTAL_REQUESTED:{
                 chosenImg=chosenImageFrontal; name="INEfrontal";
@@ -721,6 +768,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                 progressDescuento.setVisibility(View.VISIBLE); break;
             }
         }
+
 
         String ref = name+chosenImg.getFileExtensionFromMimeType();
         String fullRef = "comprobantes/"+stID+"/"+ref;
@@ -806,15 +854,29 @@ public class NuevoPlan extends AppCompatActivity_Job implements
             @Override
             public void afterTextChanged(Editable editable) {
                 int respaldoAnticipo = anticipo;
+
                 if(editable.toString().length()>0) {
                     anticipo = Integer.parseInt(editable.toString());
                 }else{
                     anticipo=0;
                 }
 
+                /*
+                Log.d(TAG, ""+Math.round(anticipo)+"<"+Math.round(totalAPagarFinal/numPagosFinal));
+                if(totalAPagarFinal!=0 && numPagosFinal!=0)
+                if(Math.round(anticipo)<Math.round(totalAPagarFinal/numPagosFinal)){
+                    String montoFrecuenciaFormateado = NumberFormat.getNumberInstance(Locale.US).format(Math.round(totalAPagarFinal/numPagosFinal));
+                    inputLayoutAnticipo.setError(  getString( R.string.crearplan_error_anticipo, getString(R.string.nuevoplan_formatted_monto,montoFrecuenciaFormateado)));
+                }else{
+                    Log.d(TAG, "errorSetTo NULL");
+                    //inputLayoutAnticipo.setError("");
+                }
+                */
+
                 try{
 
                     calculateShowTexts();
+                    checkForComplete();
                     /*
                     int numeroPagos = financiamientoFirebase.getMensualidades().get(financiamiento).getMensualidades();
                     float newMontoFinal=montoFinalActual;
@@ -840,6 +902,29 @@ public class NuevoPlan extends AppCompatActivity_Job implements
 
 
                 }catch(Exception e){e.printStackTrace();}
+            }
+        };
+    }
+
+    private TextWatcher setRFCTextWatcher(){
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(editable.toString().length()>=12 && editable.toString().length()<=13){
+                    inputLayoutRFC.setError(null);
+                }else{
+                    inputLayoutRFC.setError(getString(R.string.nuevoplan_error_rfc));
+                }
             }
         };
     }
@@ -1107,11 +1192,19 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                 /** BORRAMOS SERVICIO*/
                 spinnerServicio.setAdapter(adapterVacio);
                 spinnerServicio.setEnabled(false);
+                setFormasPagoSpinner(false);
+                setFrecuenciasPagoSpinner(false);
                 servicio=-1;
                 /** BORRAMOS Financiamiento*/
                 spinnerFinanciamiento.setAdapter(adapterVacio);
                 spinnerFinanciamiento.setEnabled(false);
                 financiamiento=-1;
+                anticipo=0;
+                editTextAnticipo.setText("", TextView.BufferType.EDITABLE);
+                textViewMensualidades.setText("");
+                textviewSaldo.setText("");
+                textviewTotalAPagar.setText("");
+                editTextAnticipo.setEnabled(false);
 
                 spinnerFunctionalityIsLocked=false;
                 break;
@@ -1138,8 +1231,16 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                 adapterVacio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
                 spinnerFinanciamiento.setAdapter(adapterVacio);
+                setFormasPagoSpinner(false);
+                setFrecuenciasPagoSpinner(false);
                 spinnerFinanciamiento.setEnabled(false);
                 financiamiento=-1;
+                anticipo=0;
+                editTextAnticipo.setText("", TextView.BufferType.EDITABLE);
+                textViewMensualidades.setText("");
+                textviewSaldo.setText("");
+                textviewTotalAPagar.setText("");
+                editTextAnticipo.setEnabled(false);
 
                 spinnerFunctionalityIsLocked=false;
                 break;
@@ -1157,7 +1258,16 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinnerFinanciamiento.setAdapter(adapter);
                 spinnerFinanciamiento.setEnabled(true);
+                setFormasPagoSpinner(false);
+                setFrecuenciasPagoSpinner(false);
+                spinnerFormaPago.setEnabled(true);
                 financiamiento=-1;
+                anticipo=0;
+                editTextAnticipo.setText("", TextView.BufferType.EDITABLE);
+                textViewMensualidades.setText("");
+                textviewSaldo.setText("");
+                textviewTotalAPagar.setText("");
+                editTextAnticipo.setEnabled(false);
 
                 spinnerFunctionalityIsLocked=false;
                 break;
@@ -1165,12 +1275,19 @@ public class NuevoPlan extends AppCompatActivity_Job implements
 
             case R.id.nuevoplan_spinner_financiamiento:{
                 financiamiento=selectedInt;
+                anticipo=0;
+                editTextAnticipo.setText("", TextView.BufferType.EDITABLE);
+                textViewMensualidades.setText("");
+                textviewSaldo.setText("");
+                textviewTotalAPagar.setText("");
 
                 if(financiamientoFirebase.getMensualidades().get(financiamiento).getMensualidadID()==1){
                     setFrecuenciasPagoSpinner(false);
                 }else{
                     setFrecuenciasPagoSpinner(true);
                 }
+                setFormasPagoSpinner(true);
+                editTextAnticipo.setEnabled(false);
 
                 break;
             }
@@ -1180,15 +1297,24 @@ public class NuevoPlan extends AppCompatActivity_Job implements
                 if(descuento!=0) {
                     textViewDescuento.setText(String.format(getString(R.string.nuevoplan_format_labeldescuento),
                             descuentosPlanesFirebase.getDescuentos().get(descuento).getDescuento()));
+                    editTextAnticipo.setEnabled(false);
+                    anticipo=0;
+                    editTextAnticipo.setText("", TextView.BufferType.EDITABLE);
+                    inputLayoutAnticipo.setError(null);
                 }else{
                     textViewDescuento.setText(getString(R.string.nuevoplan_sindescuento));
+                    editTextAnticipo.setEnabled(true);
                 }
+                setFormasPagoSpinner(true);
+                calculateShowTexts();
+                checkForComplete();
                 break;
             }
 
             case R.id.nuevoplan_spinner_formapago: {
                 formaPago=selectedInt;
                 Log.d(TAG, "formaPagoID="+formasPagoFirebase.getFormaspago().get(formaPago).getFormaPagoID());
+                editTextAnticipo.setEnabled(true);
                 break;
             }
 
@@ -1301,7 +1427,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         setConfigInSpinners();
         financiamientoFirebase = configuracionPlanesFirebase.getListamensualidades();
         formasPagoFirebase = configuracionPlanesFirebase.getListaformaspago();
-        setFormasPagoSpinner();
+        //setFormasPagoSpinner();
         descuentosPlanesFirebase = configuracionPlanesFirebase.getListadescuentos();
         setDescuentosSpinner();
         frecuenciasPagoFirebase = configuracionPlanesFirebase.getListafrecuenciaspago();

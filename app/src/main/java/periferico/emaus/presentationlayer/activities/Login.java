@@ -52,11 +52,11 @@ public class Login extends AppCompatActivity implements
         findViewById(R.id.buttonLogin).setOnClickListener(this);
 
         //Instanciamos las variables que se usaran
-        textInputUsuario = (TextInputLayout) findViewById(R.id.textInputUsuario);
-        textInputContra = (TextInputLayout) findViewById(R.id.textInputContra);
-        editTextUsuario = (EditText) findViewById(R.id.editTextUsuario);
-        editTextContra = (EditText) findViewById(R.id.editTextContra);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        textInputUsuario = findViewById(R.id.textInputUsuario);
+        textInputContra = findViewById(R.id.textInputContra);
+        editTextUsuario = findViewById(R.id.editTextUsuario);
+        editTextContra = findViewById(R.id.editTextContra);
+        progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
     }
 

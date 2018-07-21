@@ -3,8 +3,6 @@ package periferico.emaus.presentationlayer.activities;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,8 +15,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.os.ParcelUuid;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -45,16 +41,13 @@ import com.karumi.dexter.listener.multi.CompositeMultiplePermissionsListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.bluetoothprinter.BTPrinter;
-import periferico.emaus.domainlayer.bluetoothprinter.ConnectThread;
+import periferico.emaus.domainlayer.bluetoothprinter.PrintingCommands;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Ticket_Firebase;
 
@@ -190,52 +183,26 @@ public class PrintTicket extends AppCompatActivity implements
                 addText("(667) 761 21 61").
                 addBlankSpace(30).
                 setAlign(Paint.Align.LEFT).
-                addText("Empleado ID", false).
-                setAlign(Paint.Align.RIGHT).
-                addText(empleado).
-                setAlign(Paint.Align.LEFT).
-                addText(ticketFirebase.getKeyDiaCreacion(), false).
-                setAlign(Paint.Align.RIGHT).
-                addText("SERVER #4").
-                setAlign(Paint.Align.LEFT).
+                addText("Empleado ID: "+empleado).
+                addText("Fecha: "+ticketFirebase.getKeyDiaCreacion()).
                 addParagraph().
                 addText("EFECTIVO").
                 addText("Cliente: "+ticketFirebase.getClienteID()).
                 addText("PLAN: "+ticketFirebase.getPlanID()).
                 addParagraph().
                 //setTypeface(this, "fonts/RobotoMono-Bold.ttf").
-                        addText("Abono").
-                addText("Num: "+ticketFirebase.getNumAbono(), false).
-                setAlign(Paint.Align.RIGHT).
-                addText("REF #: 1234").
-                //setTypeface(this, "fonts/RobotoMono-Regular.ttf").
-                        setAlign(Paint.Align.LEFT).
-                addText("BATCH #: 091", false).
-                setAlign(Paint.Align.RIGHT).
-                addText("AUTH #: 0701C").
-                setAlign(Paint.Align.LEFT).
+                addText("Abono #"+ticketFirebase.getNumAbono()).
                 addParagraph().
-                //setTypeface(this, "fonts/RobotoMono-Bold.ttf").
-                        addText("SALDO ANT", false).
-                setAlign(Paint.Align.RIGHT).
-                addText("$ "+(ticketFirebase.getNuevoSaldo()+ticketFirebase.getMonto())).
-                setAlign(Paint.Align.LEFT).
-                addParagraph().
-                addText("SALDO ACTUAL", false).
-                setAlign(Paint.Align.RIGHT).
-                addText("$ "+ticketFirebase.getNuevoSaldo()).
+                addText("SALDO ANT: $ "+(ticketFirebase.getNuevoSaldo()+ticketFirebase.getMonto())).
+                addText("SALDO ACTUAL: $ "+ticketFirebase.getNuevoSaldo()).
                 addLine(180).
-                setAlign(Paint.Align.LEFT).
-                addParagraph().
-                addLine().
-                addText("--- MONTO PAGADO ---", false).
                 setAlign(Paint.Align.RIGHT).
-                addText("$ "+ticketFirebase.getMonto()).
-                addLine().
+                addParagraph().
+                addText("MONTO PAGADO:  $ "+ticketFirebase.getMonto()).
                 addParagraph().
                 setAlign(Paint.Align.CENTER).
                 //setTypeface(this, "fonts/RobotoMono-Regular.ttf").
-                        addText("APROVADO").
+                        addText("APROVADO ONLINE").
                 addParagraph().
                 addImage(barcode);
         image.setImageBitmap(receipt.build());
@@ -315,6 +282,16 @@ public class PrintTicket extends AppCompatActivity implements
             // Loop through paired devices
             for (BluetoothDevice device : pairedDevices) {
                 // Add the name and address to an array adapter to show in a ListView
+
+                try{
+                    if(device.getUuids()!=null){
+                        for(ParcelUuid parcel : device.getUuids()){
+
+                        }
+                    }
+                    Log.d(TAG, device.getName()+" - UUUIDS="+device.getUuids());
+                }catch(Exception e){e.printStackTrace();}
+
                 Log.d(TAG_BT,device.getName() + " - " + device.getAddress());
                 if(device.getAddress().equals("0F:02:18:30:12:2D")){
                     finalDevice = device;
@@ -363,5 +340,38 @@ public class PrintTicket extends AppCompatActivity implements
     @Override
     public void notifyPrinterActivity() {
         Log.d(TAG, " --------------- ACTIVITY NOTIFIED --------------");
+
+        //btPrinter.printAlignedText(PrintingCommands.align,"");
+
+        btPrinter.startPrintingCanvas();
+        btPrinter.printAlignedText(PrintingCommands.alignCenter, "Emiliano Zapata");
+        btPrinter.printAlignedText(PrintingCommands.alignCenter, "940 PTE, COL. Jorge Almada");
+        btPrinter.printAlignedText(PrintingCommands.alignCenter,"Culiacan, Sinaloa, Mexico");
+        btPrinter.printAlignedText(PrintingCommands.alignCenter,"(667) 761 21 61");
+        btPrinter.addLineBreak();
+        btPrinter.printAlignedText(PrintingCommands.alignLeft,"EmpleadoID: "+WS.getCurrentUser().getEmail().split("@")[0].replace(".",""));
+        btPrinter.printAlignedText(PrintingCommands.alignLeft,"Fecha: "+ticketFirebase.getKeyDiaCreacion());
+        btPrinter.addLineBreak();
+        btPrinter.printAlignedText(PrintingCommands.alignLeft,"EFECTIVO");
+        btPrinter.printAlignedText(PrintingCommands.alignLeft,"CLIENTE: "+ticketFirebase.getClienteID());
+        btPrinter.printAlignedText(PrintingCommands.alignLeft,"PLAN: "+ticketFirebase.getPlanID());
+        btPrinter.addLineBreak();
+        btPrinter.printAlignedText(PrintingCommands.alignLeft,"Abono #"+ticketFirebase.getNumAbono());
+        btPrinter.addLineBreak();
+        btPrinter.printAlignedText(PrintingCommands.alignLeft, "SALDO ANTERIOR: $"+(ticketFirebase.getNuevoSaldo()+ticketFirebase.getMonto()));
+        btPrinter.printAlignedText(PrintingCommands.alignLeft,"SALDO ACTUAL: $"+ticketFirebase.getNuevoSaldo());
+        btPrinter.addLineBreak();
+        btPrinter.printAlignedText(PrintingCommands.alignRight, "MONTO PAGADO: $"+ticketFirebase.getMonto());
+        btPrinter.addLineBreak();
+        btPrinter.printAlignedText(PrintingCommands.alignCenter,"APROVADO ONLINE");
+        btPrinter.addLineBreak();
+        btPrinter.addLineBreak();
+        btPrinter.addLineBreak();
+        btPrinter.addLineBreak();
+        btPrinter.printTicket();
+
+
+        //hexToAscii("Hello world");
     }
+
 }

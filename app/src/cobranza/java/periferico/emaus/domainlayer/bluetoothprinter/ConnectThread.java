@@ -15,13 +15,13 @@ public class ConnectThread extends Thread {
     private  ConnectedThread connectedThread;
     private final BluetoothSocket mmSocket;
 
-    private static final int esc = 0x1b;
-
     private void manageConnectedSocket (BluetoothSocket mmSocket){
         connectedThread = new ConnectedThread(mmSocket);
         connectedThread.start();
 
-        connectedThread.write(new byte[]{esc, 0x40, esc, 0x64, 0x02});
+        writingBufferReady.notifyBTPrinter();
+
+        //connectedThread.write(new byte[]{esc, 0x40, esc, 0x64, 0x02});
 
         //throwCallback();
 
@@ -116,8 +116,25 @@ public class ConnectThread extends Thread {
         }
     }
 
+    public void writeBTPrinter(byte[] byteArr){
+        connectedThread.write(byteArr);
+    }
+
     public interface WritingBufferReady{  public void notifyBTPrinter();
     }public void setWritingBufferReadyListener(WritingBufferReady wbr){
         writingBufferReady=wbr;
     }public WritingBufferReady writingBufferReady;
+
+
+    //----------------------------------------
+    //----------- PRINTING METHODS -----------
+    //----------------------------------------
+
+    private static final int esc = 0x1b;
+
+    public void printLine(){
+        connectedThread.write(new byte[]{esc, 0x40, esc, 0x64, 0x01});
+    }
+
+
 }

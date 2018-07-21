@@ -2,7 +2,6 @@ package periferico.emaus.domainlayer.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,6 +94,17 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
                     String montoFormateado = NumberFormat.getNumberInstance(Locale.US).format(planFirebase.getTotalAPagar());
                     holder.textviewTotal.setText(String.format( c.getString(R.string.nuevoplan_formatted_monto),montoFormateado));
 
+                    holder.fullView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(c, DetallePlan.class);
+                            intent.putExtra("clienteID", planFirebase.getStCliente());
+                            intent.putExtra("planID", planFirebase.getStID());
+                            c.startActivity(intent);
+                        }
+                    });
+
+                    /*
                     switch (c.getString(R.string.flavor_string)){
                         case "Cobranza":{
 
@@ -111,6 +121,7 @@ public class AdapterPlanes extends RecyclerView.Adapter<AdapterPlanes.ViewHolder
                             break;
                         }
                     }
+                    */
                 }catch(Exception e){}
             }
         });
