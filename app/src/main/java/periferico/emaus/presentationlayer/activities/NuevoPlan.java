@@ -176,6 +176,7 @@ public class NuevoPlan extends AppCompatActivity_Job implements
 
     private int anticipo=0;
     private boolean anticipoOkToGo;
+    private boolean rfcCorrecto;
     private String RFC; private String email;
 
     @Override
@@ -459,7 +460,8 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         if(plan!=-1 && ataud!=-1 && servicio!=-1 && financiamiento!=-1 && formaPago!=-1 && frecPagos!=-1){
 
             if(switchFactura.isChecked()){
-                if(editTextRFC.getEditableText().toString().length()<5 || editTextEmail.getEditableText().toString().length()<5){
+
+                if(!rfcCorrecto || editTextEmail.getEditableText().toString().length()<5){
                     showPendingFields(ERROR_RFC);
                     buttonNuevoplan.setVisibility(View.GONE);
                 }
@@ -546,7 +548,11 @@ public class NuevoPlan extends AppCompatActivity_Job implements
         planV2_firebase.setFinanciamientoID(financiamientoFirebase.getMensualidades().get(financiamiento).getMensualidadID());
         planV2_firebase.setFrecuenciaPagoID(frecuenciasPagoFirebase.getFrecuenciaspago().get(frecPagos).getFrecuenciaID());
         planV2_firebase.setFormaPagoID(formasPagoFirebase.getFormaspago().get(formaPago).getFormaPagoID());
-        planV2_firebase.setNumeroDePagosARealizar(frecuenciasPagoFirebase.getFrecuenciaspago().get(frecPagos).getPagosAlAnio());
+
+        if(planV2_firebase.getFinanciamientoID()!=1){
+            planV2_firebase.setNumeroDePagosARealizar(frecuenciasPagoFirebase.getFrecuenciaspago().get(frecPagos).getPagosAlAnio() * financiamientoFirebase.getMensualidades().get(financiamiento).getAnios());
+        }
+        //planV2_firebase.setNumeroDePagosARealizar(frecuenciasPagoFirebase.getFrecuenciaspago().get(frecPagos).getPagosAlAnio());
 
         planV2_firebase.setCreadoOffline(hasInternet ? 0 : 1);
 
@@ -921,8 +927,10 @@ public class NuevoPlan extends AppCompatActivity_Job implements
             @Override
             public void afterTextChanged(Editable editable) {
                 if(editable.toString().length()>=12 && editable.toString().length()<=13){
+                    rfcCorrecto=true;
                     inputLayoutRFC.setError(null);
                 }else{
+                    rfcCorrecto=false;
                     inputLayoutRFC.setError(getString(R.string.nuevoplan_error_rfc));
                 }
             }

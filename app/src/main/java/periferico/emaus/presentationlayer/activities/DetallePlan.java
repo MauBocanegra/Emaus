@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -15,10 +16,12 @@ import android.widget.TextView;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
 
 import periferico.emaus.R;
+import periferico.emaus.domainlayer.DatesCalc;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.adapters.AdapterPerfilCobrador;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
@@ -32,6 +35,7 @@ import periferico.emaus.domainlayer.firebase_objects.configplan.FrecuenciasPago_
 import periferico.emaus.domainlayer.firebase_objects.configplan.MatrizPlanes_Firebase;
 import periferico.emaus.domainlayer.objetos.TicketWrapper;
 import periferico.emaus.domainlayer.utils.AppCompatActivity_Job;
+import periferico.emaus.presentationlayer.dialogs.CambiarVisitaDialog;
 
 public class DetallePlan extends AppCompatActivity_Job implements
         WS.OnNetworkListener,
@@ -255,6 +259,21 @@ public class DetallePlan extends AppCompatActivity_Job implements
             keys = new ArrayList<>(mapKeys.keySet());
             WS.descargarTicketsPorPlan(DetallePlan.this, keys);
         }
+
+        buttonCambiarDiaPago.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClickButtonCambiarDiaPago");
+                //DatesCalc.calcularSigPagoPorFrecuencia(planFirebase.getCreatedAt(), planFirebase.getFrecuenciaPagoID());
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                if(fragmentManager!=null){
+                    CambiarVisitaDialog cambiarVisitaDiag = new CambiarVisitaDialog();
+                    cambiarVisitaDiag.setPlanID(planFirebase.getStID());
+                    cambiarVisitaDiag.show(fragmentManager, "dialog");
+                }
+            }
+        });
 
         //WS.descargarTicketsPorFechaYCobrador(""+dia+"-"+(mes+1)+"-"+anio,PerfilCobrador.this);
     }

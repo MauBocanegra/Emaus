@@ -267,6 +267,19 @@
 
     <string name="prompt_buscar">Buscar</string>
 
+    <string name="dialog_prompt_movimientos">Tipo de movimiento</string>
+    <string-array name="array_movimientos">
+        <item>Depósito</item>
+        <item>Retiro</item>
+    </string-array>
+
+    <string name="dialog_cambiarvisita_prompt_spinner_frecuencia">Elige la frecuencia de visita</string>
+    <string-array name="array_dialog_cambiarvisita_frecuencia">
+        <item>Semanal</item>
+        <item>Quincenal</item>
+        <item>Mensual</item>
+    </string-array>
+
     <string name="alerta_segmentoerroneo_titulo">Segmento equivocado</string>
     <string name="alerta_segmentoerroneo_texto">El usuario con el que estás intentando iniciar sesión no está habilitado para entrar en este segmento de la aplicación, ponte en contacto con el área de sistemas para cualquier aclaración</string>
 

@@ -17,6 +17,7 @@ public class Direcciones {
     String stCP;
     String stColonia;
     String linkFachada;
+    String idColonia;
     double lat;
     double lon;
 
@@ -76,6 +77,14 @@ public class Direcciones {
 
     public void setLon(double lon) {
         this.lon = lon;
+    }
+
+    public String getIdColonia() {
+        return idColonia;
+    }
+
+    public void setIdColonia(String idColonia) {
+        this.idColonia = idColonia;
     }
 
     /*

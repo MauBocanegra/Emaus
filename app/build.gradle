@@ -2,6 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
+    signingConfigs {
+        mau {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('/Users/mauro/.android/debug.keystore')
+            storePassword 'android'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         //applicationId "periferico.emaus"
@@ -10,16 +18,50 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
-
     buildTypes {
+        /*
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //minifyEnabled false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue("color", "colorPrimary", "#F3BB0C")
+            resValue("color", "colorPrimaryDark", "#A48E06")
+            resValue("color", "colorAccent", "#f3bb0c")
+            signingConfig signingConfigs.mau
+        }
+        */
+        real {
+            //minifyEnabled false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue("color", "colorPrimary", "#F3BB0C")
+            resValue("color", "colorPrimaryDark", "#A48E06")
+            resValue("color", "colorAccent", "#f3bb0c")
+
+            signingConfig signingConfigs.mau
+            buildConfigField("boolean","development","false")
+            debuggable false
+        }
+        debug {
+            /*
+            //Amarillos
+            resValue("color", "colorPrimary", "#F3BB0C")
+            resValue("color", "colorPrimaryDark", "#A48E06")
+            resValue("color", "colorAccent", "#f3bb0c")
+            */
+
+            //Azules
+            resValue("color", "colorPrimary", "#4fc3f7")
+            resValue("color", "colorPrimaryDark", "#4ba3c7")
+            resValue("color", "colorAccent", "#039be5")
+
+            /*
+            <color name="colorPrimaryDark">#A48E06</color>
+            <color name="colorAccent">#f3bb0c</color>
+            * */
+            signingConfig signingConfigs.mau
+            buildConfigField("boolean","development","true")
         }
     }
-
     flavorDimensions "full"
-
     productFlavors {
         ventas {
             applicationId "periferico.emaus.ventas"
@@ -45,15 +87,13 @@ android {
 dependencies {
     implementation 'com.android.support:support-vector-drawable:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
     implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true
     }
-
     implementation 'com.android.support:cardview-v7:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'

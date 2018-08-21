@@ -592,6 +592,7 @@ public class NuevoCliente extends AppCompatActivity_Job implements
             dir.setLinkFachada(dirHelper.getLinkFachada());
             dir.setLat(dirHelper.getLat());
             dir.setLon(dirHelper.getLon());
+            dir.setIdColonia(dirHelper.getIdColonia());
             direcs.add(dir);
         }
 
@@ -599,6 +600,12 @@ public class NuevoCliente extends AppCompatActivity_Job implements
         clienteFirebase = new Cliente_Firebase(stID+"_"+System.currentTimeMillis()/1000, stNombre, stApellido, stEmail, (religionIsSet ? intReligion+1 : -1),
                 (generIsSet ? intGenero+1 : -1), stFechaNac, (estadoCivilIsSet ? intEstadoCivil+1 : -1), stOcupacion, stNotas, 1,
                 telefs,direcs);
+
+        clienteFirebase.setStID(clienteFirebase.getStID().replace("é","e"));
+        clienteFirebase.setStID(clienteFirebase.getStID().replace("á","a"));
+        clienteFirebase.setStID(clienteFirebase.getStID().replace("í","i"));
+        clienteFirebase.setStID(clienteFirebase.getStID().replace("ó","o"));
+        clienteFirebase.setStID(clienteFirebase.getStID().replace("ú","u"));
 
 
         FirebaseCrash.log("NuevoCliente_TRY_CrearCliente");

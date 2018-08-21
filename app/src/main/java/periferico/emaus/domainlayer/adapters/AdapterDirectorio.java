@@ -91,13 +91,17 @@ public class AdapterDirectorio extends RecyclerView.Adapter<AdapterDirectorio.Vi
             View.OnClickListener clickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(c, DetalleCliente.class);
-                    //Log.d("ClientesFrag","stID="+cliente.toString());
-                    intent.putExtra("clientID",((Cliente_Firebase) mDataset.get(position)).getStID());
-                    intent.putExtra("stNombre",((Cliente_Firebase) mDataset.get(position)).getStNombre().split(" ")[0]+" "+((Cliente_Firebase) mDataset.get(position)).getStApellido().split(" ")[0]);
-                    intent.putExtra("intStatus",((Cliente_Firebase) mDataset.get(position)).getIntStatus());
+                    try {
+                        Intent intent = new Intent(c, DetalleCliente.class);
+                        //Log.d("ClientesFrag","stID="+cliente.toString());
+                        intent.putExtra("clientID", ((Cliente_Firebase) mDataset.get(position)).getStID());
+                        intent.putExtra("stNombre", ((Cliente_Firebase) mDataset.get(position)).getStNombre().split(" ")[0] + " " + ((Cliente_Firebase) mDataset.get(position)).getStApellido().split(" ")[0]);
+                        intent.putExtra("intStatus", ((Cliente_Firebase) mDataset.get(position)).getIntStatus());
 
-                    c.startActivity(intent);
+                        c.startActivity(intent);
+                    }catch(Exception e){
+                        onItemClickListener.onItemClick(position, ((Cliente_Firebase) mDataset.get(position)).getTipoUsuario(), "5534667682");
+                    }
                 }
             };
 

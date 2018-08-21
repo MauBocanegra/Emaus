@@ -6,6 +6,7 @@ public class FinanciamientoOBJ_Firebase {
 
     private String nombre;
     private int mensualidadID;
+    private int anios;
     private int mensualidades;
     private float multiplicadorFinanciamiento;
 
@@ -42,5 +43,13 @@ public class FinanciamientoOBJ_Firebase {
 
     public void setMultiplicadorFinanciamiento(float multiplicadorFinanciamiento) {
         this.multiplicadorFinanciamiento = multiplicadorFinanciamiento;
+    }
+
+    public int getAnios() {
+        return anios;
+    }
+
+    public void setAnios(int anios) {
+        this.anios = anios;
     }
 }

@@ -16,6 +16,7 @@ public class ConnectThread extends Thread {
     private final BluetoothSocket mmSocket;
 
     private void manageConnectedSocket (BluetoothSocket mmSocket){
+
         connectedThread = new ConnectedThread(mmSocket);
         connectedThread.start();
 
@@ -60,6 +61,7 @@ public class ConnectThread extends Thread {
             // until it succeeds or throws an exception
             mmSocket.connect();
         } catch (IOException connectException) {
+            writingBufferFailureListener.notifuyFailure();
             // Unable to connect; close the socket and get out
             try {
                 mmSocket.close();
@@ -120,7 +122,14 @@ public class ConnectThread extends Thread {
         connectedThread.write(byteArr);
     }
 
-    public interface WritingBufferReady{  public void notifyBTPrinter();
+    public interface WritingBufferFailureListener{
+        public void notifuyFailure();
+    }public void setFailureListener(WritingBufferFailureListener wbfl){
+        writingBufferFailureListener = wbfl;
+    }public WritingBufferFailureListener writingBufferFailureListener;
+
+    public interface WritingBufferReady{
+        public void notifyBTPrinter();
     }public void setWritingBufferReadyListener(WritingBufferReady wbr){
         writingBufferReady=wbr;
     }public WritingBufferReady writingBufferReady;

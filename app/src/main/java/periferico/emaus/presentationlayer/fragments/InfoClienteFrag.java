@@ -150,7 +150,7 @@ public class InfoClienteFrag extends Fragment implements
             }
 
             case "Cobranza":{
-                view.findViewById(R.id.detallecliente_button_nuevoplan).setVisibility(View.INVISIBLE);
+                view.findViewById(R.id.detallecliente_button_nuevoplan).setVisibility(View.GONE);
                 break;
             }
         }

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="false">
+
+    <TextView
+        android:id="@+id/textView32"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Cambiar dias de visita"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/colorPrimaryDark"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+        android:id="@+id/dialog_cambiarvisita_spinner"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:entries="@array/array_dialog_cambiarvisita_frecuencia"
+        android:prompt="@string/dialog_cambiarvisita_prompt_spinner_frecuencia"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView32" />
+
+    <View
+        android:id="@+id/textView34"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:background="@color/cardview_dark_background"
+        app:layout_constraintEnd_toEndOf="@+id/dialog_cambiarvisita_spinner"
+        app:layout_constraintStart_toStartOf="@+id/dialog_cambiarvisita_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_cambiarvisita_spinner" />
+
+    <TextView
+        android:id="@+id/dialog_cambiarvisita_label_diadelmes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Elige el (los) dia(s) del mes"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_cambiarvisita_spinner" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/dialog_cambiarvisita_recyclerview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_cambiarvisita_label_diadelmes"
+        tools:itemCount="5"
+        tools:listitem="@layout/item_semanas" />
+
+    <TextView
+        android:id="@+id/dialog_cambiarvisita_label_diadelasemana"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Elige el día de la semana"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_cambiarvisita_recyclerview" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/dialog_cambiarvisita_recyclerview_semana"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_cambiarvisita_label_diadelasemana"
+        tools:itemCount="1"
+        tools:listitem="@layout/item_semanas" />
+
+    <Button
+        android:id="@+id/dialog_cambiarvisita_button_cambiar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Cambiar"
+        android:theme="@style/AppTheme.ButtonMaterialLight"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_cambiarvisita_recyclerview_semana" />
+
+</android.support.constraint.ConstraintLayout>

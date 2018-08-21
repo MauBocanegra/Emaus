@@ -15,6 +15,7 @@ public class DireccionesHelper {
     String stCP;
     String stColonia;
     String linkFachada;
+    String idColonia;
     double lat; double lon;
 
     public ChosenImage chosenImage;
@@ -80,5 +81,13 @@ public class DireccionesHelper {
 
     public void setLon(double lon) {
         this.lon = lon;
+    }
+
+    public String getIdColonia() {
+        return idColonia;
+    }
+
+    public void setIdColonia(String idColonia) {
+        this.idColonia = idColonia;
     }
 }

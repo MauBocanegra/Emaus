@@ -42,7 +42,7 @@
             android:layout_marginTop="24dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
-            android:tint="#f7dc8c"
+            android:tint="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
-            android:background="#AAFFFFFF"
+            android:background="#EEFFFFFF"
             android:gravity="center"
             android:maxLines="1"
             android:text="@string/itemdir_label_fachada"
@@ -158,6 +158,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guideline5"
         app:layout_constraintTop_toBottomOf="@+id/itemdir_inputlayout_int">
@@ -260,6 +261,15 @@
         app:layout_constraintEnd_toEndOf="@+id/spinner"
         app:layout_constraintStart_toStartOf="@+id/spinner"
         app:layout_constraintTop_toBottomOf="@+id/spinner" />
+
+    <periferico.emaus.domainlayer.custom_classes.NoDefaultSpinner
+        android:id="@+id/itemdir_spinner_colonias"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/itemdir_inputlayout_colonia"
+        app:layout_constraintEnd_toEndOf="@+id/itemdir_inputlayout_colonia"
+        app:layout_constraintStart_toStartOf="@+id/itemdir_inputlayout_colonia"
+        app:layout_constraintTop_toTopOf="@+id/itemdir_inputlayout_colonia" />
 
 
 </android.support.constraint.ConstraintLayout>

@@ -147,8 +147,31 @@ public class DirectorioFrag extends Fragment implements
 
         //mSwipeRefreshLayout.setRefreshing(true);
         //WS.readClientListFirebase(DirectorioFrag.this);
-        WS.readClientAndDirectoryFirebase(DirectorioFrag.this);
         return view;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean visible)
+    {
+        super.setUserVisibleHint(visible);
+        if (visible && isResumed())
+        {
+            //Only manually call onResume if fragment is already visible
+            //Otherwise allow natural fragment lifecycle to call onResume
+            Log.d(TAG, "isVisible?="+visible);
+            WS.readClientAndDirectoryFirebase(getActivity(), DirectorioFrag.this);
+        }
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        if (!getUserVisibleHint())
+        {
+            return;
+        }
+        //INSERT CUSTOM CODE HERE
     }
 
     @Override
@@ -183,7 +206,7 @@ public class DirectorioFrag extends Fragment implements
 
         mSwipeRefreshLayout.setRefreshing(true);
         mDataset.clear();
-        WS.readClientAndDirectoryFirebase(DirectorioFrag.this);
+        WS.readClientAndDirectoryFirebase(getActivity(), DirectorioFrag.this);
 
     }
 

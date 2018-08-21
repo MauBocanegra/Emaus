@@ -11,9 +11,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,6 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.squareup.picasso.Picasso;
 
@@ -28,8 +32,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import periferico.emaus.R;
+import periferico.emaus.domainlayer.WS;
+import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.SepomexObj_REST;
 import periferico.emaus.domainlayer.objetos.DireccionesHelper;
 import periferico.emaus.presentationlayer.activities.NuevoCliente;
 
@@ -92,8 +100,72 @@ public class AdapterDirNuevoCliente extends RecyclerView.Adapter<AdapterDirNuevo
                 if(editable.toString().length()!=5){
                     //holder.editTextCP.setError(activity.getString(R.string.nuevocliente_error_cp));
                     holder.inputLayoutCP.setError(activity.getString(R.string.nuevocliente_error_cp));
+                    List<String> stringsVacias = new ArrayList<>();
+                    ArrayAdapter<String> adapterVacio = new ArrayAdapter<String>(
+                            activity, android.R.layout.simple_spinner_item, stringsVacias);
+                    adapterVacio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    holder.spinnerColonia.setAdapter(adapterVacio);
                 }else{
                     holder.inputLayoutCP.setError(null);
+
+                    RequestQueue queue = Volley.newRequestQueue(activity);
+                    String url = "http://copomex.sergio.host/api/postcodes/"+editable.toString()+"/neighborhoods";
+
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    // Display the first 500 characters of the response string.
+                                    Log.d(TAG,"response="+response);
+                                    try{
+                                        JSONObject jsonResponse = new JSONObject(response);
+                                        JSONArray jsonArray = jsonResponse.getJSONArray("data");
+                                        List<String> coloniasSepomex = new ArrayList<>();
+                                        holder.arraylistSepomexRest = new ArrayList<>();
+                                        for(int i=0; i<jsonArray.length(); i++){
+                                            JSONObject eachSepomex = jsonArray.getJSONObject(i);
+                                            Log.d(TAG, "eachSepomex = id="+eachSepomex.getInt("id")+" name="+eachSepomex.getString("name"));
+                                            SepomexObj_REST sepomexObjRest = new SepomexObj_REST();
+                                            sepomexObjRest.setId(eachSepomex.getInt("id"));
+                                            sepomexObjRest.setName(eachSepomex.getString("name"));
+                                            holder.arraylistSepomexRest.add(sepomexObjRest);
+                                            coloniasSepomex.add(eachSepomex.getString("name"));
+                                        }
+
+                                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, coloniasSepomex);
+                                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                        holder.spinnerColonia.setAdapter(adapter);
+                                        holder.spinnerColonia.setPrompt("Elige una colonia");
+
+                                    }catch(Exception e){e.printStackTrace();}
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e(TAG, "ERROR ON VOLLEY -------");
+                        }
+                    });
+
+                    queue.add(stringRequest);
+
+
+                    /*
+                    WS.readSEPOMEX(editable.toString(), new WS.FirebaseArrayRetreivedListener() {
+                        @Override
+                        public void firebaseCompleted(ArrayList<Object_Firebase> arrayList) {
+                            holder.arraylistSepomex = new ArrayList<>();
+                            List<String> coloniasSepomex = new ArrayList<>();
+                            for(Object_Firebase obj : arrayList){
+                                holder.arraylistSepomex.add((SepomexObj_Firebase) obj);
+                                coloniasSepomex.add(((SepomexObj_Firebase) obj).getColonia());
+                            }
+                            ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, coloniasSepomex);
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            holder.spinnerColonia.setAdapter(adapter);
+                            holder.spinnerColonia.setPrompt("Elige una colonia");
+                        }
+                    });
+                    */
                 }
             }
         });
@@ -104,6 +176,18 @@ public class AdapterDirNuevoCliente extends RecyclerView.Adapter<AdapterDirNuevo
             @Override public void afterTextChanged(Editable editable) {
                 mDataSet.get(position).setStNumInt(editable.toString());
             }
+        });
+
+        holder.spinnerColonia.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                int idColonia = holder.arraylistSepomexRest.get(i).getId();
+                Log.d(TAG, "selectedView = id="+idColonia+" nombre="+holder.arraylistSepomexRest.get(i).getName());
+                holder.idColonia = ""+idColonia;
+                mDataSet.get(position).setIdColonia(""+idColonia);
+            }
+
+            @Override public void onNothingSelected(AdapterView<?> adapterView) { }
         });
 
         holder.buttonUbicar.setOnClickListener(new View.OnClickListener() {
@@ -169,11 +253,21 @@ public class AdapterDirNuevoCliente extends RecyclerView.Adapter<AdapterDirNuevo
         }else{
             holder.inputLayoutCP.setError(null);
         }
+        /*
         if(holder.editTextColonia.getEditableText().toString().isEmpty()){
             holder.inputLayoutColonia.setError(activity.getString(R.string.itemdir_error_colonia));
             return true;
         }else{
             holder.inputLayoutColonia.setError(null);
+        }
+        */
+
+        if(holder.idColonia!=null)
+        if(holder.idColonia.isEmpty()){
+            holder.inputLayoutCP.setError(activity.getString(R.string.itemdir_error_cp));
+            return true;
+        }else{
+            holder.inputLayoutCP.setError(null);
         }
         return false;
     }
@@ -198,6 +292,9 @@ public class AdapterDirNuevoCliente extends RecyclerView.Adapter<AdapterDirNuevo
         private ProgressBar progressFachada;
         private FloatingActionButton buttonUbicar;
         private ImageView imageMapa;
+        private Spinner spinnerColonia;
+        private ArrayList<SepomexObj_REST> arraylistSepomexRest;
+        private String idColonia;
 
         public ViewHolder(View v){
             super(v);
@@ -215,6 +312,7 @@ public class AdapterDirNuevoCliente extends RecyclerView.Adapter<AdapterDirNuevo
             progressFachada = v.findViewById(R.id.itemdir_progress_foto);
             buttonUbicar = v.findViewById(R.id.itemdir_button_ubicarmapa);
             imageMapa = v.findViewById(R.id.itemdir_mapa_snapshot);
+            spinnerColonia = v.findViewById(R.id.itemdir_spinner_colonias);
         }
     }
 
@@ -230,4 +328,8 @@ public class AdapterDirNuevoCliente extends RecyclerView.Adapter<AdapterDirNuevo
     }public void setClickImageOnItemListener(ClickImageInItem listener){
         clickImageInItem = listener;
     }
+
+    //-----------------------------------------------------------------------
+    //--------------------- FIREBASE IMPLEMENTATION -------------------------
+    //-----------------------------------------------------------------------
 }

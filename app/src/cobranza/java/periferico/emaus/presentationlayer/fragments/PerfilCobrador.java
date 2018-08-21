@@ -2,10 +2,14 @@ package periferico.emaus.presentationlayer.fragments;
 
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +17,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStructure;
+import android.view.autofill.AutofillValue;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
@@ -26,12 +32,14 @@ import java.util.Map;
 
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
+import periferico.emaus.domainlayer.adapters.AdapterMovimientos;
 import periferico.emaus.domainlayer.adapters.AdapterPerfilCobrador;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Ticket_Firebase;
 import periferico.emaus.domainlayer.objetos.TicketWrapper;
 import periferico.emaus.presentationlayer.activities.PrintCorte;
 import periferico.emaus.presentationlayer.dialogs.DatePickerDiag;
+import periferico.emaus.presentationlayer.dialogs.MovimientoDiag;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,12 +53,13 @@ public class PerfilCobrador extends Fragment implements
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private android.support.v7.widget.LinearLayoutManager mLayoutManager;
-    private ArrayList<TicketWrapper> mDataset;
+    private ArrayList<Object_Firebase> mDataset;
 
     TextView pagosTextView;
     TextView pagadoTextView;
     View buttonFecha;
     Button buttonCorte;
+    Button buttonMovimiento;
     TextView labelFecha;
 
     //----------------
@@ -97,7 +106,8 @@ public class PerfilCobrador extends Fragment implements
         //--------RecyclerView
         mRecyclerView = view.findViewById(R.id.recyclerView);
         mDataset = new ArrayList<>();
-        mAdapter = new AdapterPerfilCobrador(mDataset, getActivity());
+        mAdapter = new AdapterMovimientos(mDataset, (FragmentActivity) getActivity());
+        //mAdapter = new AdapterPerfilCobrador(mDataset, getActivity());
         mRecyclerView.setAdapter(mAdapter);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -105,6 +115,7 @@ public class PerfilCobrador extends Fragment implements
         buttonFecha = view.findViewById(R.id.perfilcobrador_button_fecha);
         labelFecha = view.findViewById(R.id.perfilcobrador_label_fecha);
         buttonCorte = view.findViewById(R.id.perfilcobrador_button_corte);
+        buttonMovimiento = view.findViewById(R.id.perfilcobrador_button_movimiento);
 
         pagadoTextView = view.findViewById(R.id.perfilcobrador_pagado);
         pagosTextView = view.findViewById(R.id.perfilcobrador_pagos);
@@ -130,12 +141,46 @@ public class PerfilCobrador extends Fragment implements
                 startActivity(intent);
             }
         });
+
+        buttonMovimiento.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                LayoutInflater inflater = getActivity().getLayoutInflater();
+                builder.setView(inflater.inflate(R.layout.dialog_agregarmovimiento, null));
+                AlertDialog dialog = builder.create();
+                dialog.setCancelable(false);
+                dialog.show();
+                */
+
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                if(fragmentManager!=null){
+                    MovimientoDiag movimientoDiag = new MovimientoDiag();
+                    movimientoDiag.setMovimientoAgregadoListener(new MovimientoDiag.MovimientoAgregadoListener() {
+                        @Override
+                        public void onMovimientoAgregado() {
+                            setDayInList();
+                        }
+                    });
+                    movimientoDiag.show(fragmentManager, "dialog");
+                }
+
+                /*
+                AlertDialog dialog = builder.create();
+                dialog.setCancelable(false);
+                dialog.show();
+                */
+            }
+        });
     }
 
     private void setDayInList(){
         mDataset.clear();
         labelFecha.setText(""+dia+" / "+getMesInString()+" / "+anio);
-        WS.descargarTicketsPorFechaYCobrador(""+dia+"-"+(mes+1)+"-"+anio,PerfilCobrador.this);
+        //WS.descargarTicketsPorFechaYCobrador(""+dia+"-"+(mes+1)+"-"+anio,PerfilCobrador.this);
+        //WS.descargarTicketsPorFechaYCobrador(""+dia+"-"+(mes+1)+"-"+anio,PerfilCobrador.this);
+        WS.descargarMovimientosPorCobradorYFecha(""+dia+"-"+(mes+1)+"-"+anio,PerfilCobrador.this);
     }
 
     private String getMesInString(){
@@ -157,6 +202,7 @@ public class PerfilCobrador extends Fragment implements
 
     @Override
     public void firebaseCompleted(ArrayList<Object_Firebase> arrayList) {
+        /*
         buttonCorte.setVisibility(arrayList.size()==0 ? View.GONE : View.VISIBLE);
         pagos=0; pagado=0;
         for(Object_Firebase obj : arrayList){
@@ -169,6 +215,11 @@ public class PerfilCobrador extends Fragment implements
         pagadoTextView.setText(formatMoney(pagado));
 
         mAdapter.notifyDataSetChanged();
+        */
+        buttonCorte.setVisibility(arrayList.size()==0 ? View.GONE : View.VISIBLE);
+        mDataset.addAll(arrayList);
+        mAdapter.notifyDataSetChanged();
+
     }
 
     /*

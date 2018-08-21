@@ -6,4 +6,6 @@
 
     <string name="format_fullname">%s %s</string>
     <string name="format_letras">%s%s</string>
+
+    <string name="sharedPreferencesKey">ShPrVentas</string>
 </resources>

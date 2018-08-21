@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -25,6 +26,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.github.danielfelgar.drawreceiptlib.ReceiptBuilder;
 import com.google.zxing.BarcodeFormat;
@@ -47,29 +50,44 @@ import java.util.Set;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.bluetoothprinter.BTPrinter;
+import periferico.emaus.domainlayer.bluetoothprinter.PrintingActivity;
 import periferico.emaus.domainlayer.bluetoothprinter.PrintingCommands;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Ticket_Firebase;
 
-public class PrintTicket extends AppCompatActivity implements
-        BTPrinter.ReadyToPrintListener{
+public class PrintTicket extends PrintingActivity implements
+        BTPrinter.ReadyToPrintListener,
+        BTPrinter.FailureNotifiedListener,
+        PrintingActivity.PairingStatusListener{
 
-    private static final String TAG = "PrintTicketDebug";
+    /*
+    private static final String TAG = "PrintTicket";
     private static final String TAG_BT = "BluetoothDebug";
     private static final int REQUEST_ENABLE_BT = 3736;
+    */
+
     private Toolbar toolbar;
     private ImageView image;
+    private ImageView iconPairing;
+    private ImageView iconPrinter;
+    private ImageView iconTicket;
+    private TextView labelFeedback;
     Ticket_Firebase ticketFirebase;
     Bitmap barcode;
 
+    /*
     View viewTodosPermisos;
     Button buttonAbrirAjustes;
     DexterBuilder dexterBuilder;
+    */
 
+    /*
     BluetoothAdapter mBluetoothAdapter;
     private BroadcastReceiver mReceiver;
     BluetoothDevice finalDevice;
     BTPrinter btPrinter;
+    boolean sentToPrint=false;
+    */
 
     Handler mHandler;
 
@@ -94,79 +112,33 @@ public class PrintTicket extends AppCompatActivity implements
         });
 
         btPrinter = new BTPrinter();
+        pairingStatusListener=PrintTicket.this;
         btPrinter.setPrintingReadyListener(PrintTicket.this);
+        btPrinter.setPrintinfFailureListener(PrintTicket.this);
 
-    }
-
-
-
-    private void setPermissionsLogic(){
-
-        MultiplePermissionsListener permissionsChecked = new MultiplePermissionsListener() {
-            @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
-
-                if(report.isAnyPermissionPermanentlyDenied()){
-                    viewTodosPermisos.setVisibility(View.VISIBLE);
-                    Log.d("TAG","PERMANENTLY DENIED");
-                    return;
-                }
-
-                if(report.areAllPermissionsGranted()){
-                    try {
-                        viewTodosPermisos.setVisibility(View.GONE);
-                        askForBluetoothPermissions();
-
-                    }catch(SecurityException se){se.printStackTrace();}
-                }
-                else{
-                    viewTodosPermisos.setVisibility(View.VISIBLE);
-                }
-            }
-            @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                token.continuePermissionRequest();
-            }
-        };
-
-        MultiplePermissionsListener compositePermissionsListener =
-                new CompositeMultiplePermissionsListener(
-                        //snackbarMultiplePermissionsListener,
-                        //dialogMultiplePermissionsListener,
-                        permissionsChecked);
-
-        dexterBuilder = Dexter.withActivity(PrintTicket.this).withPermissions(
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN
-        ).withListener(compositePermissionsListener).onSameThread();
-    }
-
-    private void askForBluetoothPermissions(){
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter == null) {
-            // Device does not support Bluetooth
-        }
-
-        if (!mBluetoothAdapter.isEnabled()) {
-            Log.d(TAG_BT,"wontStartDiscovery");
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }else{
-            searchForPairedDevices();
-        }
     }
 
     private void generateAndDraw(){
         String empleado = WS.getCurrentUser().getEmail().split("@")[0].replace(".","");
         barcode = BitmapFactory.decodeResource(this.getResources(), R.drawable.barcode);
 
-        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        try {
+        //MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+        //try {
             Log.d(TAG,getIntent().getStringExtra("ticketID") );
+            String extraTicketID = getIntent().getStringExtra("ticketID");
+            extraTicketID = extraTicketID.replace("é","e");
+            extraTicketID = extraTicketID.replace("á","a");
+            extraTicketID = extraTicketID.replace("í","i");
+            extraTicketID = extraTicketID.replace("ó","o");
+            extraTicketID = extraTicketID.replace("ú","u");
+            /*
             BitMatrix bitMatrix = multiFormatWriter.encode(getIntent().getStringExtra("ticketID"), BarcodeFormat.CODE_128,barcode.getWidth(),barcode.getHeight());
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             barcode = barcodeEncoder.createBitmap(bitMatrix);
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
+            */
+        //} catch (WriterException e) {
+            //e.printStackTrace();
+        //}
 
         Log.d(TAG, "empleado="+ticketFirebase.getEmpleadoID()+" keyDia="+ticketFirebase.getKeyDiaCreacion()+" CLIENTE: "+ticketFirebase.getClienteID()+" CUENTA: "+ticketFirebase.getPlanID()
         +" abono= "+ticketFirebase.getNumAbono()+" monto="+ticketFirebase.getMonto());
@@ -207,6 +179,7 @@ public class PrintTicket extends AppCompatActivity implements
                 addImage(barcode);
         image.setImageBitmap(receipt.build());
 
+        /*
         Geocoder coder = new Geocoder(PrintTicket.this);
         try {
             List<Address> enderecos = coder.getFromLocation(-22.90827, -47.06501, 1);
@@ -214,6 +187,7 @@ public class PrintTicket extends AppCompatActivity implements
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
     }
 
     private void instanciateObjects(){
@@ -221,6 +195,10 @@ public class PrintTicket extends AppCompatActivity implements
         viewTodosPermisos = findViewById(R.id.cardview_permissions);
         buttonAbrirAjustes = findViewById(R.id.permissions_abrir_ajustes);
         image = findViewById(R.id.ticket_image);
+        iconPairing=findViewById(R.id.printticket_img_pairing);
+        iconPrinter=findViewById(R.id.printticket_img_printer);
+        iconTicket=findViewById(R.id.printticket_img_ticket);
+        labelFeedback = findViewById(R.id.printitcket_label_feedback);
 
         buttonAbrirAjustes.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -254,124 +232,140 @@ public class PrintTicket extends AppCompatActivity implements
             startActivity(intent);
     }
 
-    private void createBroadcastReceiver(){
-        mReceiver = new BroadcastReceiver() {
-            public void onReceive(Context context, Intent intent) {
-                Log.d(TAG_BT,"onReceiveBroadcastBT");
-                String action = intent.getAction();
-                // When discovery finds a device
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    // Get the BluetoothDevice object from the Intent
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    // Add the name and address to an array adapter to show in a ListView
-                    Log.d(TAG_BT,device.getName() + " - " + device.getAddress());
-                    //mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-                }
+    @Override
+    public void notPairingFound() {
+        PrintTicket.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG,"--------------- NOTpairingFound! ---------------");
+                iconPairing.setImageDrawable(ContextCompat.getDrawable(PrintTicket.this, R.mipmap.ic_bt_red));
+                labelFeedback.setText("No has vinculado ninguna impresora");
             }
-        };
-
-        Log.d(TAG_BT,"registerReceiver");
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
-    }
-
-    private void searchForPairedDevices(){
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        // If there are paired devices
-        if (pairedDevices.size() > 0) {
-            // Loop through paired devices
-            for (BluetoothDevice device : pairedDevices) {
-                // Add the name and address to an array adapter to show in a ListView
-
-                try{
-                    if(device.getUuids()!=null){
-                        for(ParcelUuid parcel : device.getUuids()){
-
-                        }
-                    }
-                    Log.d(TAG, device.getName()+" - UUUIDS="+device.getUuids());
-                }catch(Exception e){e.printStackTrace();}
-
-                Log.d(TAG_BT,device.getName() + " - " + device.getAddress());
-                if(device.getAddress().equals("0F:02:18:30:12:2D")){
-                    finalDevice = device;
-                    Log.d(TAG_BT,"Encontro ESTE printer - "+device.getUuids()[0].getUuid());
-                    btPrinter.startProcess(device);
-                    break;
-                }
-            }
-        }else{
-            Log.d(TAG_BT,"pairedDevs=0");
-        }
-    }
-
-    private void startBTDiscovery(){
-        Log.d(TAG_BT,"willStartDiscovery");
-        Intent discoverableIntent = new
-                Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 12);
-        startActivity(discoverableIntent);
+        });
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        try {
-            if (mReceiver != null) {
-                Log.d(TAG_BT, "registerReceiver");
-                unregisterReceiver(mReceiver);
+    public void pairingFound() {
+        PrintTicket.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG,"--------------- pairingFound! ---------------");
+                iconPairing.setImageDrawable(ContextCompat.getDrawable(PrintTicket.this, R.mipmap.ic_bt_yellow));
+                labelFeedback.setText("Conectando a impresora vinculada...");
             }
-            if(btPrinter!=null) btPrinter.finishProcess();
-        }catch(Exception e){e.printStackTrace();}
-
+        });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public void notifyPrintingActivityOfFailure() {
+        PrintTicket.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG, " --------------- NO PRINTER CONNECTION --------------");
 
-        Log.d(TAG_BT, "requestCode="+requestCode+" result="+resultCode+"=="+this.RESULT_OK+"?");
+                iconPrinter.setImageDrawable(ContextCompat.getDrawable(PrintTicket.this, R.drawable.ic_printer_red));
+                labelFeedback.setText("Error al conectar a la impresora vinculada");
+            }
+        });
 
-        if(requestCode== REQUEST_ENABLE_BT && resultCode == this.RESULT_OK){
-            searchForPairedDevices();
-        }
     }
 
     @Override
     public void notifyPrinterActivity() {
-        Log.d(TAG, " --------------- ACTIVITY NOTIFIED --------------");
+        PrintTicket.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, " --------------- ACTIVITY NOTIFIED --------------");
+                labelFeedback.setText("Ticket impreso correctamente");
+                iconTicket.setImageDrawable(ContextCompat.getDrawable(PrintTicket.this, R.drawable.ic_ticket_yellow));
 
-        //btPrinter.printAlignedText(PrintingCommands.align,"");
+                //btPrinter.printAlignedText(PrintingCommands.align,"");
 
-        btPrinter.startPrintingCanvas();
-        btPrinter.printAlignedText(PrintingCommands.alignCenter, "Emiliano Zapata");
-        btPrinter.printAlignedText(PrintingCommands.alignCenter, "940 PTE, COL. Jorge Almada");
-        btPrinter.printAlignedText(PrintingCommands.alignCenter,"Culiacan, Sinaloa, Mexico");
-        btPrinter.printAlignedText(PrintingCommands.alignCenter,"(667) 761 21 61");
-        btPrinter.addLineBreak();
-        btPrinter.printAlignedText(PrintingCommands.alignLeft,"EmpleadoID: "+WS.getCurrentUser().getEmail().split("@")[0].replace(".",""));
-        btPrinter.printAlignedText(PrintingCommands.alignLeft,"Fecha: "+ticketFirebase.getKeyDiaCreacion());
-        btPrinter.addLineBreak();
-        btPrinter.printAlignedText(PrintingCommands.alignLeft,"EFECTIVO");
-        btPrinter.printAlignedText(PrintingCommands.alignLeft,"CLIENTE: "+ticketFirebase.getClienteID());
-        btPrinter.printAlignedText(PrintingCommands.alignLeft,"PLAN: "+ticketFirebase.getPlanID());
-        btPrinter.addLineBreak();
-        btPrinter.printAlignedText(PrintingCommands.alignLeft,"Abono #"+ticketFirebase.getNumAbono());
-        btPrinter.addLineBreak();
-        btPrinter.printAlignedText(PrintingCommands.alignLeft, "SALDO ANTERIOR: $"+(ticketFirebase.getNuevoSaldo()+ticketFirebase.getMonto()));
-        btPrinter.printAlignedText(PrintingCommands.alignLeft,"SALDO ACTUAL: $"+ticketFirebase.getNuevoSaldo());
-        btPrinter.addLineBreak();
-        btPrinter.printAlignedText(PrintingCommands.alignRight, "MONTO PAGADO: $"+ticketFirebase.getMonto());
-        btPrinter.addLineBreak();
-        btPrinter.printAlignedText(PrintingCommands.alignCenter,"APROVADO ONLINE");
-        btPrinter.addLineBreak();
-        btPrinter.addLineBreak();
-        btPrinter.addLineBreak();
-        btPrinter.addLineBreak();
-        btPrinter.printTicket();
+                btPrinter.startPrintingCanvas();
+
+                /*
+                btPrinter.printAlignedText(PrintingCommands.alignCenter, "CRISTINA BABY");
+                btPrinter.printAlignedText(PrintingCommands.alignCenter, "Sinaloa 216, Roma N");
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"CDMX, Mexico");
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"-----------------");
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"VALE POR UN ABRAZO");
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
 
 
-        //hexToAscii("Hello world");
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"Fecha: 8/Ago/2018");
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"Valido por: 1 año");
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"Aplica solo para Mau");
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"Aplican terminos y condiciones");
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"-- APROVADO --");
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                */
+
+                /*
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"EmpleadoID: "+WS.getCurrentUser().getEmail().split("@")[0].replace(".",""));
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"Fecha: "+ticketFirebase.getKeyDiaCreacion());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"EFECTIVO");
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"CLIENTE: "+ticketFirebase.getClienteID());
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"PLAN: "+ticketFirebase.getPlanID());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"Abono #"+ticketFirebase.getNumAbono());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignLeft, "SALDO ANTERIOR: $"+(ticketFirebase.getNuevoSaldo()+ticketFirebase.getMonto()));
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"SALDO ACTUAL: $"+ticketFirebase.getNuevoSaldo());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignRight, "MONTO PAGADO: $"+ticketFirebase.getMonto());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"APROVADO ONLINE");
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                */
+                //btPrinter.printTicket();
+
+
+                btPrinter.printAlignedText(PrintingCommands.alignCenter, "Emiliano Zapata");
+                btPrinter.printAlignedText(PrintingCommands.alignCenter, "940 PTE, COL. Jorge Almada");
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"Culiacan, Sinaloa, Mexico");
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"(667) 761 21 61");
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"EmpleadoID: "+WS.getCurrentUser().getEmail().split("@")[0].replace(".",""));
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"Fecha: "+ticketFirebase.getKeyDiaCreacion());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"EFECTIVO");
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"CLIENTE: "+ticketFirebase.getClienteID());
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"PLAN: "+ticketFirebase.getPlanID());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"Abono #"+ticketFirebase.getNumAbono());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignLeft, "SALDO ANTERIOR: $"+(ticketFirebase.getNuevoSaldo()+ticketFirebase.getMonto()));
+                btPrinter.printAlignedText(PrintingCommands.alignLeft,"SALDO ACTUAL: $"+ticketFirebase.getNuevoSaldo());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignRight, "MONTO PAGADO: $"+ticketFirebase.getMonto());
+                btPrinter.addLineBreak();
+                btPrinter.printAlignedText(PrintingCommands.alignCenter,"APROVADO ONLINE");
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.addLineBreak();
+                btPrinter.printTicket();
+
+            }
+        });
+
+
     }
 
 }

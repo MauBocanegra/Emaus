@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +17,11 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
+import periferico.emaus.domainlayer.firebase_objects.Categorias_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
@@ -113,6 +116,8 @@ public class AdapterRuta extends RecyclerView.Adapter<AdapterRuta.ViewHolder>{
 
         });
 
+        //
+
         holder.pagosPlan.setText(activity.getString(
                 R.string.format_cobro,
                 mDataset.get(position).getPlan().getPagosRealizados() + 1));
@@ -120,14 +125,32 @@ public class AdapterRuta extends RecyclerView.Adapter<AdapterRuta.ViewHolder>{
         holder.buttonPagar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                componentInItemRutaClickListener.onComponentClikListener(view.getId(), position, holder.buttonPagar);
+                componentInItemRutaClickListener.onComponentClikListener(view.getId(), position, holder.buttonPagar, null);
             }
         });
 
         holder.buttonMover.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                componentInItemRutaClickListener.onComponentClikListener(view.getId(), position, holder.buttonMover);
+            public void onClick(final View view) {
+                WS.readEstatusVisita(new WS.FirebaseObjectRetrievedListener() {
+                    @Override
+                    public void firebaseObjectRetrieved(final Object_Firebase objectFirebase) {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                List<Map<String,Object>> mapaEstatusVisita = ((Categorias_Firebase)objectFirebase).getEstatusVisita();
+                                /*
+                                PopupMenu popupMenu = new PopupMenu(getContext(), viewClicked);
+                                popupMenu.getMenu().add(0,0,0,"Item 1");
+                                popupMenu.getMenu().add(0,1,1,"Item 2");
+                                popupMenu.getMenu().add(0,2,2,"Item 3");
+                                */
+
+                                componentInItemRutaClickListener.onComponentClikListener(view.getId(), position, holder.buttonMover, null);
+                            }
+                        });
+                    }
+                });
             }
         });
     }
@@ -199,7 +222,7 @@ public class AdapterRuta extends RecyclerView.Adapter<AdapterRuta.ViewHolder>{
 
     public ComponentInItemRutaClickListener componentInItemRutaClickListener;
     public interface ComponentInItemRutaClickListener{
-        void onComponentClikListener(int ID, int position, View viewClicked);
+        void onComponentClikListener(int ID, int position, View viewClicked, PopupMenu menu);
     }
 
     public ItemRemoverListener itemRemoverListener;

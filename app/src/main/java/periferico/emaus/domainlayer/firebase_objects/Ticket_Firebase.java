@@ -10,6 +10,7 @@ public class Ticket_Firebase extends Object_Firebase {
     private float monto;
     private float nuevoSaldo;
     private long createdAt;
+    private String empleado_keydia;
 
     private String keyDiaCreacion;
 
@@ -95,5 +96,13 @@ public class Ticket_Firebase extends Object_Firebase {
 
     public void setKeyDiaCreacion(String keyDiaCreacion) {
         this.keyDiaCreacion = keyDiaCreacion;
+    }
+
+    public String getEmpleado_keydia() {
+        return empleado_keydia;
+    }
+
+    public void setEmpleado_keydia(String empleado_keydia) {
+        this.empleado_keydia = empleado_keydia;
     }
 }

@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Emaus[C]</string>
     <string name="flavor_string">Cobranza</string>
+    <string name="sharedPreferencesKey">ShPrCobranza</string>
 
     <string name="bottomsheet_cobros_cargando_titulo">Cargando ruta</string>
     <string name="bottomsheet_cobros_cargando_subtitulo">Cargando ubicaciones</string>
@@ -28,9 +29,18 @@
     <string name="detallecobro_button_ver_cliente">Mostrar\nperfil</string>
     <string name="detallecobro_hint_abono">Cantidad del abono</string>
     <string name="detallecobro_error_abono">El abono debe ser al menos de un ciclo de cobro equivalente a %s</string>
+    <string name="detallecobro_error_abonodemas">El abono no debe ser mayor al total del saldo de %s</string>
     <string name="detallecobro_exception_abono">Verifica la cantidad</string>
+    <string name="detallecobro_alert_titulo_error">Error en el abono</string>
+    <string name="detallecobro_alert_texto_error">Verifica que el abono cumpla con lo siguiente:
+        \n\t· Abono mínimo equivalente a un ciclo de cobro
+        \n\t· Abono máximo equivalente al Saldo total del plan
+        \n\t· Formato correcto (pesos, punto y centavos) </string>
 
-    <string name="perfilcobrador_imprimir">Imprimir</string>
+    <string name="perfilcobrador_imprimir">Hacer corte</string>
+    <string name="perfilcobrador_movimiento">Registrar movimiento</string>
+
+    <string name="dialog_agregarmovimiento">Registro de movimiento</string>
 
     <string name="format_abono">Abono no. %d | </string>
     <string name="format_fullname">%s %s</string>
@@ -41,6 +51,10 @@
     <string name="format_fullfecha">%d de %s de %d</string>
 
     <string name="item_pagado">Pagado</string>
+
+    <string name="dialog_movimientos_error_cantidad">Introduce correctamente la cantidad del movimiento</string>
+    <string name="dialog_movimientos_error_spinner">Elige el tipo de movimiento a registrar</string>
+    <string name="dialog_movimientos_error_referencia">Introduce una referencia o descripción del movimiento</string>
 
 
     <string name="hello_blank_fragment">Hello blank fragment</string>

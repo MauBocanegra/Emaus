@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#F3BB0C</color>
+    <!--<color name="colorPrimary">#F3BB0C</color>
     <color name="colorPrimaryDark">#A48E06</color>
     <color name="colorAccent">#f3bb0c</color>
+    -->
     <color name="greenColor">#7ed321</color>
     <color name="darkGreen">#417505</color>
 
@@ -10,8 +11,12 @@
     <color name="colorPrimaryDarkT">#44A48E06</color>
 
     <color name="greenEmaus">#91cf48</color>
+    <color name="redError">#f44336</color>
 
     <color name="textColorPrimary">#000</color>
     <color name="textColorSecondary">#444</color>
+    <color name="textColorTerciary">#AAA</color>
     <color name="textColorWhite">#FFF</color>
+    <color name="semanasBg">#D8D8D8</color>
+
 </resources>

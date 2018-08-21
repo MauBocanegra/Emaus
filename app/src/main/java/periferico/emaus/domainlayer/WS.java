@@ -3,21 +3,28 @@ package periferico.emaus.domainlayer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,6 +33,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,13 +47,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+import periferico.emaus.BuildConfig;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.firebase_objects.CatalogItem_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.Categorias_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.ConfigLiquidaCon;
+import periferico.emaus.domainlayer.firebase_objects.Movimiento_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.PerfilEmpleado;
 import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.PlanLegacy_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.SepomexObj_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Ticket_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.VisitaPlan_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.configplan.MatrizPlanes_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.ConfiguracionPlanes_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
@@ -94,6 +112,10 @@ public class WS{
      */
     public synchronized static WS getInstance(final Context c, boolean forceUpdate){
 
+        if((!BuildConfig.development) && c.getResources().getString(R.string.firebase_database_url).equals("https://fir-emaus-des.firebaseio.com")){
+            return null;
+        }
+
         switch (c.getString(R.string.flavor_string)){
             case "Ventas":{setKeyUser(KEY_VENDEDORES); break;}
             case "Cobranza":{setKeyUser("cobranza"); break;}
@@ -101,8 +123,6 @@ public class WS{
 
         if(instance==null){
             instance = new WS();
-
-
 
             if(mAuth==null) {
                 FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
@@ -378,11 +398,21 @@ public class WS{
         });
     }
 
+    public static void updateVisitasEnPlanFirebase(final String planID, int frecuenciaVisita, int diaVisita, DatabaseReference.CompletionListener completionListener){
+        Map<String, Object> childrenToUpdate = new HashMap<>();
+        childrenToUpdate.put("frecuenciaVisitas",frecuenciaVisita);
+        childrenToUpdate.put("diaVisitas", diaVisita);
+        mDatabase.child("planes").child(planID).updateChildren(childrenToUpdate, completionListener);
+    }
+
     public static void writeTicketFirebase(
             final Ticket_Firebase ticketFirebase,
             final FirebaseCompletionListener firebaseCompletionListener){
         final String empleado = currentUser.getEmail().split("@")[0].replace(".","");
         final Object_Firebase ticketObj = new Object_Firebase();
+
+        ticketFirebase.setEmpleadoID(empleado);
+        ticketFirebase.setEmpleado_keydia(""+empleado+"_"+ticketFirebase.getKeyDiaCreacion());
 
 
         //-------GUARDAMOS EL TICKET
@@ -394,6 +424,7 @@ public class WS{
         });
 
 
+        /*
         //-------GUARDAMOS EL ID del ticket por cobrador
         mDatabase.child(KEY_REL_TICKETS).child(KEY_REL_TICKETS_COBRADOR).child(empleado).child(ticketFirebase.getStID()).setValue(true, new DatabaseReference.CompletionListener() {
             @Override
@@ -409,6 +440,25 @@ public class WS{
                 Log.d(TAG, "Paso3 TicketHistorialDia Guardado!");
             }
         });
+        */
+
+        //------- Guardamos el ticket en la referencia de movimientos
+        Movimiento_Firebase movimientoFirebase = new Movimiento_Firebase();
+        movimientoFirebase.setEmpleadoID(ticketFirebase.getEmpleadoID());
+        movimientoFirebase.setFecha(ticketFirebase.getKeyDiaCreacion());
+        movimientoFirebase.setCreatedAt(ticketFirebase.getCreatedAt());
+        movimientoFirebase.setTipoMovimiento("Ticket");
+        movimientoFirebase.setTicketID(ticketFirebase.getStID());
+        movimientoFirebase.setTipoMovimientoID(Movimiento_Firebase.movimientoTicket);
+        movimientoFirebase.setEmpleado_fecha(ticketFirebase.getEmpleadoID()+"_"+ticketFirebase.getKeyDiaCreacion());
+        movimientoFirebase.setMovimiento(ticketFirebase.getMonto());
+        movimientoFirebase.setDescripcionMovimiento(ticketFirebase.getStID());
+        mDatabase.child("movimientos").child(movimientoFirebase.getEmpleado_fecha()+"_"+movimientoFirebase.getCreatedAt()).setValue(movimientoFirebase, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                Log.d(TAG, "Paso 2 TicketEnMovimientos");
+            }
+        });
 
         //-------Guardamos la referencia en el Plan
         mDatabase.child("planes")
@@ -422,6 +472,8 @@ public class WS{
                             }
                         }
                 );
+
+        //mDatabase.child("movimientos").child()
 
         //-------Actualizamos el numero de pagos realizados y el saldo en el plan
         Map<String, Object> childrenToUpdate = new HashMap<>();
@@ -439,12 +491,29 @@ public class WS{
 
     }
 
+    public static void writeMovimientoFirebase(Movimiento_Firebase movimientoFirebase, final FirebaseCompletionListener firebaseCompletionListener){
+        final String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+
+        movimientoFirebase.setEmpleadoID(empleado);
+        movimientoFirebase.setEmpleado_fecha(""+empleado+"_"+movimientoFirebase.getFecha());
+
+        mDatabase.child("movimientos").child(movimientoFirebase.getEmpleado_fecha()+"_"+movimientoFirebase.getCreatedAt()).setValue(movimientoFirebase, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                firebaseCompletionListener.firebaseCompleted(false);
+            }
+        });
+    }
+
+    public static void writeVisitaEnPlan(VisitaPlan_Firebase visitaPlanFirebase){
+        //mDatabase.child("visitasPorPlan")
+    }
 
     // ------------------------------------------------- //
     // ---------------- READING METHODS ---------------- //
     //-------------------------------------------------- //
 
-    public static void readUserType(Context c, final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
+    public static void readUserType(final Context c, final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
         String userKey = c.getString(R.string.flavor_string);
 
 
@@ -469,8 +538,10 @@ public class WS{
         });
     }
 
-    public static void readClientAndDirectoryFirebase(final FirebaseArrayRetreivedListener arrayRetreivedListener){
+    public static void readClientAndDirectoryFirebase(final Context c, final FirebaseArrayRetreivedListener arrayRetreivedListener){
         String vendedor = currentUser.getEmail().split("@")[0].replace(".","");
+
+        Log.d(TAG, "jsonStCliente Entra a aqui con Key="+getKeyUser());
 
         switch(getKeyUser()){
             case KEY_VENDEDORES:{
@@ -506,10 +577,67 @@ public class WS{
             }
 
             case "cobranza":{
+                final String TAG="stCliente";
+                Log.d(TAG, "jsonStCliente COBRANZA="+getKeyUser());
 
                 final ArrayList<Object_Firebase> fullDirectory = new ArrayList<>();
 
                 String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+                SharedPreferences sharedPref = c.getSharedPreferences(
+                        c.getString(R.string.sharedPreferencesKey), Context.MODE_PRIVATE);
+                String jsonRutasSt = sharedPref.getString("jsonRutas", "{}");
+                Log.d(TAG, "inSharedPref = "+jsonRutasSt);
+
+                try {
+                    JSONObject jsonRutas = new JSONObject(jsonRutasSt);
+                    JSONArray arrayPlanes = jsonRutas.getJSONArray("planesPorColonia");
+                    Log.d(TAG, "arrayPlanesLen="+arrayPlanes.length());
+                    final ArrayList<String> idClientes = new ArrayList<>();
+                    Map<String,String> mapClientes = new HashMap<>();
+                    for(int i=0; i<arrayPlanes.length(); i++){
+                        String allPlan = arrayPlanes.getString(i);
+                        Log.d(TAG, "allPlan="+allPlan);
+                        int lastIndexOfKeyFound = allPlan.indexOf("stCliente=");
+                        int indexToComa = allPlan.indexOf(',');
+                        Log.d(TAG, "planCut="+allPlan.substring(lastIndexOfKeyFound+10,indexToComa));
+                        mapClientes.put(allPlan.substring(lastIndexOfKeyFound+10,indexToComa),allPlan.substring(lastIndexOfKeyFound+10,indexToComa));
+                        /*
+                        JSONObject jsonPlan = new JSONObject(arrayPlanes.getString(i));
+                        idClientes.add(jsonPlan.getString("stCliente"));
+                        Log.d(TAG, "jsonStCliente"+jsonPlan.getString("stCliente"));
+                        */
+                    }
+
+                    for (Map.Entry<String, String> entry : mapClientes.entrySet()) {
+                        idClientes.add(entry.getKey());
+                    }
+
+                    for(String cliente : idClientes){
+
+                        Log.d(TAG, "jsonStCliente Descargaremos="+cliente);
+                        mDatabase.child("clientes").child(cliente).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                fullDirectory.add(dataSnapshot.getValue(Cliente_Firebase.class));
+                                Log.d(TAG, "jsonStCliente HemosAgregado="+dataSnapshot.getValue(Cliente_Firebase.class).getStID());
+                                if(fullDirectory.size()==idClientes.size()){
+                                    arrayRetreivedListener.firebaseCompleted(fullDirectory);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                }catch(Exception e){e.printStackTrace();}
+                //SharedPreferences.Editor editor = sharedPref.edit();
+                //editor.putString("jsonRutas", jsonRutas.toString());
+
+
+                /*
                 mDatabase.child("asignacionRutas").child(empleado).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -553,6 +681,7 @@ public class WS{
                     @Override
                     public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readRutasAsig",databaseError.toString());}
                 });
+                */
 
 
                 break;
@@ -729,6 +858,21 @@ public class WS{
         });
     }
 
+    public static void readConfigLiquidaCon(final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
+        Log.d(TAG,"beforeDownloadingConfigLiquidaCon");
+        mDatabase.child("configliquida").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, dataSnapshot.toString());
+                ConfigLiquidaCon configLiquidaCon = dataSnapshot.getValue(ConfigLiquidaCon.class);
+                firebaseObjectRetrievedListener.firebaseObjectRetrieved(configLiquidaCon);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) { Log.e("WS -> rConfigLiquidaCon",databaseError.toString());}
+        });
+    }
+
     public static void readConfiguracionPlanes(final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
         Log.d(TAG,"beforeDownloadingConfiguracionPlanes");
         mDatabase.child("configplanes").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -743,28 +887,235 @@ public class WS{
         });
     }
 
+    public static void readSEPOMEX(String cp, final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
+        mDatabase.child("sepomex").orderByChild("cp").equalTo(cp).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<Object_Firebase> sepomex = new ArrayList<>();
+                Log.d(TAG,"datasnapshot["+dataSnapshot.getChildrenCount()+"]="+dataSnapshot);
+                for(DataSnapshot snap : dataSnapshot.getChildren()){
+                    sepomex.add(snap.getValue(SepomexObj_Firebase.class));
+                }
+                firebaseArrayRetreivedListener.firebaseCompleted(sepomex);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private static void storeJSONRutas(JSONObject json, Context c){
+        SharedPreferences sharedPref = c.getSharedPreferences(
+                c.getString(R.string.sharedPreferencesKey), Context.MODE_PRIVATE);
+    }
+
+    public static void readRutasPorEmpleado(final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener, final Context c, boolean forceUpdate){
+
+        String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+
+        if(forceUpdate){
+            final JSONObject jsonRutas = new JSONObject();
+
+            mDatabase.child("asignacionRutas/"+empleado).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    JSONObject jsonRutasAsignadas = new JSONObject();
+
+                    //numero de rutas que tiene asignado
+                    long numRutasAsignadas = dataSnapshot.getChildrenCount();
+                    try {
+                        jsonRutasAsignadas.put("numRutasAsignadas", numRutasAsignadas);
+                        final JSONArray jsonArrayRutasAsignadas = new JSONArray();
+                        for(DataSnapshot snapRutasAsignadas : dataSnapshot.getChildren()){
+                            try {
+
+                                JSONObject jsonObjectEachRutaAsignada = new JSONObject();
+
+                                mDatabase.child("rutas").orderByChild("idRuta").equalTo(snapRutasAsignadas.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                        try {
+
+                                            for(DataSnapshot snapRuta : dataSnapshot.getChildren()){
+                                                JSONArray coloniasAsignadas=null;
+                                                try {
+                                                    coloniasAsignadas = jsonRutas.getJSONArray("coloniasAsignadas");
+                                                }catch(Exception e){
+                                                    coloniasAsignadas = new JSONArray();
+                                                }
+
+                                                for(DataSnapshot snapCodigoColonia : snapRuta.child("colonias").getChildren()){
+                                                    JSONObject coloniaAsign = new JSONObject();
+                                                    coloniaAsign.put("coloniaID",snapCodigoColonia.getKey());
+                                                    coloniasAsignadas.put(coloniaAsign);
+                                                }
+                                                jsonRutas.put("coloniasAsignadas",coloniasAsignadas);
+
+                                                for(DataSnapshot snapCodigoColonia : snapRuta.child("colonias").getChildren()){
+                                                    mDatabase.child("planes").orderByChild("direcciones/0/idColonia").equalTo(snapCodigoColonia.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                                            JSONArray planesPorColonia = null;
+                                                            try{
+                                                                planesPorColonia = jsonRutas.getJSONArray("planesPorColonia");
+                                                            }catch(Exception e){
+                                                                planesPorColonia=new JSONArray();
+                                                            }
+
+                                                            for(DataSnapshot snapEachPlan : dataSnapshot.getChildren()){
+                                                                Log.d("JSONOpt","snapEachPlan = "+snapEachPlan);
+                                                                try{
+                                                                    planesPorColonia.put(snapEachPlan.getValue());
+                                                                }catch(Exception e){
+                                                                    Log.e("JSONOpt","NO SALIOOOOO");
+                                                                }
+                                                            }
+
+                                                            try {
+                                                                jsonRutas.put("planesPorColonia", planesPorColonia);
+
+                                                                SharedPreferences sharedPref = c.getSharedPreferences(
+                                                                        c.getString(R.string.sharedPreferencesKey), Context.MODE_PRIVATE);
+                                                                SharedPreferences.Editor editor = sharedPref.edit();
+                                                                editor.putString("jsonRutas", jsonRutas.toString());
+                                                                editor.commit();
+                                                                Log.d("JSONOptimize","jsonRutas="+jsonRutas.toString());
+
+                                                            }catch(Exception e){e.printStackTrace();}
+
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }catch(Exception e){e.printStackTrace();}
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                                jsonObjectEachRutaAsignada.put("rutaID",snapRutasAsignadas.getKey());
+                                jsonArrayRutasAsignadas.put(jsonObjectEachRutaAsignada);
+                            }catch(Exception e){
+                                Log.e("JSONERROR","JSONERROR :(");
+                                e.printStackTrace();
+                            }
+                        }
+                        jsonRutasAsignadas.put("rutasAsignadas",jsonArrayRutasAsignadas);
+                        jsonRutas.put("rutasAsignadas",jsonArrayRutasAsignadas);
+
+
+                    }catch(JSONException e){
+                        Log.e("JSONERROR-2","JSONERROR-2 :(");
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override public void onCancelled(DatabaseError databaseError) { }
+            });
+        }
+    }
+
+    public static void readRutasPorEmpleado(final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
+        final String TAG = "readRutasPorEmpleado";
+        String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+        mDatabase.child("asignacionRutas/"+empleado).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot dataSnapshot) {
+                Log.d(TAG, "fullRoutes="+dataSnapshot);
+                for(DataSnapshot snapRutasAsignadas : dataSnapshot.getChildren()){
+                    Log.d(TAG, "eachIDRuta="+snapRutasAsignadas.getKey());
+                    mDatabase.child("rutas").orderByChild("idRuta").equalTo(snapRutasAsignadas.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshotColonia) {
+                            for(DataSnapshot snapRuta : dataSnapshotColonia.getChildren()){
+                                Log.d(TAG, "eachRuta="+snapRuta);
+                                for(DataSnapshot snapCodigoColonia : snapRuta.child("colonias").getChildren()){
+                                    Log.d(TAG, "eachCodigoColonia="+snapCodigoColonia.getKey());
+                                    mDatabase.child("planes").orderByChild("direcciones/0/idColonia").equalTo(snapCodigoColonia.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            if(dataSnapshot.getValue()!=null){
+                                                //Log.d(TAG, "allPlans = "+dataSnapshot);
+                                                for(DataSnapshot snapEachPlan : dataSnapshot.getChildren()) {
+                                                    Log.d(TAG, "eachPlan = "+snapEachPlan);
+                                                    firebaseObjectRetrievedListener.firebaseObjectRetrieved(snapEachPlan.getValue(Plan_Firebase.class)); }}
+                                        }
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readRuPla",databaseError.toString());}
+                                    });}}
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readRutas",databaseError.toString()); }
+                    });}}
+            @Override
+            public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readAsigRutas",databaseError.toString());}
+        });
+    }
+
+    public static void readEstatusVisita(final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
+        mDatabase.child("categorias").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try {
+                    Categorias_Firebase categoriasFirebase = dataSnapshot.getValue(Categorias_Firebase.class);
+                    Log.d(TAG, "categoriasFirebase = "+categoriasFirebase);
+                    firebaseObjectRetrievedListener.firebaseObjectRetrieved(categoriasFirebase);
+                }catch(Exception e){e.printStackTrace();}
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+    /*
+    static int totalPlanesEnRutas=0;
+    static int totalCPSdescargados=0;
     public static void readRutasAsignadas(final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
         String empleado = currentUser.getEmail().split("@")[0].replace(".","");
         mDatabase.child("asignacionRutas").child(empleado).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final DataSnapshot dataSnapshotFather = dataSnapshot;
-                ArrayList<String> cps = new ArrayList<>();
+                final ArrayList<String> cps = new ArrayList<>();
                 final ArrayList<Object_Firebase> planes = new ArrayList<>();
                 if(dataSnapshotFather.getChildrenCount()==0){firebaseArrayRetreivedListener.firebaseCompleted(planes);}
                 for(DataSnapshot cpSnap : dataSnapshotFather.getChildren()){
-                    Log.d(TAG, "rutasAsignadas="+cpSnap.getKey());
+                    Log.d(TAG, "cpSnap="+dataSnapshotFather.getChildrenCount());
+                    //Log.d(TAG, "rutasAsignadas="+cpSnap.getKey());
 
                     String spToFilterBy = cpSnap.getKey();
                     spToFilterBy = spToFilterBy.replace("\"","");
                     mDatabase.child("planes").orderByChild("direcciones/0/stCP").equalTo(spToFilterBy).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
+                            totalPlanesEnRutas+=dataSnapshot.getChildrenCount();
+                            //Log.d(TAG, "childrenOf dir/0/stCP="+dataSnapshot.getChildrenCount());
                             for(DataSnapshot snap : dataSnapshot.getChildren()){
+                                //Log.d(TAG, "cp's="+cps.size()+" cpsDescargados"+totalCPSdescargados);
                                 Log.d(TAG, "ruta -- CPDownloaded="+snap.getKey());
                                 planes.add(snap.getValue(Plan_Firebase.class));
+                                totalCPSdescargados+=1;
 
-                                if(planes.size()==dataSnapshotFather.getChildrenCount()){
+                                Log.d(TAG, "cpSnap="+dataSnapshotFather.getChildrenCount()+"totalPlanesADescargar"+totalPlanesEnRutas+" totalCpsDescargados="+totalCPSdescargados);
+
+
+
+                                if(planes.size()==dataSnapshot.getChildrenCount()){
                                     firebaseArrayRetreivedListener.firebaseCompleted(planes);
                                 }
                             }
@@ -782,7 +1133,7 @@ public class WS{
             public void onCancelled(DatabaseError databaseError) {Log.e("WS -> readRutasAsig",databaseError.toString());}
         });
     }
-
+    */
     public static void descargarTicketsPorPlan(final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener, final ArrayList<String> keys){
         final ArrayList<Object_Firebase> tickets = new ArrayList<>();
         if(keys.size()==0){firebaseArrayRetreivedListener.firebaseCompleted(tickets);}
@@ -817,6 +1168,46 @@ public class WS{
         });
     }
 
+    public static void descargarMovimientosPorCobradorYFecha(String fecha, final FirebaseArrayRetreivedListener firebaseArrayRetreivedListener){
+        String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+        mDatabase.child("movimientos").orderByChild("empleado_fecha").equalTo(empleado+"_"+fecha).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "movs="+dataSnapshot);
+                ArrayList<Object_Firebase> movimientos = new ArrayList<>();
+                for(DataSnapshot snap : dataSnapshot.getChildren()) {
+                    movimientos.add(snap.getValue(Movimiento_Firebase.class));
+                }
+                firebaseArrayRetreivedListener.firebaseCompleted(movimientos);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public static void descargarTicketsPorFechaYCobrador(String fecha, final FirebaseArrayRetreivedListener firebaseArrayRetrievedListener){
+        String empleado = currentUser.getEmail().split("@")[0].replace(".","");
+        mDatabase.child("tickets").orderByChild("empleado_keydia").equalTo(empleado+"_"+fecha).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<Object_Firebase> tickets = new ArrayList<>();
+                for(DataSnapshot snap : dataSnapshot.getChildren()) {
+                    tickets.add(snap.getValue(Ticket_Firebase.class));
+                }
+                firebaseArrayRetrievedListener.firebaseCompleted(tickets);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    /*
     public static void descargarTicketsPorFechaYCobrador(String keyFecha, final FirebaseArrayRetreivedListener firebaseArrayRetrievedListener){
         String empleado = currentUser.getEmail().split("@")[0].replace(".","");
         Log.d(TAG, "willAsk="+KEY_REL_TICKETS+" > "+KEY_REL_TICKETS_DIA+" > "+empleado+" > "+keyFecha);
@@ -849,6 +1240,7 @@ public class WS{
             public void onCancelled(DatabaseError databaseError) {Log.e("WS -> ticketsPorFech",databaseError.toString());}
         });
     }
+    */
 
     public static void readTicket(String ticketID, final FirebaseObjectRetrievedListener firebaseObjectRetrievedListener){
         mDatabase.child(KEY_TICKETS).child(ticketID).addListenerForSingleValueEvent(new ValueEventListener() {

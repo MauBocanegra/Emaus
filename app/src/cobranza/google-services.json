@@ -1,9 +1,9 @@
 {
   "project_info": {
     "project_number": "551116985673",
-    "firebase_url": "https://fir-emaus.firebaseio.com",
+    "firebase_url": "https://fir-emaus-des.firebaseio.com",
     "project_id": "firebase-emaus",
-    "storage_bucket": "firebase-emaus.appspot.com"
+    "storage_bucket": "firebase-emaus-des"
   },
   "client": [
     {

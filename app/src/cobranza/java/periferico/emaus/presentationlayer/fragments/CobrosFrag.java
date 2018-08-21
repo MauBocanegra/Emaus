@@ -14,6 +14,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -41,19 +42,27 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.adapters.AdapterRuta;
+import periferico.emaus.domainlayer.firebase_objects.Categorias_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.ConfiguracionPlanes_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.PuntosRuta_Firebase;
-import periferico.emaus.domainlayer.firebase_objects.Ruta_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.FinanciamientoOBJ_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.Financiamientos_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.FrecuenciaPago_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.FrecuenciasPago_Firebase;
 import periferico.emaus.domainlayer.objetos.Direcciones;
 import periferico.emaus.domainlayer.objetos.PuntoRutaWrapper;
 import periferico.emaus.presentationlayer.activities.DetalleCobro;
+import periferico.emaus.presentationlayer.activities.NuevoPlan;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -61,6 +70,7 @@ import periferico.emaus.presentationlayer.activities.DetalleCobro;
 public class CobrosFrag extends Fragment implements
         OnMapReadyCallback,
         WS.FirebaseArrayRetreivedListener,
+        WS.FirebaseObjectRetrievedListener,
         View.OnClickListener,
         AdapterRuta.ComponentInItemRutaClickListener,
         AdapterRuta.ItemRemoverListener{
@@ -108,6 +118,12 @@ public class CobrosFrag extends Fragment implements
     ArrayList<PuntoRutaWrapper> mDataset;
     String TAG = "CobrosFragDebug";
     PuntoRutaWrapper lastSelected;
+    boolean initialMapSet;
+    List<Map<String,Object>> mapaEstatusVisita;
+
+    ConfiguracionPlanes_Firebase configuracionPlanesFirebase;
+    FrecuenciasPago_Firebase frecuenciasPagoFirebase;
+    Financiamientos_Firebase financiamientoFirebase;
 
 
     public static CobrosFrag newInstance(){return new CobrosFrag();}
@@ -124,6 +140,8 @@ public class CobrosFrag extends Fragment implements
 
         initObjects();
         setListeners();
+
+        downloadConfigs();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -174,6 +192,29 @@ public class CobrosFrag extends Fragment implements
         buttonOpenSettings.setOnClickListener(CobrosFrag.this);
         itemButtonPagar.setOnClickListener(CobrosFrag.this);
         itemButtonMover.setOnClickListener(CobrosFrag.this);
+    }
+
+    private void downloadConfigs(){
+        WS.readConfiguracionPlanes(new WS.FirebaseObjectRetrievedListener() {
+            @Override
+            public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
+                configuracionPlanesFirebase = (ConfiguracionPlanes_Firebase)objectFirebase;
+                frecuenciasPagoFirebase = configuracionPlanesFirebase.getListafrecuenciaspago();
+                financiamientoFirebase = configuracionPlanesFirebase.getListamensualidades();
+            }
+        });
+
+        WS.readEstatusVisita(new WS.FirebaseObjectRetrievedListener() {
+            @Override
+            public void firebaseObjectRetrieved(final Object_Firebase objectFirebase) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mapaEstatusVisita = ((Categorias_Firebase)objectFirebase).getEstatusVisita();
+                    }
+                });
+            }
+        });
     }
 
     private void setPermissionsLogic(){
@@ -334,10 +375,32 @@ public class CobrosFrag extends Fragment implements
     }
 
     private void showPopMenu(PuntoRutaWrapper puntoRutaWrapper, View viewClicked){
-        PopupMenu popupMenu = new PopupMenu(getContext(), viewClicked);
-        popupMenu.getMenu().add(0,0,0,"Item 1");
-        popupMenu.getMenu().add(0,1,1,"Item 2");
-        popupMenu.getMenu().add(0,2,2,"Item 3");
+
+        PopupMenu popupMenu = new PopupMenu(getActivity(), viewClicked);
+
+        int cont=0;
+        for(Map<String,Object> eachEstatus : mapaEstatusVisita) {
+            String nombre="";
+            int id=-1;
+            for (Map.Entry<String, Object> entry : eachEstatus.entrySet()) {
+                Log.d(TAG, "entrey=" + entry.getKey() + ";" + entry.getValue()+"cont="+cont);
+                if(entry.getKey().equals("nombre")){
+                    nombre=entry.getValue().toString();
+                }else if(entry.getKey().equals("idestatus")){
+                    id=Integer.valueOf(entry.getValue().toString());
+                }
+            }
+            popupMenu.getMenu().add(0,id,cont,nombre);
+            cont++;
+
+        }
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.d(TAG, "itemID="+item.getItemId()+" string="+item.getTitle());
+                return true;
+            }
+        });
         popupMenu.show();
     }
 
@@ -414,7 +477,11 @@ public class CobrosFrag extends Fragment implements
             }
         });
 
-        WS.readRutasAsignadas(CobrosFrag.this);
+        //WS.readRutasAsignadas(CobrosFrag.this);
+
+        WS.readRutasPorEmpleado(CobrosFrag.this);
+
+        WS.readRutasPorEmpleado(CobrosFrag.this, getActivity(), true);
     }
 
     // --------------------------------------------------------------- //
@@ -438,7 +505,8 @@ public class CobrosFrag extends Fragment implements
 
             case R.id.item_perfilcobrador_fecha:{
                 if(lastSelected!=null){
-                    showPopMenu(lastSelected,view);
+                    showPopMenu(lastSelected, view);
+
                 }
             }
         }
@@ -459,7 +527,7 @@ public class CobrosFrag extends Fragment implements
     //---------------------------------------------------------------- //
 
     @Override
-    public void onComponentClikListener(int ID, int position, View viewClicked) {
+    public void onComponentClikListener(int ID, int position, View viewClicked, PopupMenu menu) {
         switch (ID){
             case R.id.item_perfilcobrador_pagado:{
                 showDetalleCobro(mDataset.get(position));
@@ -480,6 +548,194 @@ public class CobrosFrag extends Fragment implements
     // --------------------------------------------------------- //
     // ---------------- FIREBASE IMPLEMENTATION ---------------- //
     //---------------------------------------------------------- //
+
+    private boolean checarAparecePorStatus(Plan_Firebase planFirebase){
+        return true;
+    }
+
+    private boolean checarAparecePorInsuficienciaSaldo(Plan_Firebase planFirebase){
+
+        final String TAG = "checarAparece";
+
+        final int SEMANAL = 1;
+        final int QUINCENAL = 2;
+        final int MENSUAL = 3;
+
+        long createdAt = planFirebase.getCreatedAt();
+        int frecuenciaID = planFirebase.getFrecuenciaPagoID();
+        int numeroPagosARealizar = planFirebase.getNumeroDePagosARealizar();
+        FrecuenciaPago_Firebase frecuenciaPagoFirebase = frecuenciasPagoFirebase.getFrecuenciaByID(planFirebase.getFrecuenciaPagoID());
+        FinanciamientoOBJ_Firebase financiamientoObjFirebase = financiamientoFirebase.getFinanciamientoByID(planFirebase.getFinanciamientoID());
+
+        Calendar cal = GregorianCalendar.getInstance();
+        cal.setTimeInMillis(createdAt*1000);
+        cal.set(Calendar.HOUR,17);cal.set(Calendar.MINUTE,00);cal.set(Calendar.SECOND,00);
+
+        Calendar calHoy = GregorianCalendar.getInstance();
+        calHoy.setTimeInMillis(System.currentTimeMillis());
+        calHoy.set(Calendar.HOUR,17);calHoy.set(Calendar.MINUTE,00);calHoy.set(Calendar.SECOND,00);
+
+        //Log.d(TAG, "antes frecuenciaID="+frecuenciaID+" numeroPagosARealizar="+numeroPagosARealizar);
+
+        //Buscamos si tiene un dia de visitas customizado
+        if(planFirebase.getDiaVisitas()!=0 && planFirebase.getFrecuenciaVisitas()!=0){
+            //SI es asi, internamente cambiamos la frecuencia
+            frecuenciaID=planFirebase.getFrecuenciaVisitas();
+
+            //Y seteamos internamente el nuevo numero de pagos a realizar con la periodicidad de visitasProgramadas
+            numeroPagosARealizar = Math.round(  financiamientoObjFirebase.getAnios()*frecuenciasPagoFirebase.getFrecuenciaByID(frecuenciaID).getPagosAlAnio() );
+        }
+
+        //Log.d(TAG, "ahora frecuenciaID="+frecuenciaID+" numeroPagosARealizar="+numeroPagosARealizar);
+
+        //Primero obtenemos cuantos pagos ya lleva en teoria hechos en relacion al saldo ya pagado NO AL NUMERO DE PAGOS
+        int periodosYaPagados = Math.round(numeroPagosARealizar - ((planFirebase.getSaldo() * numeroPagosARealizar) / planFirebase.getTotalAPagar()));
+
+        //Buscamos si tiene un dia de visitas customizado
+        if(planFirebase.getDiaVisitas()!=0 && planFirebase.getFrecuenciaVisitas()!=0){
+            //Calculamos los pagos que lleva y hasta donde le cubren
+            Calendar fechaQueTieneCubierta = GregorianCalendar.getInstance();
+            fechaQueTieneCubierta.setTimeInMillis(createdAt*1000);
+            fechaQueTieneCubierta.set(Calendar.HOUR,17);fechaQueTieneCubierta.set(Calendar.MINUTE,00);fechaQueTieneCubierta.set(Calendar.SECOND,00);
+            switch(frecuenciaID){
+                case SEMANAL:{
+                    fechaQueTieneCubierta.add(Calendar.DAY_OF_MONTH,7*periodosYaPagados);
+                    break;
+                }
+
+                case QUINCENAL:{
+                    fechaQueTieneCubierta.add(Calendar.DAY_OF_MONTH,14*periodosYaPagados);
+                    break;
+                }
+
+                case MENSUAL:{
+                    fechaQueTieneCubierta.add(Calendar.MONTH,1*periodosYaPagados);
+                    break;
+                }
+            }
+
+
+            //si para el dia de hoy esta cubierta con sus pagos, no debe aparecer la tarjeta, de lo contrario si
+            if(calHoy.before(fechaQueTieneCubierta)){
+                return false;
+            }else{
+                return true;
+            }
+
+        }
+
+        Log.d(TAG, "cadaPeriodoEnPesos=");
+
+        //Contamos los periodos que deberia de llevar
+        int periodosDeberiaLlevar=0;
+        do{
+            switch (frecuenciaID) {
+                case SEMANAL: {
+                    cal.add(Calendar.DAY_OF_MONTH,7);
+                    periodosDeberiaLlevar++;
+                    break;
+                }
+
+                case QUINCENAL: {
+                    cal.add(Calendar.DAY_OF_MONTH,14);
+                    periodosDeberiaLlevar++;
+                    break;
+                }
+
+                case MENSUAL: {
+                    cal.add(Calendar.MONTH,1);
+                    periodosDeberiaLlevar++;
+                    break;
+                }
+            }
+        }while(cal.before(calHoy));
+
+        Log.d(TAG, "deberiaLlevar["+periodosDeberiaLlevar+"] lleva["+periodosYaPagados+"]");
+
+        int difPeriodos = periodosDeberiaLlevar-periodosYaPagados;
+        if((difPeriodos>0 && difPeriodos<=2)){
+            return true;
+        }else{
+            return false;
+        }
+
+        //23/Jun/2018 = 1529766610
+        //24/Jun/2018 = 1529853010
+        //25/Jun/2018 = 1529939410
+        //30/Jun/2018 = 1530371410
+
+    }
+
+    @Override
+    public void firebaseObjectRetrieved(Object_Firebase obj) {
+        if(!initialMapSet){
+            String empleado = WS.getCurrentUser().getEmail().split("@")[0].replace(".","");
+
+            tituloRutas.setText(empleado);
+            subtituloRutas.setText("Ruta");
+            mostrarOcultarLista.setText(getString(R.string.cobrosfrag_mostrarlista));
+            mostrarOcultarLista.setVisibility(View.VISIBLE);
+
+            ArrayList<LatLng> latLngs = new ArrayList<>();
+
+            googleMap.clear();
+        }
+
+        if( (((Plan_Firebase)obj).getStatus()==10 || ((Plan_Firebase)obj).getStatus()==1 || ((Plan_Firebase)obj).getStatus()==2) && checarAparecePorInsuficienciaSaldo((Plan_Firebase)obj)) {
+
+            Direcciones dir = ((Plan_Firebase) obj).getDirecciones().get(0);
+
+            Log.d(TAG, "latLon[" + dir.getLat() + "," + dir.getLon() + "]");
+
+            //polyOptions.add(new LatLng(punto.getLat(), punto.getLon()));
+
+            //latLngs.add(new LatLng(dir.getLat(), dir.getLon()));
+
+            Marker m = googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(dir.getLat(), dir.getLon()))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_pinpng)));
+
+            mDataset.add(new PuntoRutaWrapper(m, ((Plan_Firebase) obj)));
+
+            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    for (PuntoRutaWrapper puntoRutaWrapper : mDataset) {
+                        Log.d(TAG, "L[" + puntoRutaWrapper.getMarker().getId() + "]" + " a[" + marker.getId() + "]");
+                        if (puntoRutaWrapper.getMarker().getId().compareTo(marker.getId()) == 0) {
+                            sheetBehaviorItem.setState(BottomSheetBehavior.STATE_EXPANDED);
+                            checkExistence(puntoRutaWrapper);
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            try {
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                for (PuntoRutaWrapper pRW : mDataset) {
+                    builder.include(pRW.getMarker().getPosition());
+                }
+                LatLngBounds bounds = builder.build();
+                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 11);
+                googleMap.moveCamera(cu);
+                googleMap.setPadding(0, getResources().getDrawable(R.drawable.ic_pinpng).getIntrinsicHeight(), 0, 0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+        progressLista.setVisibility(View.GONE);
+
+        mAdapter.notifyDataSetChanged();
+
+        if(!initialMapSet)
+        headerBottomSheetLista.callOnClick();
+
+        initialMapSet=true;
+    }
 
     @Override
     public void firebaseCompleted(ArrayList<Object_Firebase> arrayList) {
@@ -538,7 +794,7 @@ public class CobrosFrag extends Fragment implements
                 builder.include(pRW.getMarker().getPosition());
             }
             LatLngBounds bounds = builder.build();
-            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 9);
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 11);
             googleMap.moveCamera(cu);
             googleMap.setPadding(0, getResources().getDrawable(R.drawable.ic_pinpng).getIntrinsicHeight(), 0, 0);
         }catch(Exception e){e.printStackTrace();}
@@ -556,6 +812,7 @@ public class CobrosFrag extends Fragment implements
         progressLista.setVisibility(View.GONE);
 
         mAdapter.notifyDataSetChanged();
+        headerBottomSheetLista.callOnClick();
     }
 
 }

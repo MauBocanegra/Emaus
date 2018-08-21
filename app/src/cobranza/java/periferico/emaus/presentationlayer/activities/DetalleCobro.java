@@ -43,11 +43,16 @@ import java.util.TimeZone;
 import periferico.emaus.R;
 import periferico.emaus.domainlayer.WS;
 import periferico.emaus.domainlayer.firebase_objects.Cliente_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.ConfigLiquidaCon;
+import periferico.emaus.domainlayer.firebase_objects.ConfiguracionPlanes_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Object_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.PerfilEmpleado;
 import periferico.emaus.domainlayer.firebase_objects.Plan_Firebase;
 import periferico.emaus.domainlayer.firebase_objects.Ticket_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.FinanciamientoOBJ_Firebase;
+import periferico.emaus.domainlayer.firebase_objects.configplan.Financiamientos_Firebase;
 import periferico.emaus.domainlayer.objetos.Direcciones;
+import periferico.emaus.domainlayer.objetos.LiquidaCon;
 import periferico.emaus.domainlayer.utils.AppCompatActivity_Job;
 import periferico.emaus.presentationlayer.dialogs.ImageDialogFragment;
 import periferico.emaus.presentationlayer.dialogs.ProgressDialogFragment;
@@ -82,6 +87,7 @@ public class DetalleCobro extends AppCompatActivity_Job implements
     EditText cantidadAbonotEditText;
     TextView cantidadPagadoTextView;
     TextView cantidadSaldoActualTextView;
+    TextView cantidadLiquidaonTextView;
     TextView cantidadSaldoVencidoTextView;
     TextView porcentajeTextView;
     ProgressBar progressPorcentaje;
@@ -92,6 +98,7 @@ public class DetalleCobro extends AppCompatActivity_Job implements
     Button buttonImprimir;
 
     float cantidadAbonoMinimo=0;
+    float cantidadPagoFinal=0;
 
     ProgressDialogFragment progressDialogFragment;
 
@@ -151,6 +158,7 @@ public class DetalleCobro extends AppCompatActivity_Job implements
         cantidadAbonotEditText = findViewById(R.id.detallecobro_edittext_abonocantidad);
         cantidadPagadoTextView = findViewById(R.id.detallecobro_pagado);
         cantidadSaldoActualTextView = findViewById(R.id.detallecobro_saldoactual);
+        cantidadLiquidaonTextView = findViewById(R.id.detallecobro_liquidacon);
         cantidadSaldoVencidoTextView = findViewById(R.id.detallecobro_saldovencido);
         porcentajeTextView = findViewById(R.id.detallecobro_porcentaje);
         progressPorcentaje = findViewById(R.id.detallecobro_progress_porcentaje);
@@ -164,28 +172,55 @@ public class DetalleCobro extends AppCompatActivity_Job implements
 
     private void setButtonsStates(){
 
+        buttonPagar.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Log.d(TAG, "LONG CLICK!");
+                Intent intent = new Intent(DetalleCobro.this, PrintTicket.class);
+                //intent.putExtra("ticketID", ticketFirebase.getStID());
+                intent.putExtra("ticketID", "MaBo4470_1532400104_P3A7S2F4_61_1532463378");
+                startActivity(intent);
+                return true;
+            }
+        });
+
         buttonPagar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                WS.showAlert(DetalleCobro.this, "Generación de ficha de cobro",
-                        "Estas por confirmar un cobro, al aceptar aceptas que has recibido " +
-                                "la cantidad de dinero correspondiente al cobro y se generará un ticket " +
-                                "en la base de datos.\n¿Deseas confirmar el cobro?", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
 
-                                /*
+                if(cantidadAbonoInputLayout.getError()!=null){
+                    WS.showAlert(DetalleCobro.this,
+                            getString(R.string.detallecobro_alert_titulo_error),
+                            getString(R.string.detallecobro_alert_texto_error),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                    },false);
+                }else {
+
+                    WS.showAlert(DetalleCobro.this, "Generación de ficha de cobro",
+                            "Estas por confirmar un cobro, al aceptar aceptas que has recibido " +
+                                    "la cantidad de dinero correspondiente al cobro y se generará un ticket " +
+                                    "en la base de datos.\n¿Deseas confirmar el cobro?",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+
                                 progressDialogFragment = new ProgressDialogFragment();
                                 progressDialogFragment.setCancelable(false);
                                 progressDialogFragment.title="Creando ticket de pago...";
                                 progressDialogFragment.show(getSupportFragmentManager(), TAG);
-                                */
+                                processPay();
 
-                                showTicket();
 
-                                //processPay();
-                            }
-                        }, true);
+                                    //showTicket();
+                                }
+                            },
+                    true);
+                }
             }
         });
 
@@ -261,6 +296,12 @@ public class DetalleCobro extends AppCompatActivity_Job implements
             @Override
             public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
                 planFirebase = (Plan_Firebase)objectFirebase;
+                WS.readConfigLiquidaCon(new WS.FirebaseObjectRetrievedListener(){
+                    @Override
+                    public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
+                        setLiquidaCon((ConfigLiquidaCon)objectFirebase);
+                    }
+                });
                 setPlanData();
             }
         });
@@ -331,12 +372,24 @@ public class DetalleCobro extends AppCompatActivity_Job implements
                 try {
                     if (Integer.parseInt(editable.toString()) < cantidadAbonoMinimo) {
                         cantidadAbonoInputLayout.setError(getString(R.string.detallecobro_error_abono, formatMoney(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar())));
+                        cantidadAbonoTextView.setText(formatMoney((float)Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar())));
+                        cantidadPagoFinal=(float)Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar());
+
+                    }else if(Integer.parseInt(editable.toString()) > planFirebase.getSaldo()){
+                        cantidadAbonoInputLayout.setError(getString(R.string.detallecobro_error_abonodemas, formatMoney(planFirebase.getSaldo())));
+                        cantidadAbonoTextView.setText(formatMoney((float)Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar())));
+                        cantidadPagoFinal=(float)Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar());
                     }else{
                         cantidadAbonoInputLayout.setError(null);
+                        cantidadPagoFinal=Float.valueOf(editable.toString());
+                        cantidadAbonoTextView.setText(formatMoney(cantidadPagoFinal));
                     }
                 }catch (Exception e){
                     cantidadAbonoInputLayout.setError(getString(R.string.detallecobro_exception_abono));
+                    cantidadAbonoTextView.setText(formatMoney((float)Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar())));
+                    cantidadPagoFinal=(float)Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar());
                 }
+                Log.d(TAG,"--- cantPF="+cantidadPagoFinal);
             }
         });
     }
@@ -351,7 +404,8 @@ public class DetalleCobro extends AppCompatActivity_Job implements
 
         cantidadAbonoTextView.setText(formatMoney(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar()));
         cantidadAbonotEditText.setText(""+Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar()), TextView.BufferType.EDITABLE);
-        cantidadAbonoMinimo=planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar();
+        cantidadAbonoMinimo=(float)Math.ceil(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar());
+        cantidadPagoFinal=cantidadAbonoMinimo;
         cantidadPagadoTextView.setText(formatMoney(planFirebase.getTotalAPagar()-planFirebase.getSaldo()));
         setEditTextListener();
 
@@ -384,6 +438,53 @@ public class DetalleCobro extends AppCompatActivity_Job implements
                 splitNombre[0].toUpperCase().substring(0,1),
                 splitNombre[1].toUpperCase().substring(0,1)
         ));
+    }
+
+    private void setLiquidaCon(final ConfigLiquidaCon objLiqCon){
+        WS.readConfiguracionPlanes(new WS.FirebaseObjectRetrievedListener() {
+            @Override
+            public void firebaseObjectRetrieved(Object_Firebase objectFirebase) {
+
+
+                //TODO el liquida con se calcula de acuerdo a cuantos meses han pasado desde el contrato, de ahi se obtienen los meses
+                //TODO 1 ruta = un cobrado una sucursal puede tener varias rutas
+                //TODO rutas tiene que ser una entidad
+
+                //checar textos
+
+                try {
+                    ConfiguracionPlanes_Firebase configuracionPlanesFirebase = (ConfiguracionPlanes_Firebase) objectFirebase;
+                    Financiamientos_Firebase financiamientoFirebase = configuracionPlanesFirebase.getListamensualidades();
+
+                    //Primero obtenemos cuantos pagos ya lleva en teoria hechos en relacion al saldo ya pagado NO AL NUMERO DE PAGOS
+                    int numPagosYaHechos = Math.round(planFirebase.getNumeroDePagosARealizar() - ((planFirebase.getSaldo() * planFirebase.getNumeroDePagosARealizar()) / planFirebase.getTotalAPagar()));
+
+                    //Despues obtenemos la relacion para saber la cantidad de "meses" que ha pagado con respecto al saldo
+                    int pagosAlAnio = configuracionPlanesFirebase.getListafrecuenciaspago().getFrecuenciaByID(planFirebase.getFrecuenciaPagoID()).getPagosAlAnio();
+                    //Si paga semanalmente(52 pagos al anio)=4 si es quincenal(26 pagos al anio)=2 si es mensual(12 pagos al anio)=1
+                    int factorConv = pagosAlAnio == 52 ? 4 : pagosAlAnio == 26 ? 2 : 1;
+
+                    //este ya es cuantos meses lleva pagados en relacion al saldo
+                    int convAMesesPagados = Math.round(numPagosYaHechos / factorConv);
+
+                    //encontramos el porcentaje que le corresponde
+                    float descuentoCorrespondiente = 0;
+                    for (LiquidaCon liquidaCon : objLiqCon.getTablaliquidacon()) {
+                        if (liquidaCon.getTasainf() == convAMesesPagados) {
+                            descuentoCorrespondiente = liquidaCon.getBon();
+                        }
+                    }
+
+                    //realizamos el descuento al saldo
+                    float liquidaConFinal = planFirebase.getSaldo() - ((planFirebase.getSaldo() * descuentoCorrespondiente) / 100);
+
+                    //presentamos la cantidad el TV conrrespondiente
+                    cantidadLiquidaonTextView.setText(formatMoney(liquidaConFinal));
+
+                    //Log.d(TAG, "numPagosYaHechos=" + numPagosYaHechos + " mesesYAPagados=" + convAMesesPagados + " descuento=" + descuentoCorrespondiente + " total=" + (planFirebase.getSaldo() - ((planFirebase.getSaldo() * descuentoCorrespondiente) / 100)));
+                }catch(Exception e){e.printStackTrace();}
+            }
+        });
     }
 
     private void setTime(){
@@ -428,7 +529,7 @@ public class DetalleCobro extends AppCompatActivity_Job implements
                     ticketFirebase.setLat(locationResponse.getLocation().getLatitude());
                     ticketFirebase.setLon(locationResponse.getLocation().getLongitude());
                     ticketFirebase.setNumAbono(planFirebase.getPagosRealizados()+1);
-                    ticketFirebase.setMonto(Math.round(planFirebase.getTotalAPagar()/planFirebase.getNumeroDePagosARealizar()));
+                    ticketFirebase.setMonto(cantidadPagoFinal);
                     ticketFirebase.setNuevoSaldo(Math.round(planFirebase.getSaldo()-ticketFirebase.getMonto()));
                     //Time stuff
                     Long tsLong = System.currentTimeMillis()/1000;
@@ -447,6 +548,9 @@ public class DetalleCobro extends AppCompatActivity_Job implements
                     String ticketID = planFirebase.getStID().concat("_"+tsLong);
                     ticketFirebase.setStID(ticketID);
 
+                    Log.d(TAG,"--- cantidadPagoFinal="+cantidadPagoFinal);
+                    Log.d(TAG,"--- monto="+ticketFirebase.getMonto());
+
                     writeTicketToDB(ticketFirebase);
 
                 }
@@ -457,8 +561,8 @@ public class DetalleCobro extends AppCompatActivity_Job implements
 
     private void showTicket(){
         Intent intent = new Intent(DetalleCobro.this, PrintTicket.class);
-        //intent.putExtra("ticketID", ticketFirebase.getStID());
-        intent.putExtra("ticketID", "PaMe7800_1527914926_P3A7S2F3_785_1528095985");
+        intent.putExtra("ticketID", ticketFirebase.getStID());
+        //intent.putExtra("ticketID", "MaBo4470_1532400104_P3A7S2F4_61_1532463378");
         startActivity(intent);
     }
 

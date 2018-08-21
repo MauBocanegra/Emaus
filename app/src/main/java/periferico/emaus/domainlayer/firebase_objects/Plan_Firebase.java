@@ -8,12 +8,19 @@ import periferico.emaus.domainlayer.objetos.Direcciones;
 
 public class Plan_Firebase extends Object_Firebase {
 
+    public static final int FREC_SEMANAL = 1;
+    public static final int FREC_QUINCENAL = 2;
+    public static final int FREC_MENSUAL= 3;
+
     private int planID;
     private int ataudID;
     private int servicioID;
     private int financiamientoID;
     private int formaPagoID;
     private int frecuenciaPagoID;
+
+    private int frecuenciaVisitas;
+    private int diaVisitas;
 
     private int status;
 
@@ -166,6 +173,22 @@ public class Plan_Firebase extends Object_Firebase {
 
     public void setStEmailFacturacion(String stEmailFacturacion) {
         this.stEmailFacturacion = stEmailFacturacion;
+    }
+
+    public int getFrecuenciaVisitas() {
+        return frecuenciaVisitas;
+    }
+
+    public void setFrecuenciaVisitas(int frecuenciaVisitas) {
+        this.frecuenciaVisitas = frecuenciaVisitas;
+    }
+
+    public int getDiaVisitas() {
+        return diaVisitas;
+    }
+
+    public void setDiaVisitas(int diaVisitas) {
+        this.diaVisitas = diaVisitas;
     }
 
     /*

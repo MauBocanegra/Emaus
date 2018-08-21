@@ -78,7 +78,11 @@ public class Splash extends AppCompatActivity implements WS.OnLoginRequested, WS
         //Seteamos el objeto listener del Firebase Login
         WS.setLoginListener(Splash.this);
         //Obtenemos la instancia de la clase de WebServices
-        WS.getInstance(Splash.this, forceUpdate);
+        if(WS.getInstance(Splash.this, forceUpdate)==null){
+            Toast.makeText(Splash.this, "CORREGIR ENTORNO", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
 
         FirebaseCrash.log("SplashCreated");
     }

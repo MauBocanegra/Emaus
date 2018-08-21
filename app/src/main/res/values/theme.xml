@@ -11,4 +11,11 @@
         <item name="background">?attr/selectableItemBackground</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="AppTheme.ButtonMaterialGreen" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/greenEmaus</item>
+        <item name="android:textColor">@color/textColorWhite</item>
+        <item name="background">?attr/selectableItemBackground</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

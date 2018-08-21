@@ -97,11 +97,65 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
+                android:adjustViewBounds="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardview_permissions"
+                app:layout_constraintTop_toBottomOf="@+id/printitcket_label_feedback"
                 app:srcCompat="@mipmap/ic_add_png" />
+
+            <ImageView
+                android:id="@+id/printticket_img_pairing"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toStartOf="@+id/printticket_img_printer"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardview_permissions"
+                app:srcCompat="@mipmap/ic_bt_gray" />
+
+            <ImageView
+                android:id="@+id/printticket_img_printer"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:layout_constraintEnd_toStartOf="@+id/printticket_img_ticket"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/printticket_img_pairing"
+                app:layout_constraintTop_toTopOf="@+id/printticket_img_pairing"
+                app:srcCompat="@drawable/ic_printer_gray" />
+
+            <ImageView
+                android:id="@+id/printticket_img_ticket"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/printticket_img_printer"
+                app:layout_constraintTop_toTopOf="@+id/printticket_img_printer"
+                app:srcCompat="@drawable/ic_ticket_gray" />
+
+            <ProgressBar
+                android:id="@+id/printticket_progress"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@+id/ticket_image"
+                app:layout_constraintTop_toTopOf="@+id/ticket_image" />
+
+            <TextView
+                android:id="@+id/printitcket_label_feedback"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/printticket_img_printer" />
 
 
         </android.support.constraint.ConstraintLayout>

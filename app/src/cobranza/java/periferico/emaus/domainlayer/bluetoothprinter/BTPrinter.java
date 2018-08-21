@@ -1,6 +1,7 @@
 package periferico.emaus.domainlayer.bluetoothprinter;
 
 import android.bluetooth.BluetoothDevice;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -14,6 +15,10 @@ public class BTPrinter{
 
     public BTPrinter(){}
 
+    public BTPrinter(AppCompatActivity activity){
+
+    }
+
     public void startProcess(BluetoothDevice device){
         if(connectThread==null) {
             connectThread = new ConnectThread(device);
@@ -24,7 +29,20 @@ public class BTPrinter{
                     btprtpListener.notifyPrinterActivity();
                 }
             };
+
+            connectThread.writingBufferFailureListener = new ConnectThread.WritingBufferFailureListener() {
+                @Override
+                public void notifuyFailure() {
+                    Log.e(TAG, "AN ERROR IN BT PRINTER -----------");
+                    failureNotifiedListener.notifyPrintingActivityOfFailure();
+                }
+            };
             connectThread.start();
+
+            if(!connectThread.isAlive()){
+                Log.e(TAG, "AN ERROR IN BT PRINTER -----------");
+                failureNotifiedListener.notifyPrintingActivityOfFailure();
+            }
         }
     }
 
@@ -41,6 +59,11 @@ public class BTPrinter{
     }public void setPrintingReadyListener(ReadyToPrintListener btprtpL){
         btprtpListener=btprtpL;
     }public ReadyToPrintListener btprtpListener;
+
+    public interface FailureNotifiedListener{ public void notifyPrintingActivityOfFailure();
+    }public void setPrintinfFailureListener(FailureNotifiedListener fnl){
+        failureNotifiedListener=fnl;
+    }public FailureNotifiedListener failureNotifiedListener;
 
     //----------------------------------
     //----------------------------------
